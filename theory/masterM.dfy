@@ -27,25 +27,25 @@ include "./complexity.dfy"
 //       require a case by case analysis.
 lemma masterMethodLR(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0)  
   requires a > 0 && b > 0
-  requires bigOR0(w, n => powr0(n as R0, k))
-  requires forall n:nat :: T(n) == TbodyLR(a, b, c, T, w, k, n) 
+  requires bigOR0(w, (n:nat) => powr(n as R0, k)) 
+  requires forall n:nat :: T(n) == TbodyLR(a, b, c, T, w, n) 
 
-  ensures a == 1 ==> bigOR0(T, (n:nat) => powr0(n as R0, k + 1.0))
-  ensures a > 1  ==> bigOR0(T, (n:nat) => powr0(n as R0, k)*powr0(a as R0, (n/b) as R0))
+  ensures a == 1 ==> bigOR0(T, (n:nat) => powr(n as R0, k + 1.0))
+  ensures a > 1  ==> bigOR0(T, (n:nat) => powr(n as R0, k)*powr(a as R0, (n/b) as R0))
 {
   // proof using masterMethodLR2 with s := b.
   assert a > 0;   
   assert b > 0;   
   assert b >= b - 1;
-  assert bigOR0(w, n => powr0(n as R0, k));
-  assert forall n:nat :: T(n) == TbodyLR(a, b, c, T, w, k, n); 
-  assert forall n:nat :: T(n) == TbodyLR2(a, b, c, b, T, w, k, n)
+  assert bigOR0(w, n => powr(n as R0, k));
+  assert forall n:nat :: T(n) == TbodyLR(a, b, c, T, w, n); 
+  assert forall n:nat :: T(n) == TbodyLR2(a, b, c, b, T, w, n)
     by { reveal TbodyLR, TbodyLR2; } 
 
   masterMethodLR2(a, b, c, b, T, w, k);
 }
 
-opaque ghost function TbodyLR(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0, n:nat) : R0
+opaque ghost function TbodyLR(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, n:nat) : R0
 {   
   if   n <= b 
   then c
@@ -53,7 +53,7 @@ opaque ghost function TbodyLR(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0, n:
 } 
 
 // Introduce new "s" step parameter and relax b >= 0 for the base case.
-// This encompass recurrences with base case n>=0.
+// This encompass recurrences with base case n <= 0.
 // Well founded sufficient condition is b >= s-1.
 // masterMethodLR is a special case of this with s := b.
 //
@@ -66,20 +66,26 @@ opaque ghost function TbodyLR(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0, n:
 //          \ O(n^k*a^{n/s})    , a > 1
 lemma {:axiom} masterMethodLR2(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0)  
   requires a > 0 && s > 0 && b >= s-1
-  requires bigOR0(w, n => powr0(n as R0, k)) 
-  requires forall n:nat :: T(n) == TbodyLR2(a, b, c, s, T, w, k, n) 
+  requires bigOR0(w, n => powr(n as R0, k)) 
+  requires forall n:nat :: T(n) == TbodyLR2(a, b, c, s, T, w, n) 
 
-  ensures a == 1 ==> bigOR0(T, (n:nat) => powr0(n as R0, k + 1.0))
-  ensures a > 1  ==> bigOR0(T, (n:nat) => powr0(n as R0, k)*powr0(a as R0, (n/s) as R0))
+  ensures a == 1 ==> bigOR0(T, (n:nat) => powr(n as R0, k + 1.0))
+  ensures a > 1  ==> bigOR0(T, (n:nat) => powr(n as R0, k)*powr(a as R0, (n/s) as R0))
 
-opaque ghost function TbodyLR2(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, n:nat) : R0
+opaque ghost function TbodyLR2(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, n:nat) : R0
   requires b >= s-1
-{   
+{    
   if   n <= b 
   then c
-  else (a as R0)*T(n - s) + w(n)   
+  else (a as R0)*T(n - s) + w(n)    
 } 
 
-//**************************************************************************//
+lemma {:axiom} lem_mmLR2_sum(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, m:nat)  
+  requires a > 0 && s > 0 && b >= s-1
+  requires forall n:nat :: T(n) == TbodyLR2(a, b, c, s, T, w, n) 
+  ensures forall n:nat :: 
+    m == ceil(((n-b) as real)/(s as real)) 
+    ==> T(n) == powr(a as R0,m as R0)*c + sumr(0, m-1, k => powr(a as R0,k as real)*liftD(w,0.0)(n-k*s)) 
+  
 
 

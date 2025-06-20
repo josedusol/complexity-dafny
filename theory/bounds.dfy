@@ -4,7 +4,7 @@ include "./math.dfy"
 /**************************************************************************
   Bounds of mathematical functions over non-negative integers
 **************************************************************************/
- 
+
 // n > 0 ==> 2^log2(n) <= n
 lemma lem_log2Pow2_bounds(n: nat)
   requires n > 0

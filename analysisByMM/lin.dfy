@@ -5,7 +5,7 @@ include "../theory/masterM.dfy"
 method lin(N:nat)
   returns (ghost t:nat)
   ensures t == T(N)
-  ensures bigOR0(liftToR0(T), n => powr0(n as R0, 1.0))
+  ensures bigOR0(liftToR0(T), n => powr(n as R0, 1.0))
 {
   var i; reveal T();
   i, t := 0, 0;
@@ -38,7 +38,7 @@ lemma lem_Tdef(n:nat)
 }
 
 lemma lem_T2BigOlin()
-  ensures bigOR0(liftToR0(T), n => powr0(n as R0, 1.0))
+  ensures bigOR0(liftToR0(T), n => powr(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -50,17 +50,17 @@ lemma lem_T2BigOlin()
 
   assert b >= s-1;  
   forall n:nat 
-    ensures T'(n) == TbodyLR2(a, b, c, s, T', w, k, n)
+    ensures T'(n) == TbodyLR2(a, b, c, s, T', w, n)
   {
     reveal TbodyLR2;
     lem_Tdef(n);
   }    
-  assert bigOR0(w, n => powr0(n as R0, k)) by {   
+  assert bigOR0(w, n => powr(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowthR0(k)(n)
     {
-      assert powr0(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
+      assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
       assert w(n) <= 1.0*polyGrowthR0(k)(n); 
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));

@@ -6,7 +6,7 @@ ghost function f(N:nat) : nat
   (N*(N+1))/2
 }
 
-method quadGauss(N:nat)
+method quadTriangle(N:nat)
   returns (ghost t:nat, ghost t':nat)
   ensures t == f(N)
   ensures tIsBigO(N, t, quadGrowth())
@@ -159,31 +159,4 @@ ghost method testT1() {
   r := T1(N, 0); 
   assert r == 10;
   assert (N*(N+1))/2 == 10;
-} 
-
-ghost method TestSum() {
-  var N:nat := 0;
-  var r := sum(1, N, x => if 1<=x<=N then (N-x+1) else 0);
-  assert r == 0; 
-  assert (N*(N+1))/2 == 0; 
-
-  N := 1;
-  r := sum(1, N, x => if 1<=x<=N then (N-x+1) else 0); 
-  assert r == 1;
-  assert (N*(N+1))/2 == 1;
-
-  N := 2;
-  r := sum(1, N, x => if 1<=x<=N then (N-x+1) else 0); 
-  assert r == 3; 
-  assert (N*(N+1))/2 == 3;
-
-  N := 3; 
-  r := sum(1, N, x => if 1<=x<=N then (N-x+1) else 0); 
-  assert r == 6;
-  assert (N*(N+1))/2 == 6;
-
-//   n := 4;
-//   r := T1([1,2,3,4], n);
-//   assert r == 10;
-//   assert (n*(n+1))/2 == 10;
-} 
+}

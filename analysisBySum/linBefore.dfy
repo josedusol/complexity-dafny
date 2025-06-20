@@ -45,12 +45,12 @@ lemma lem_fBigOconst() returns (c:nat, n0:nat)
     ensures f(n) <= c*constGrowth()(n)
   {
     calc {
-        f(n);
+         f(n);
       ==
-        if n < 10 then pow(n,1) else 20;
+         if n < 10 then pow(n,1) else 20;
       == { reveal pow(); }
-        if n < 10 then n else 20;    
+         if n < 10 then n else 20;    
     }
-    assert n >= n0 ==> f(n) <= c*constGrowth()(n);
+    assert f(n) <= c*constGrowth()(n);
   }
 }

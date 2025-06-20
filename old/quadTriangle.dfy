@@ -6,7 +6,7 @@ ghost function f(N:nat) : nat
   (N*(N+1))/2
 }
 
-method quadGauss(N:nat)
+method quadTriangle(N:nat)
   returns (ghost t:nat, ghost t':nat)
   ensures t == f(N)
   ensures tIsBigO(N, t, quadGrowth())
@@ -49,13 +49,11 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
     ensures f(n) <= c*quadGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        (n*(n+1))/2; 
-      <=
-        n*n;   
+         f(n);
+      == (n*(n+1))/2; 
+      <= n*n;   
     }
-    assert n >= n0 ==> f(n) <= c*quadGrowth()(n) 
+    assert f(n) <= c*quadGrowth()(n) 
       by { reveal pow(); } 
   }
 }
@@ -71,12 +69,30 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
     == { lem_sumLeibniz(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0,
                               k => if 1<=k<=N then N-k+1 else 0); }
        sum(1, N, k => if 1<=k<=N then (N-k+1) else 0);
-    == { lem_sumReverseIndex(1, N); }
+    == { lem_sumReverseIndexAux(1, N); }
        sum(1, N, k => k);
-    == { lem_sumGauss(N); }  
+    == { lem_sumTriangle(N); }  
        (N*(N+1))/2; 
   }
-} 
+}
+
+// i <= j+1 ==> sum_{k=i}^{j}(j-k+i) = sum_{k=i}^{j}k
+lemma {:axiom} lem_sumReverseIndexAux(i:nat, j:nat)
+  requires i <= j+1
+  ensures sum(i, j, k => if i<=k<=j then j-k+i else 0) == sum(i, j, k => k)
+
+lemma {:axiom} lem_sumGuardedShiftLowerBound(i:int, j:int, f:int->int)
+  //requires i+1 <= j
+  ensures    sum(i+1, j, k => if i+1<=k<=j then f(k) else 0) 
+          == sum(i+1, j, k => if i<=k<=j then f(k) else 0) 
+
+// i <= j+1 ==>   sum_{k=i}^{j}ITE(i<=k<=j,f(k),0) 
+//              = f(i) + sum_{k=i+1}^{j}ITE(i+1<=k<=j,f(k),0)
+lemma {:axiom} lem_sumGuardedDropFirst(i:int, j:int, f:int->int)
+  requires i <= j+1
+  ensures    sum(i, j, k => if i<=k<=j then f(k) else 0) 
+          ==   (if i<=i<=j then f(i) else 0) 
+             + sum(i+1, j, k => if i+1<=k<=j then f(k) else 0) 
 
 lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
   requires 0 <= i <= N+1
@@ -109,7 +125,7 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
          (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0);      
       == { lem_solveInnerSumAUX(i, N, c); }      
          sum(i, N, k => if i<=k<=N then c*(N-k+1) else 0);           
-    }  
+    }
   } 
 }
 // lem_sumGuardedDropFirst(i, N, k => if i<=k<=N then c*(N-k+1) else 0);
@@ -144,7 +160,7 @@ ghost method testSum() {
 
   N := 1;
   r := sum(1, N, k => if 1<=k<=N then (N-k+1) else 0); 
-  assert r == 1;
+  assert r == 1; 
   assert (N*(N+1))/2 == 1;
 
   N := 2;

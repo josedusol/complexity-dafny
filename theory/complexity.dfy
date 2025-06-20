@@ -8,7 +8,7 @@ include "./bounds.dfy"
  
 ghost predicate bigO(f:nat->nat, g:nat->nat)
 { 
-  exists c:nat, n0:nat :: bigOfrom(c, n0, f, g)
+  exists c:nat, n0:nat :: bigOfrom(c, n0, f, g) 
 }
 
 ghost predicate bigOfrom(c:nat, n0:nat, f:nat->nat, g:nat->nat)
@@ -25,11 +25,11 @@ ghost predicate isPoly(f:nat->nat)
 { 
   exists k:nat :: bigO(f, n => pow(n,k))
 }
-
+ 
 /**************************************************************************
   Complexity definitions lifted for functions nat->R0
 **************************************************************************/
-
+ 
 ghost predicate bigOR0(f:nat->R0, g:nat->R0)
 { 
   exists c:R0, n0:nat :: bigOR0from(c, n0, f, g) 
@@ -39,13 +39,7 @@ ghost predicate bigOR0from(c:R0, n0:nat, f:nat->R0, g:nat->R0)
 {
   forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)
 }
-
-// Lift codomain of f:nat->nat to f':nat->R0
-ghost function liftToR0(f:nat->nat) : nat->R0
-{
-  n => f(n) as R0
-}
-
+ 
 /**************************************************************************
   Mapping of results between unlifted and lifted functions
 **************************************************************************/
@@ -66,7 +60,7 @@ lemma lem_bigOtoBigOR0(f:nat->nat, g:nat->nat)
   assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(f)(n) <= c'*liftToR0(g)(n); 
   assert bigOR0from(c', n0, liftToR0(f), liftToR0(g));
 }
-
+ 
 // If we prove f' ∈ O(g') for the lifted versions of f,g:nat->nat
 // then we can get back the result
 lemma lem_bigOR0toBigO(f:nat->nat, g:nat->nat)  
@@ -316,7 +310,7 @@ ghost function polyGrowth(k:nat) : nat->nat
 
 ghost function polyGrowthR0(k:R0) : nat->R0
 {   
-  n => powr0(n as R0,k)
+  n => powr(n as R0,k)
 }
 
 ghost function expGrowth() : nat->nat

@@ -49,12 +49,12 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
     ensures f(n) <= c*quadGrowth()(n)
   {
     calc {
-        f(n); 
+         f(n); 
       ==
-        pow(n,2);
+         pow(n,2);
       == { reveal pow(); }
-        n*n;   
+         n*n;   
     }
-    assert n >= n0 ==> f(n) <= c*quadGrowth()(n); 
+    assert f(n) <= c*quadGrowth()(n); 
   }
 }

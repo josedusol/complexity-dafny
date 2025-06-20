@@ -176,7 +176,7 @@ lemma lem_T2def(M:nat, j:nat)
 // }
 
 lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
-  ensures bigOR0(liftToR0((n:nat) => T1(N,n)), n => powr0(n as R0, 2.0))
+  ensures bigOR0(liftToR0((n:nat) => T1(N,n)), n => powr(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -188,17 +188,17 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
 
   assert b >= s-1; 
   forall n:nat  
-    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, k, n)
+    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, n)
   {  
     reveal TbodyLR2;  
     lem_T1def(N, n);
   } 
 
-  assert bigOR0(w, n => powr0(n as R0, k)) by {
+  assert bigOR0(w, n => powr(n as R0, k)) by {
     lem_T2BigOlin(N);
-    assert bigOR0(liftToR0(n => T2(N,n)), n => powr0(n as R0, 1.0));
-    var c2:R0, n0:nat :| bigOR0from(c2, n0, liftToR0(n => T2(N,n)), n => powr0(n as R0, 1.0));
-    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,n))(n) <= c2*powr0(n as R0, 1.0);
+    assert bigOR0(liftToR0(n => T2(N,n)), n => powr(n as R0, 1.0));
+    var c2:R0, n0:nat :| bigOR0from(c2, n0, liftToR0(n => T2(N,n)), n => powr(n as R0, 1.0));
+    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,n))(n) <= c2*powr(n as R0, 1.0);
     
   }
     //by { lem_T2BigOlin(N, M); }
@@ -232,7 +232,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
 
 
 lemma lem_T2BigOlin(N:nat)
-  ensures bigOR0(liftToR0(n => T2(N,n)), n => powr0(n as R0, 1.0)) 
+  ensures bigOR0(liftToR0(n => T2(N,n)), n => powr(n as R0, 1.0)) 
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -243,19 +243,19 @@ lemma lem_T2BigOlin(N:nat)
   var w:nat->R0   := liftToR0(n => 1);
 
   forall n:nat 
-    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, k, n)
+    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, n)
   {
     reveal TbodyLR2;
     //if n <= N {
       lem_T2def(N,n); 
     //}
   } 
-  assert bigOR0(w, n => powr0(n as R0, k)) by {   
+  assert bigOR0(w, n => powr(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowthR0(k)(n)
     {
-      assert powr0(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
+      assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
       assert w(n) <= 1.0*polyGrowthR0(k)(n); 
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));

@@ -6,7 +6,7 @@ lemma test_bigOprod()
   requires bigO(n => 3*n, linGrowth())
   ensures bigO(n => (2*n)*(3*n), quadGrowth())
 {
-  var f1:nat->nat := n => 2*n;
+  var f1:nat->nat := n => 2*n; 
   var f2:nat->nat := n => 3*n;
 
   lem_bigO_prod(f1, linGrowth(), f2, linGrowth());  
@@ -17,7 +17,7 @@ lemma test_bigOprod()
            by { lem_pown1All(); lem_pown2All(); }
     } 
   lem_funExt((n:nat) => f1(n)*f2(n), (n:nat) => (2*n)*(3*n)); 
-} 
+}
 
 lemma test_polyBigO() returns (c:nat, n0:nat)
   ensures bigO(n => 3*pow(n,2) + 100*pow(n,1) + 10, quadGrowth())

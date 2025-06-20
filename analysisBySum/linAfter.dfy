@@ -45,11 +45,11 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
     ensures f(n) <= c*linGrowth()(n) 
   {
     calc {
-        f(n);
+         f(n);
       ==
-        if n < 10 then 20 else pow(n,1);
+         if n < 10 then 20 else pow(n,1);
       == { reveal pow(); }
-        if n < 10 then 20 else n;   
+         if n < 10 then 20 else n;   
     }
     assert n >= n0 ==> f(n) <= c*linGrowth()(n);
   }

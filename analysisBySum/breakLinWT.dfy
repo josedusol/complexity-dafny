@@ -25,12 +25,12 @@ method breakLinWT(N:nat, P:nat->bool)
     } else {
       i := N;  // break;
     }
-    t := t+1 ;
+    t := t + 1 ;
   }
-  assert t == sum(1, N, k => 1); 
+  assert t == sum(1, N, k => 1) as nat; 
   assert t == f(N) by { reveal pow(); lem_sumOverConstAll(1, N); }
-  assert t <= f(N);
- 
+  assert t <= f(N) ;
+
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
@@ -49,7 +49,7 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
       == { reveal pow(); }
         n;   
     }
-    assert n >= n0 ==> f(n) <= c*linGrowth()(n); 
+    assert f(n) <= c*linGrowth()(n); 
   }
 }
 

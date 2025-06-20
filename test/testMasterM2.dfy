@@ -11,7 +11,7 @@ opaque ghost function T1(n:nat) : nat
   then 0  
   else T1(n-1) + 1  
 } 
-
+ 
 lemma lem_T1def(n:nat)
   ensures n <= 0 ==> T1(n) == 0
   ensures n > 0  ==> T1(n) == 1*T1(n-1) + 1
@@ -24,7 +24,7 @@ lemma lem_T1def(n:nat)
 // Asymptotic closed form:
 //   T1(n) in O(n)
 lemma test_masterMethodForT1lifted()
-  ensures bigOR0(liftToR0(T1), n => powr0(n as R0, 1.0))
+  ensures bigOR0(liftToR0(T1), n => powr(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -36,18 +36,18 @@ lemma test_masterMethodForT1lifted()
 
   assert b >= s-1;  
   forall n:nat 
-    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, k, n)
+    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, n)
   {
     reveal TbodyLR2;
     lem_T1def(n);
   }           
-  assert bigOR0(w, n => powr0(n as R0, k)) by {   
+  assert bigOR0(w, n => powr(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowthR0(k)(n)
     {
       if 0 <= 1 <= n {
-        assert powr0(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
+        assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
         assert w(n) <= 1.0*polyGrowthR0(k)(n); 
       }
     }
@@ -81,7 +81,7 @@ lemma lem_T2def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT2lifted() 
-  ensures bigOR0(liftToR0(T2), n => powr0(n as R0, 1.0))
+  ensures bigOR0(liftToR0(T2), n => powr(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 2;
@@ -93,12 +93,12 @@ lemma test_masterMethodForT2lifted()
 
   assert b >= s-1;  
   forall n:nat 
-    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, k, n)
+    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, n)
   {
     reveal TbodyLR2;
     lem_T2def(n);
-  }     
-  assert bigOR0(w, n => powr0(n as R0, k)) by {  // k=0
+  }
+  assert bigOR0(w, n => powr(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowthR0(k)(n)

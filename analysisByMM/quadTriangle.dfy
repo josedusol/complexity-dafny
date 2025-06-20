@@ -2,10 +2,10 @@
 include "../theory/complexity.dfy"
 include "../theory/masterM.dfy"
 
-method quadGauss(N:nat) 
+method quadTriangle(N:nat) 
   returns (ghost t:nat, ghost t':nat)
   ensures t == T1(N)
-  ensures bigOR0(liftToR0(T1), n => powr0(n as R0, 2.0))
+  ensures bigOR0(liftToR0(T1), n => powr(n as R0, 2.0))
 {
   var i, j; reveal T1(),T2();
   i, j, t, t' := 0, 0, 0, 0;
@@ -62,7 +62,7 @@ lemma lem_T2def(n:nat)
 }
 
 lemma lem_T1BigOquad() 
-  ensures bigOR0(liftToR0(T1), n => powr0(n as R0, 2.0))
+  ensures bigOR0(liftToR0(T1), n => powr(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -74,19 +74,19 @@ lemma lem_T1BigOquad()
 
   assert b >= s-1;
   forall n:nat 
-    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, k, n)
+    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, n)
   {
     reveal TbodyLR2; 
     lem_T1def(n);
   } 
-  assert bigOR0(w, n => powr0(n as R0, k)) by {   
+  assert bigOR0(w, n => powr(n as R0, k)) by {   
     lem_T2BigOlin();
   } 
   masterMethodLR2(a, b, c, s, T1', w, k);
 }
 
 lemma lem_T2BigOlin()
-  ensures bigOR0(liftToR0(T2), n => powr0(n as R0, 1.0))
+  ensures bigOR0(liftToR0(T2), n => powr(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -98,17 +98,17 @@ lemma lem_T2BigOlin()
 
   assert b >= s-1;  
   forall n:nat 
-    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, k, n)
+    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, n)
   {
     reveal TbodyLR2;
     lem_T2def(n);
   }  
-  assert bigOR0(w, n => powr0(n as R0, k)) by {   
+  assert bigOR0(w, n => powr(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowthR0(k)(n)
     {
-      assert powr0(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
+      assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
       assert w(n) <= 1.0*polyGrowthR0(k)(n); 
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
