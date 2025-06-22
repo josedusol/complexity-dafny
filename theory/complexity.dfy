@@ -84,6 +84,7 @@ lemma lem_bigOR0toBigO(f:nat->nat, g:nat->nat)
   Basic O properties
 **************************************************************************/
 
+// Reflexivity
 // f ∈ O(f)
 lemma lem_bigOR0_refl(f:nat->R0)  
   ensures bigOR0(f, f) 
@@ -141,6 +142,7 @@ lemma lem_bigOR0_prod(f1:nat->R0, g1:nat->R0, f2:nat->R0, g2:nat->R0)
   assert bigOR0from(c1*c2, n1+n2, n => f1(n)*f2(n), n => g1(n)*g2(n));
 }
 
+// Transitivity
 // If f ∈ O(g) and g ∈ O(h) then f ∈ O(h)
 lemma lem_bigOR0_trans(f:nat->R0, g:nat->R0, h:nat->R0)  
   requires bigOR0(f, g) 
@@ -177,6 +179,7 @@ lemma lem_bigOR0_trans(f:nat->R0, g:nat->R0, h:nat->R0)
 // Each result is proved in the lifted domain nat->R0
 // using earlier proofs and then casted back to nat->nat 
 
+// Reflexivity
 // f ∈ O(f)
 lemma lem_bigO_refl(f:nat->nat)  
   ensures bigO(f, f) 
@@ -246,6 +249,7 @@ lemma lem_bigO_prod(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)
   lem_bigOR0toBigO(n => f1(n)*f2(n), n => g1(n)*g2(n));
 }   
 
+// Transitivity
 // If f ∈ O(g) and g ∈ O(h) then f ∈ O(h)
 lemma lem_bigO_trans(f:nat->nat, g:nat->nat, h:nat->nat)  
   requires bigO(f, g)

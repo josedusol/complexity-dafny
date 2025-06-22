@@ -8,7 +8,7 @@ ghost function f(N:nat) : nat
 
 method breakLinWT(N:nat, P:nat->bool)
   returns (ghost t:nat)
-  ensures t == f(N) 
+  ensures t == f(N)
   ensures tIsBigO(N, t, linGrowth())
 {
   assume forall i :: 0 <= i <= N ==> !P(i);  // worst case

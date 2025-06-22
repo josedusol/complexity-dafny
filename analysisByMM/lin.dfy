@@ -1,8 +1,8 @@
  
 include "../theory/complexity.dfy"
-include "../theory/masterM.dfy"
+include "../theory/masterLR.dfy"
 
-method lin(N:nat)
+method lin(N:nat) 
   returns (ghost t:nat)
   ensures t == T(N)
   ensures bigOR0(liftToR0(T), n => powr(n as R0, 1.0))
@@ -50,9 +50,9 @@ lemma lem_T2BigOlin()
 
   assert b >= s-1;  
   forall n:nat 
-    ensures T'(n) == TbodyLR2(a, b, c, s, T', w, n)
+    ensures T'(n) == TbodyLR(a, b, c, s, T', w, n)
   {
-    reveal TbodyLR2;
+    reveal TbodyLR;
     lem_Tdef(n);
   }    
   assert bigOR0(w, n => powr(n as R0, k)) by {   
@@ -65,5 +65,5 @@ lemma lem_T2BigOlin()
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR2(a, b, c, s, T', w, k);
+  thm_masterMethodLR(a, b, c, s, T', w, k);
 }

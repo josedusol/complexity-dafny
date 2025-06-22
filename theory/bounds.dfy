@@ -8,7 +8,7 @@ include "./math.dfy"
 // n > 0 ==> 2^log2(n) <= n
 lemma lem_log2Pow2_bounds(n: nat)
   requires n > 0
-  ensures pow(2, log2(n)) <= n
+  ensures  pow(2, log2(n)) <= n
 {
   if n == 1 {
     // BC: n = 1
@@ -42,7 +42,7 @@ lemma lem_log2Pow2_bounds(n: nat)
 // n > 0 ==> n < 2^(log2(n)+1)
 lemma lem_nLQPow2log2nPlus1(n:nat)
   requires n > 0
-  ensures n < pow(2, log2(n)+1)
+  ensures  n < pow(2, log2(n)+1)
 {
   if n == 1 {
     // BC: n = 1
@@ -74,8 +74,8 @@ lemma lem_nLQPow2log2nPlus1(n:nat)
 // n>0 ==> log2(n+1) <= n
 lemma lem_log2nPlus1LEQn(n:nat) 
   requires n > 0 
+  ensures  log2(n+1) <= n
   decreases n
-  ensures log2(n+1) <= n
 {
   if n == 1 {   
     // BC: n = 1
@@ -90,15 +90,14 @@ lemma lem_log2nPlus1LEQn(n:nat)
     //   IH: log2(n)   <= n-1
     //    T: log2(n+1) <= n
     calc {  
-        log2(n+1);
+         log2(n+1);
       == { reveal log2(); }
-        1 + log2((n+1)/2);
+         1 + log2((n+1)/2);
       <= { assert (n+1)/2 <= n; lem_log2Mono((n+1)/2, n); } 
-        1 + log2(n);   
+         1 + log2(n);   
       <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
-        1 + (n-1);
-      == 
-        n;           
+         1 + (n-1);
+      == n;           
     }
   }
 }
@@ -106,8 +105,8 @@ lemma lem_log2nPlus1LEQn(n:nat)
 // n>=4 ==> log2(n) <= n-2
 lemma lem_log2nLEQnMinus2(n:nat)
   requires n >= 4 
+  ensures  log2(n) <= n-2
   decreases n
-  ensures log2(n) <= n-2
 {
   if n == 4 {   
     // BC: n = 4
@@ -123,15 +122,14 @@ lemma lem_log2nLEQnMinus2(n:nat)
     //   IH: log2(n-1) <= n-3
     //    T: log2(n)   <= n-2
     calc {  
-        log2(n);
+         log2(n);
       == { reveal log2(); }
-        1 + log2(n/2);
+         1 + log2(n/2);
       <= { assert n/2 <= n-1; lem_log2Mono(n/2, n-1); } 
-        1 + log2(n-1);   
+         1 + log2(n-1);   
       <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
-        1 + (n-3);
-      == 
-        n-2;           
+         1 + (n-3);
+      == n-2;           
     }
   }
 }
@@ -139,8 +137,8 @@ lemma lem_log2nLEQnMinus2(n:nat)
 // n>0 ==> log2(n) <= n-1
 lemma lem_log2nLEQnMinus1(n:nat)  
   requires n > 0 
+  ensures  log2(n) <= n-1
   decreases n
-  ensures log2(n) <= n-1
 {
   lem_log2nPlus1LEQn(n);
   assert log2(n+1) <= n;
@@ -150,8 +148,8 @@ lemma lem_log2nLEQnMinus1(n:nat)
 
 // n <= n^2
 lemma lem_nLQpown2(n:nat)
+  ensures n <= pow(n,2)
   decreases n
-  ensures  n <= pow(n,2)
 {
   if n == 0 {
     assert 0 <= pow(0,2);
@@ -172,8 +170,8 @@ lemma lem_nLQpown2(n:nat)
 
 // n < 2^n
 lemma lem_nLQpow2n(n:nat)
-  decreases n 
   ensures n < pow(2,n)
+  decreases n 
 {
   if n == 0 {   
     // BC: n = 0
@@ -203,8 +201,8 @@ lemma lem_nLQpow2n(n:nat)
 // n>=4 ==> n <= 2^(n-2)
 lemma {:axiom} lem_nLEQpow2nMinus2(n:nat)
   requires n >= 4
+  ensures  n <= pow(2,n-2)
   decreases n
-  ensures n <= pow(2,n-2)
 {
   if n == 4 {   
     // BC: n = 4
@@ -241,8 +239,8 @@ lemma lem_pown2LQpow2nBC()
 // n>=4 ==> n^2 < 2^n
 lemma lem_pown2LQpow2n(n:nat)
   requires n >= 4
-  decreases n
   ensures  pow(n,2) <= pow(2,n)
+  decreases n
 {
   if n == 4 {   
     // BC: n = 4
@@ -252,15 +250,15 @@ lemma lem_pown2LQpow2n(n:nat)
     //   IH: (n-1)^2 <= 2^{n-1}
     //    T: n^2 <= 2^n
     calc {   
-        pow(n,2);
+         pow(n,2);
       == { lem_binomial(n); }
-        pow(n-1,2) + 2*(n-1) + 1; 
+         pow(n-1,2) + 2*(n-1) + 1; 
       <= { lem_pown2LQpow2n(n-1);  }   // by IH  
-        pow(2,n-1) + 2*(n-1) + 1; 
+         pow(2,n-1) + 2*(n-1) + 1; 
       <= { lem_nLEQpow2nMinus2(n); reveal pow(); assert 2*n <= pow(2,n-1); }  
-        2*pow(2,n-1);
+         2*pow(2,n-1);
       == { reveal pow(); }
-        pow(2,n);              
+         pow(2,n);              
     }
   }
 }

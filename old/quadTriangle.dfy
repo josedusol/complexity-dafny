@@ -25,11 +25,11 @@ method quadTriangle(N:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sumDropLastAll(i+1,j);
+      lem_sum_dropLastAll(i+1,j);
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sumDropLastAll(1,i);
+    lem_sum_dropLastAll(1,i);
     i := i+1 ;
     t := t+t' ;
   }
@@ -66,12 +66,12 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
        sum(1, N, k => sum(k, N, k' => 1));
     == { lem_solveInnerSum(1, N, 1); }
        sum(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0);
-    == { lem_sumLeibniz(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0,
+    == { lem_sum_leibniz(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0,
                               k => if 1<=k<=N then N-k+1 else 0); }
        sum(1, N, k => if 1<=k<=N then (N-k+1) else 0);
     == { lem_sumReverseIndexAux(1, N); }
        sum(1, N, k => k);
-    == { lem_sumTriangle(N); }  
+    == { lem_sum_triangle(N); }  
        (N*(N+1))/2; 
   }
 }
@@ -119,7 +119,7 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
          sum(i, N, k => c) + sum(i+1, N, k => sum(k, N, k' => c));
       == { lem_solveInnerSum(i+1, N, c); }  // by IH
          sum(i, N, k => c) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0);
-      == { lem_sumOverConstAll(i, N); } 
+      == { lem_sum_constAll(i, N); } 
          c*(N-i+1) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0);      
       == { assert i<=i; } 
          (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0);      
@@ -143,7 +143,7 @@ lemma lem_solveInnerSumAUX(i:nat, N:nat, c:nat)
        (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i<=k<=N then c*(N-k+1) else 0);
     == { assert i+1 <= N+1; assert forall k :: i+1 <= k <= N ==> 
        ((k => (if i+1<=k<=N then c*(N-k+1) else 0))(k) == (k => (if i<=k<=N then c*(N-k+1) else 0))(k));
-         lem_sumLeibniz(i+1, N, k => (if i+1<=k<=N then c*(N-k+1) else 0), 
+         lem_sum_leibniz(i+1, N, k => (if i+1<=k<=N then c*(N-k+1) else 0), 
                                 k => (if i<=k<=N then c*(N-k+1) else 0)); }
        (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0); 
   } 

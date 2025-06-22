@@ -25,11 +25,11 @@ method quadTriangle(N:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sumDropLastAll(i+1,j);
+      lem_sum_dropLastAll(i+1,j);
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sumDropLastAll(1,i);
+    lem_sum_dropLastAll(1,i);
     i := i+1 ;
     t := t+t' ;
   }
@@ -66,12 +66,12 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
        sum(1, N, k => sum(k, N, k' => 1));
     == { lem_solveInnerSum(1, N, 1); }
        sum(1, N, k => 1*(N-k+1));
-    == { lem_sumLeibniz(1, N, k => 1*(N-k+1),
+    == { lem_sum_leibniz(1, N, k => 1*(N-k+1),
                               k => N-k+1); }
        sum(1, N, k => (N-k+1));
-    == { lem_sumReverseIndex(1, N); }
+    == { lem_sum_revIndex(1, N); }
        sum(1, N, k => k); 
-    == { lem_sumTriangle(N); }  
+    == { lem_sum_triangle(N); }  
        (N*(N+1))/2; 
   }
 } 
@@ -101,7 +101,7 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
          sum(i, N, k => c) + sum(i+1, N, k => sum(k, N, k' => c));
       == { lem_solveInnerSum(i+1, N, c); }  // by IH
          sum(i, N, k => c) + sum(i+1, N, k => c*(N-k+1));
-      == { lem_sumOverConstAll(i, N); } 
+      == { lem_sum_constAll(i, N); } 
          c*(N-i+1) + sum(i+1, N, k => c*(N-k+1));      
       == { reveal sum(); }      
          sum(i, N, k => c*(N-k+1));           

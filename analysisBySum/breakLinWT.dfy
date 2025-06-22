@@ -20,7 +20,7 @@ method breakLinWT(N:nat, P:nat->bool)
     decreases N - i
   {
     if !P(i) {  // Op. interesante
-      lem_sumDropLastAll(1, i);
+      lem_sum_dropLastAll(1, i);
       i := i+1 ; 
     } else {
       i := N;  // break;
@@ -28,7 +28,7 @@ method breakLinWT(N:nat, P:nat->bool)
     t := t + 1 ;
   }
   assert t == sum(1, N, k => 1) as nat; 
-  assert t == f(N) by { reveal pow(); lem_sumOverConstAll(1, N); }
+  assert t == f(N) by { reveal pow(); lem_sum_constAll(1, N); }
   assert t <= f(N) ;
 
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }

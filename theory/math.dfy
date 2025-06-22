@@ -164,15 +164,14 @@ lemma lem_log2AndPow2Inverse(n:nat)
     //   IH: log2(2^(n-1)) = n-1 
     //    T: log2(2^n)     = n 
     calc {
-      log2(pow(2, n));
+         log2(pow(2, n));
       == { reveal pow(); }
-      log2(2*pow(2, n-1));
+         log2(2*pow(2, n-1));
       == { reveal log2(); }
-      1 + log2(pow(2, n-1));
+         1 + log2(pow(2, n-1));
       == { lem_log2AndPow2Inverse(n-1); } // IH
-      1 + (n - 1);
-      == 
-      n;
+         1 + (n - 1);
+      == n;
     }
   }
 }
@@ -213,25 +212,25 @@ opaque ghost function fac(n:nat) : nat
   Floors and ceilings
 **************************************************************************/
 
-// lemma {:axiom} floorDiv(a:int, b:int)
-//   requires a >= 0 && b > 0
-//   ensures exists x :: x <= a/b < x + 1
-
 // floor(x) <= x < floor(x)+1
 ghost function {:axiom} floor(x:real) : int
   ensures floor(x) as real <= x
   ensures x < (floor(x) as real) + 1.0
 
-// ceil(x)-1 <= x < ceil(x)
+// ceil(x)-1 < x <= ceil(x)
 ghost function {:axiom} ceil(x:real) : int
-  ensures (ceil(x) as real) - 1.0 <= x
-  ensures x < ceil(x) as real
+  ensures (ceil(x) as real) - 1.0 < x
+  ensures x <= ceil(x) as real
 // { 
   //-floor(-x)
   // if x == floor(x) as real 
   // then floor(x) 
   // else floor(x) + 1 
 // }
+
+lemma {:axiom} lem_ceilxLEQnIFFxLEQn(x:real, n:int)
+  ensures ceil(x) <= n <==> x <= n as real
+
 
 /**************************************************************************
   Non-negative real numbers and related mathematical functions
@@ -264,7 +263,8 @@ lemma {:axiom} lem_powrOneAll()
   ensures forall x:real :: x > 0.0 ==> powr(x, 1.0) == x  
 
 lemma {:axiom} lem_powrProductAll()
-  ensures forall x:real, y:real, z:real :: x > 0.0 ==> powr(x, y+z) == powr(x, y)*powr(x, z)
+  ensures forall x:real, y:real, z:real :: 
+          x > 0.0 ==> powr(x, y+z) == powr(x, y)*powr(x, z)
 
 lemma lem_powrTwo(x:real) 
   requires x > 0.0
@@ -275,6 +275,19 @@ lemma lem_powrTwo(x:real)
   lem_powrOne(x);
 } 
 
+lemma {:axiom} lem_powrDef(x:real, y:real)
+  requires x > 0.0 
+  ensures x*powr(x, y) == powr(x, y + 1.0)
+// {  
+//   // assert powr(x, 1.0) == x by { lem_powrOne(x); }
+//   // lem_powrProduct(x, 1.0, 1.0);
+//   // lem_powrOne(x);
+// } 
+
+lemma {:axiom} lem_powrDefAll()
+  ensures forall x:real, y:real :: 
+          x > 0.0 ==> x*powr(x, y) == powr(x, y + 1.0)
+
 /**************************************************************************
   Function equality
 **************************************************************************/
@@ -284,7 +297,7 @@ lemma {:axiom} lem_funExt<A,B>(f1:A->B, f2:A->B)
   ensures f1 == f2
 
 /**************************************************************************
-  Sum over intervals
+  Sum over integer intervals
 **************************************************************************/
 
 // sum_{k=i}^{j}f(k)
@@ -297,10 +310,10 @@ opaque ghost function sumr(i:int, j:int, f:int->real): real
 }
 
 // i <= j+1 ==> sum_{k=i}^{j+1}f(k) = sum_{k=i}^{j}f(k) + f(j+1)
-lemma lem_sumrDropLast(i:int, j:int, f:int->real)
+lemma lem_sumr_dropLast(i:int, j:int, f:int->real)
   requires i <= j+1
+  ensures  sumr(i, j+1, f) == sumr(i, j, f) + f(j+1) 
   decreases j - i
-  ensures sumr(i, j+1, f) == sumr(i, j, f) + f(j+1) 
 { 
   if i == j+1 {   
     // BC: i > j
@@ -308,8 +321,7 @@ lemma lem_sumrDropLast(i:int, j:int, f:int->real)
          sumr(j+1, j+1, f);
       == { reveal sumr(); }
          f(j+1);
-      == 
-         0.0 + f(j+1) ;
+      == 0.0 + f(j+1) ;
       == { reveal sumr(); }
          sumr(i, j, f) + f(j+1) ;       
     }
@@ -321,32 +333,65 @@ lemma lem_sumrDropLast(i:int, j:int, f:int->real)
          sumr(i, j+1, f);
       == { reveal sumr(); } 
          f(i) + sumr(i+1, j+1, f);
-      == { lem_sumrDropLast(i+1, j, f); }  // by IH
+      == { lem_sumr_dropLast(i+1, j, f); }  // by IH
          f(i) + (sumr(i+1, j, f) + f(j+1));
-      == 
-         (f(i) + sumr(i+1, j, f)) + f(j+1);
+      == (f(i) + sumr(i+1, j, f)) + f(j+1);
       == { reveal sumr(); }
          sumr(i, j, f) + f(j+1);           
     }
   }
 } 
 
-lemma lem_sumrDropLastAll(i:int, j:int)
+lemma lem_sumr_dropLastAll(i:int, j:int)
   requires i <= j+1
-  ensures forall f:int->real :: sumr(i, j+1, f) == sumr(i, j, f) + f(j+1) 
+  ensures  forall f:int->real :: sumr(i, j+1, f) == sumr(i, j, f) + f(j+1) 
 { 
   forall f:int->real
     ensures sumr(i, j+1, f) == sumr(i, j, f) + f(j+1) 
   {
-     lem_sumrDropLast(i, j, f);
+     lem_sumr_dropLast(i, j, f);
   }
 }
 
-// i <= j+1 ==> sum_{k=i}^{j}c = c*(j - i + 1)
-lemma lem_sumrOverConst(i:int, j:int, c:real)
+// i <= j+1 ==> c*sum_{k=i}^{j}f(k) = sum_{k=i}^{j}c*f(k)
+lemma lem_sumr_linearityConst(i:int, j:int, c:real, f:int->real)
   requires i <= j+1
+  ensures  c*sumr(i, j, f) == sumr(i, j, k => c*f(k))
   decreases j - i
-  ensures sumr(i, j, k => c) == c * (j - i + 1) as real
+{ 
+  if i == j+1 {   
+    // BC: i > j
+    calc {
+         c*sumr(j+1, j, f);
+      == { reveal sumr(); }
+         0.0;
+      == { reveal sumr(); }
+         sumr(j+1, j, k => c*f(k));       
+    }
+  } else {  
+    // Step. i <= j
+    //   IH: c*sum(i+1, j, f) = c*sum(i+1, j, k => c*f(k))
+    //    T: c*sum(i, j, f)   = c*sum(i, j, k => f(k))
+    calc {  
+         c*sumr(i, j, f);
+      == { reveal sumr(); } 
+         c*(f(i) + sumr(i+1, j, f));
+      == c*f(i) + c*sumr(i+1, j, f);         
+      == { lem_sumr_linearityConst(i+1, j, c, f); }  // by IH
+         c*f(i) + sumr(i+1, j, k => c*f(k)); 
+      == (k => c*f(k))(i) + sumr(i+1, j, k => c*f(k));
+      == { reveal sumr(); } 
+         sumr(i, j, k => c*f(k));           
+    } 
+  }  
+}
+
+
+// i <= j+1 ==> sum_{k=i}^{j}c = c*(j - i + 1)
+lemma lem_sumr_const(i:int, j:int, c:real)
+  requires i <= j+1
+  ensures  sumr(i, j, k => c) == c * (j - i + 1) as real
+  decreases j - i
 { 
   if i == j+1 {   
     // BC: i > j
@@ -364,37 +409,67 @@ lemma lem_sumrOverConst(i:int, j:int, c:real)
          sumr(i, j, k => c);
       == { reveal sumr(); }
          c + sumr(i+1, j, x => c);
-      == { lem_sumrOverConst(i+1, j, c); }  // by IH
+      == { lem_sumr_const(i+1, j, c); }  // by IH
          (c + c* (j -(i+1) + 1) as real);
-      == 
-         c + c*((j - i) as real) ;      
-      == 
-         c* (j -i + 1) as real;             
+      == c + c*((j - i) as real);      
+      == c* (j -i + 1) as real;             
     }
   }
 }
 
-lemma lem_sumrOverConstAll(i:int, j:int)
+lemma lem_sumr_constAll(i:int, j:int)
   requires i <= j+1
-  ensures forall c:real :: sumr(i, j, k => c) == c * (j - i + 1) as real
+  ensures  forall c:real :: sumr(i, j, k => c) == c * (j - i + 1) as real
 { 
   forall c:real
     ensures sumr(i, j, k => c) == c * (j - i + 1) as real
   {
-     lem_sumrOverConst(i, j, c);
+     lem_sumr_const(i, j, c);
+  }
+} 
+
+// i <= j+1 ==> sum_{k=i}^{j}f(k) = sum_{k=i+d}^{j+d}f(k-d)
+lemma lem_sumr_shiftIndex(i:int, j:int, d:int, f:int->real)
+  requires i <= j+1
+  ensures  sumr(i, j, f) == sumr(i+d, j+d, k => f(k-d))
+  decreases j - i
+{ 
+  if i == j+1 {   
+    // BC: i > j
+    calc {
+         sumr(j+1, j, f);
+      == { reveal sumr(); }
+         0.0;
+      == { reveal sumr(); }
+         sumr(j+1+d, j+d, k => f(k-d));       
+    }
+  } else {  
+    // Step. i <= j
+    //   IH: sum(i+1, j, f) = sum((i+d)+1, j+d, k => f(k-d))
+    //    T: sum(i, j, f)   = sum(i+d, j+d, k => f(k-d))
+    calc {  
+         sumr(i, j, f);
+      == { reveal sumr(); } 
+         f(i) + sumr(i+1, j, f);
+      == { lem_sumr_shiftIndex(i+1, j, d, f); }  // by IH
+         f(i) + sumr(i+1+d, j+d, k => f(k-d));
+      == (k => f(k-d))(i+d) + sumr((i+d)+1, j+d, k => f(k-d));
+      == { reveal sumr(); }
+         sumr(i+d, j+d, k => f(k-d));           
+    }
   }
 } 
 
 // i <= j+1 /\ (∀ k : i<=k<=j : f(k) == g(k)) 
 //          ==> sum_{k=i}^{j}f = sum_{k=i}^{j}g
-lemma {:axiom} lem_sumrLeibniz(i:int, j:int, f:int->real, g:int->real)
+lemma {:axiom} lem_sumr_leibniz(i:int, j:int, f:int->real, g:int->real)
   requires i <= j+1
   requires forall k:int :: i<=k<=j ==> f(k) == g(k)
   ensures sumr(i, j, f) == sumr(i, j, g)
 
 
 /**************************************************************************
-  A special version of Sum over intervals on integer codomain
+  A special version of Sum on integer codomain
 **************************************************************************/
  
 // sum_{k=i}^{j}f(k)
@@ -406,76 +481,76 @@ opaque ghost function sum(i:int, j:int, f:int->int) : int
   else f(i) + sum(i+1, j, f)
 }
 
-lemma lem_sum_liftCi2r_eq(i:int, j:int, f:int->int)
+lemma lem_sum_liftEq(i:int, j:int, f:int->int)
   requires i <= j+1
+  ensures  sumr(i, j, liftCi2r(f)) == sum(i, j, f) as real
   decreases j - i
-  ensures sumr(i, j, liftCi2r(f)) == sum(i, j, f) as real
 {
   reveal sum(), sumr();
 }  
 
 // i <= j+1 ==> sum_{k=i}^{j+1}f(k) = sum_{k=i}^{j}f(k) + f(j+1)
-lemma lem_sumDropLast(i:int, j:int, f:int->int)
+lemma lem_sum_dropLast(i:int, j:int, f:int->int)
   requires i <= j+1
-  ensures sum(i, j+1, f) == sum(i, j, f) + f(j+1) 
+  ensures  sum(i, j+1, f) == sum(i, j, f) + f(j+1) 
 { 
   var fr := liftCi2r(f);
-  lem_sumrDropLast(i, j, fr);
+  lem_sumr_dropLast(i, j, fr);
   assert sumr(i, j+1, fr) == sumr(i, j, fr) + fr(j+1);
-  lem_sum_liftCi2r_eq(i, j+1, f);
-  lem_sum_liftCi2r_eq(i, j, f);
+  lem_sum_liftEq(i, j+1, f);
+  lem_sum_liftEq(i, j, f);
 }
 
-lemma lem_sumDropLastAll(i:int, j:int)
+lemma lem_sum_dropLastAll(i:int, j:int)
   requires i <= j+1
-  ensures forall f:int->int :: sum(i, j+1, f) == sum(i, j, f) + f(j+1) 
+  ensures  forall f:int->int :: sum(i, j+1, f) == sum(i, j, f) + f(j+1) 
 { 
   forall f:int->int
     ensures sum(i, j+1, f) == sum(i, j, f) + f(j+1) 
   {
-     lem_sumDropLast(i, j, f);
+     lem_sum_dropLast(i, j, f);
   }
 }
 
 // i <= j+1 ==> sum_{k=i}^{j}c = c*(j - i + 1)
-lemma lem_sumOverConst(i:int, j:int, c:int)
+lemma lem_sum_const(i:int, j:int, c:int)
   requires i <= j+1
-  ensures sum(i, j, k => c) == c*(j - i + 1)
+  ensures  sum(i, j, k => c) == c*(j - i + 1)
 { 
   var fr := liftCi2r(k => c);
   var c' := c as real;
   assert c' == c as real;
-  lem_sumrOverConst(i, j, c');
+  lem_sumr_const(i, j, c');
   assert sumr(i, j, k => c') == (c*(j - i + 1)) as real;
-  lem_sum_liftCi2r_eq(i, j, k => c);
+  lem_sum_liftEq(i, j, k => c);
   assert sumr(i, j, fr) == sum(i, j, k => c) as real;
   assert sumr(i, j, fr) == sumr(i, j, k => c')
    by { assert forall k:int :: i<=k<=j ==> c as real == c';
-        lem_sumrLeibniz(i, j, fr, k => c'); } 
+        lem_sumr_leibniz(i, j, fr, k => c'); } 
 } 
 
-lemma lem_sumOverConstAll(i:int, j:int)
+lemma lem_sum_constAll(i:int, j:int)
   requires i <= j+1
   ensures forall c:int :: sum(i, j, k => c) == (c*(j - i + 1))
 { 
   forall c:int
     ensures sum(i, j, k => c) == (c*(j - i + 1))
   {
-     lem_sumOverConst(i, j, c);
+     lem_sum_const(i, j, c);
   }
 } 
 
 // i <= j+1 /\ (∀ k : i<=k<=j : f(k) == g(k)) 
 //          ==> sum_{k=i}^{j}f = sum_{k=i}^{j}g
-lemma {:axiom} lem_sumLeibniz(i:int, j:int, f:int->int, g:int->int)
+lemma {:axiom} lem_sum_leibniz(i:int, j:int, f:int->int, g:int->int)
   requires i <= j+1
   requires forall k:int :: i<=k<=j ==> f(k) == g(k)
-  ensures sum(i, j, f) == sum(i, j, g)
+  ensures  sum(i, j, f) == sum(i, j, g)
 
-// Following sum lemmas are only stated for integers
+// Following sum lemmas are only stated for integer sum
 
 // i <= j+1 ==> sum_{k=i}^{j}k = (j*(j+1) + i*(1-i))/2 
-lemma lem_sumInterval(i:int, j:int)
+lemma lem_sum_interval(i:int, j:int)
   requires i <= j+1 
   decreases j - i
   ensures sum(i, j, k => k) == (j*(j+1) + i*(1-i))/2
@@ -486,8 +561,7 @@ lemma lem_sumInterval(i:int, j:int)
          sum(j+1, j, k => k);
       == { reveal sum(); }
          0;
-      == 
-         (j*(j+1) + ((j+1))*(1-((j+1))))/2;
+      == (j*(j+1) + ((j+1))*(1-((j+1))))/2;
     }
   } else {  
     // Step. i <= j
@@ -497,23 +571,22 @@ lemma lem_sumInterval(i:int, j:int)
          sum(i, j, k => k);
       == { reveal sum(); }
          i + sum(i+1, j, k => k);
-      == { lem_sumInterval(i+1, j); }  // by IH
+      == { lem_sum_interval(i+1, j); }  // by IH
          i + (j*(j+1) + (i+1)*(1-(i+1)))/2;
-      == 
-         (j*(j+1) + i*(1-i))/2;            
+      == (j*(j+1) + i*(1-i))/2;            
     }
   }
 }
 
 // sum_{k=1}^{n}k = (n*(n+1))/2 
-lemma lem_sumTriangle(n:nat)
+lemma lem_sum_triangle(n:nat)
   ensures sum(1, n, k => k) == (n*(n+1))/2
 {
-  lem_sumInterval(1, n);
+  lem_sum_interval(1, n);
 }
 
 // i <= j+1 ==> sum_{k=i}^{j}(j-k+i) = sum_{k=i}^{j}k
-lemma {:axiom} lem_sumReverseIndex(i:int, j:int)
+lemma {:axiom} lem_sum_revIndex(i:int, j:int)
   requires i <= j+1
   ensures sum(i, j, k => j-k+i) == sum(i, j, k => k)
 
@@ -542,6 +615,27 @@ opaque ghost function sumSet(s:set<int>, f:int->real): real
   else var x :| x in s;
        f(x) + sumSet(s - {x}, f)
 }
+
+
+/**************************************************************************
+  Maximum and minimum
+**************************************************************************/
+
+function max(a:int, b:int) : int
+{
+  if a < b then b else a
+}
+
+function min(a:int, b:int): int
+{
+  if a < b then a else b
+}
+
+// n >= 0 ==> max(0,n) = n
+lemma lem_max0n(n:int)
+  requires n >= 0
+  ensures max(0, n) == n
+{}
 
 /**************************************************************************
   Miscelanious stuff

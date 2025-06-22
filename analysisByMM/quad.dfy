@@ -1,6 +1,6 @@
 
 include "../theory/complexity.dfy"
-include "../theory/masterM.dfy"
+include "../theory/masterLR.dfy"
 
 method quad(N:nat)
   returns (ghost t:nat, ghost t':nat)
@@ -74,14 +74,14 @@ lemma lem_T1BigOquad(N:nat)
 
   assert b >= s-1; 
   forall n:nat 
-    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, n)
+    ensures T1'(n) == TbodyLR(a, b, c, s, T1', w, n)
   {
-    reveal TbodyLR2; 
+    reveal TbodyLR; 
     lem_T1def(n, N);
   } 
   assert bigOR0(w, n => powr(n as R0, k))
    by { lem_T1BigOquadAux(N); }
-  masterMethodLR2(a, b, c, s, T1', w, k); 
+  thm_masterMethodLR(a, b, c, s, T1', w, k); 
 }
 
 lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
@@ -118,9 +118,9 @@ lemma lem_T2BigOlin()
   var w:nat->R0   := liftToR0(n => 1);
 
   forall n:nat 
-    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, n)
+    ensures T2'(n) == TbodyLR(a, b, c, s, T2', w, n)
   {
-    reveal TbodyLR2;
+    reveal TbodyLR;
     lem_T2def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by {   
@@ -133,5 +133,5 @@ lemma lem_T2BigOlin()
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR2(a, b, c, s, T2', w, k);
+  thm_masterMethodLR(a, b, c, s, T2', w, k);
 }

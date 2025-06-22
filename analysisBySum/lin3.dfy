@@ -25,16 +25,16 @@ method lin(N:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sumDropLastAll(1, j); 
+      lem_sum_dropLastAll(1, j); 
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sumDropLastAll(1, i);
+    lem_sum_dropLastAll(1, i);
     i := i+1 ;
     t := t+t' ;
   }
   assert t == sum(1, 3, k => sum(1, N, k' => 1)); 
-  assert t == f(N) by { reveal pow(); lem_sumOverConstAll(1, N); }
+  assert t == f(N) by { reveal pow(); lem_sum_constAll(1, N); }
   assert t <= f(N);
  
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }

@@ -25,16 +25,16 @@ method quadNM(N:nat, M:nat)
       decreases M - j
     {
       // Op. interesante
-      lem_sumDropLastAll(1, j); 
+      lem_sum_dropLastAll(1, j); 
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sumDropLastAll(1, i);
+    lem_sum_dropLastAll(1, i);
     i := i+1 ;
     t := t+t' ;
   }
   assert t == sum(1, N, k => sum(1, M, k' => 1)); 
-  assert t == f(N,M) by { lem_sumOverConstAll(1, M); lem_sumOverConstAll(1, N); }
+  assert t == f(N,M) by { lem_sum_constAll(1, M); lem_sum_constAll(1, N); }
   assert t <= f(N,M);
  
   assert N == M ==> t == (n => f(n,n))(N);

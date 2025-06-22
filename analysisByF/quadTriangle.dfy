@@ -70,7 +70,7 @@ lemma lem_T2closed(N:nat, j:int)
 lemma {:axiom} lem_T2reverseIndex(N:nat, i:int)
   requires 0 <= i < N
   ensures T2(N, i) == T2(N, N-(i+1))
-// Esto es esencialmente lem_sumReverseIndex
+// Esto es esencialmente lem_sum_revIndex
 // pero en forma de recurrencia
 
 lemma lem_T1closed(N:nat, i:nat)

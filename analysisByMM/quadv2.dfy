@@ -1,6 +1,6 @@
 
 include "../theory/complexity.dfy"
-include "../theory/masterM.dfy"
+include "../theory/masterLR.dfy"
 
 method quad(N:nat)
   returns (ghost t:nat, ghost t':nat)
@@ -94,9 +94,9 @@ lemma lem_T2def(M:nat, j:nat)
 
 //   assert b >= s-1; 
 //   forall n:nat  
-//     ensures T1'(n) == (if n<=N then TbodyLR2(a, b, c, s, T1', w, k, n) else 0.0)
+//     ensures T1'(n) == (if n<=N then TbodyLR(a, b, c, s, T1', w, k, n) else 0.0)
 //   {  
-//     reveal TbodyLR2;  
+//     reveal TbodyLR;  
 //     //lem_T1def(N, N, n);
 //     if n <= N {
 //       lem_T1def(N, N, n);
@@ -128,7 +128,7 @@ lemma lem_T2def(M:nat, j:nat)
 //   }
 //     //by { lem_T2BigOlin(N, M); }
 //    //by { lem_T1BigOquadAux(M); }
-//   masterMethodLR2(a, b, c, s, T1', w, k); 
+//   thm_masterMethodLR(a, b, c, s, T1', w, k); 
 // }
 
 // lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
@@ -144,9 +144,9 @@ lemma lem_T2def(M:nat, j:nat)
 
 //   assert b >= s-1; 
 //   forall n:nat  
-//     ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, k, n)
+//     ensures T1'(n) == TbodyLR(a, b, c, s, T1', w, k, n)
 //   {  
-//     reveal TbodyLR2;  
+//     reveal TbodyLR;  
 //     lem_T1def(N, n);
 //   } 
 //   //lem_T2BigOlin(N, N);
@@ -172,7 +172,7 @@ lemma lem_T2def(M:nat, j:nat)
 //   }
 //     //by { lem_T2BigOlin(N, M); }
 //    //by { lem_T1BigOquadAux(M); }
-//   masterMethodLR2(a, b, c, s, T1', w, k); 
+//   thm_masterMethodLR(a, b, c, s, T1', w, k); 
 // }
 
 lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
@@ -188,9 +188,9 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
 
   assert b >= s-1; 
   forall n:nat  
-    ensures T1'(n) == TbodyLR2(a, b, c, s, T1', w, n)
+    ensures T1'(n) == TbodyLR(a, b, c, s, T1', w, n)
   {  
-    reveal TbodyLR2;  
+    reveal TbodyLR;  
     lem_T1def(N, n);
   } 
 
@@ -203,7 +203,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
   }
     //by { lem_T2BigOlin(N, M); }
   //by { lem_T1BigOquadAux(M); }
-  masterMethodLR2(a, b, c, s, T1', w, k); 
+  thm_masterMethodLR(a, b, c, s, T1', w, k); 
   //assert bigOR0(liftToR0((n:nat) => if n <= N then T1(N, n) else 0), n => powr0(n as R0, 2.0));
 }
 
@@ -243,9 +243,9 @@ lemma lem_T2BigOlin(N:nat)
   var w:nat->R0   := liftToR0(n => 1);
 
   forall n:nat 
-    ensures T2'(n) == TbodyLR2(a, b, c, s, T2', w, n)
+    ensures T2'(n) == TbodyLR(a, b, c, s, T2', w, n)
   {
-    reveal TbodyLR2;
+    reveal TbodyLR;
     //if n <= N {
       lem_T2def(N,n); 
     //}
@@ -260,5 +260,5 @@ lemma lem_T2BigOlin(N:nat)
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR2(a, b, c, s, T2', w, k);
+  thm_masterMethodLR(a, b, c, s, T2', w, k);
 }

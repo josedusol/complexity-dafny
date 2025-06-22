@@ -1,5 +1,5 @@
 
-include "../theory/masterM.dfy"
+include "../theory/masterLR.dfy"
 
 // Recurrence:
 //   T1(n) = / 0             , n <= 1
@@ -34,9 +34,9 @@ lemma test_masterMethodForT1lifted()
   var w:nat->R0   := liftToR0(n => 1);
 
   forall n:nat 
-    ensures T1'(n) == TbodyLR(a, b, c, T1', w, n)
+    ensures T1'(n) == TbodyLR2(a, b, c, T1', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T1def(n);
   }     
   assert bigOR0(w, n => powr(n as R0, k)) by {   
@@ -51,7 +51,7 @@ lemma test_masterMethodForT1lifted()
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR(a, b, c, T1', w, k);
+  thm_masterMethodLR2(a, b, c, T1', w, k);
 }   
 
 //**************************************************************************//
@@ -89,9 +89,9 @@ lemma test_masterMethodForT2lifted()
   var w:nat->R0   := liftToR0(n => 1);
 
   forall n:nat 
-    ensures T2'(n) == TbodyLR(a, b, c, T2', w, n)
+    ensures T2'(n) == TbodyLR2(a, b, c, T2', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T2def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by {  // k=0
@@ -106,7 +106,7 @@ lemma test_masterMethodForT2lifted()
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR(a, b, c, T2', w, k); 
+  thm_masterMethodLR2(a, b, c, T2', w, k); 
   assert bigOR0(T2', (n:nat) => powr(n as R0, 1.0));
 } 
 
@@ -145,9 +145,9 @@ lemma test_masterMethodForT3lifted()
   var w:nat->R0   := liftToR0(n => 4);
 
   forall n:nat 
-    ensures T3'(n) == TbodyLR(a, b, c, T3', w, n)
+    ensures T3'(n) == TbodyLR2(a, b, c, T3', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T3def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by {
@@ -162,7 +162,7 @@ lemma test_masterMethodForT3lifted()
     }
     assert bigOR0from(4.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR(a, b, c, T3', w, k);
+  thm_masterMethodLR2(a, b, c, T3', w, k);
   assert bigOR0(T3', n => powr(n as R0, 1.0));
 } 
 
@@ -202,9 +202,9 @@ lemma test_masterMethodForT4lifted()
   var g:nat->R0   := (n:nat) => powr(n as R0, 0.0)*powr(2.0, (n/1) as R0);
 
   forall n:nat 
-    ensures T4'(n) == TbodyLR(a, b, c, T4', w, n)
+    ensures T4'(n) == TbodyLR2(a, b, c, T4', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T4def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by {
@@ -219,7 +219,7 @@ lemma test_masterMethodForT4lifted()
     }
     assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
   } 
-  masterMethodLR(a, b, c, T4', w, k);
+  thm_masterMethodLR2(a, b, c, T4', w, k);
   assert bigOR0(T4', (n:nat) => powr(n as R0, 0.0)*powr(2.0, (n/1) as R0));
 }  
 
@@ -260,9 +260,9 @@ lemma test_masterMethodForT5lifted()
   var w:nat->R0   := liftToR0(n => 3*n);
  
   forall n:nat 
-    ensures T5'(n) == TbodyLR(a, b, c, T5', w, n)
+    ensures T5'(n) == TbodyLR2(a, b, c, T5', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T5def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by { 
@@ -277,7 +277,7 @@ lemma test_masterMethodForT5lifted()
     }
     assert bigOR0from(3.0, 1, w, n => powr(n as R0, k));
   } 
-  masterMethodLR(a, b, c, T5', w, k);
+  thm_masterMethodLR2(a, b, c, T5', w, k);
   test_masterMethodForT5lifted_simplify();
 }  
 
@@ -332,9 +332,9 @@ lemma test_masterMethodForT6()
   var w:nat->R0   := liftToR0(n => 3*pow(n,2));
 
   forall n:nat 
-    ensures T6'(n) == TbodyLR(a, b, c, T6', w, n)
+    ensures T6'(n) == TbodyLR2(a, b, c, T6', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T6def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by {
@@ -350,7 +350,7 @@ lemma test_masterMethodForT6()
     }
     assert bigOR0from(3.0, 1, w, n => powr(n as R0, k));
   } 
-  masterMethodLR(a, b, c, T6', w, k);
+  thm_masterMethodLR2(a, b, c, T6', w, k);
   lem_simplifyPowrTwo();
 }
 
@@ -412,9 +412,9 @@ lemma test_masterMethodForT7lifted()
   var w:nat->R0   := liftToR0(n => log2(n+1));
 
   forall n:nat 
-    ensures T7'(n) == TbodyLR(a, b, c, T7', w, n)
+    ensures T7'(n) == TbodyLR2(a, b, c, T7', w, n)
   {
-    reveal TbodyLR;
+    reveal TbodyLR2;
     lem_T7def(n);
   } 
   assert bigOR0(w, n => powr(n as R0, k)) by { 
@@ -430,5 +430,5 @@ lemma test_masterMethodForT7lifted()
     }
     assert bigOR0from(1.0, 1, w, n => powr(n as R0, k));
   } 
-  masterMethodLR(a, b, c, T7', w, k);
+  thm_masterMethodLR2(a, b, c, T7', w, k);
 }   

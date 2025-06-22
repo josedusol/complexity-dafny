@@ -21,7 +21,7 @@ method linAfter(N:nat)
       decreases N - i
     {
       // Op. interesante
-      lem_sumDropLastAll(1, i); 
+      lem_sum_dropLastAll(1, i); 
       i := i+1 ;
       t := t+1 ;
     }     
@@ -30,7 +30,7 @@ method linAfter(N:nat)
     t := 20 ;
   }
   assert t == if N < 10 then sum(1, N, k => 1) else 20; 
-  assert t == f(N) by { reveal pow(); lem_sumOverConstAll(1, N); }
+  assert t == f(N) by { reveal pow(); lem_sum_constAll(1, N); }
   assert t <= f(N);
  
   assert bigO(f, constGrowth()) by { var c, n0 := lem_fBigOconst(); }
