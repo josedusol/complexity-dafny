@@ -268,25 +268,50 @@ lemma {:axiom} lem_powrProductAll()
 
 lemma lem_powrTwo(x:real) 
   requires x > 0.0
-  ensures powr(x, 2.0) == x*x
+  ensures  powr(x, 2.0) == x*x
 {  
-  assert powr(x, 2.0) == powr(x, 1.0 + 1.0);
-  lem_powrProduct(x, 1.0, 1.0);
-  lem_powrOne(x);
+  calc {
+       powr(x, 2.0);
+    == { lem_powrProduct(x, 1.0, 1.0); }
+       powr(x, 1.0)*powr(x, 1.0);
+    == { lem_powrOne(x); }
+       x*x;
+  } 
 } 
 
-lemma {:axiom} lem_powrDef(x:real, y:real)
-  requires x > 0.0 
-  ensures x*powr(x, y) == powr(x, y + 1.0)
-// {  
-//   // assert powr(x, 1.0) == x by { lem_powrOne(x); }
-//   // lem_powrProduct(x, 1.0, 1.0);
-//   // lem_powrOne(x);
-// } 
+lemma lem_powrTwoAll()
+  ensures forall x:real :: x > 0.0 ==> powr(x, 2.0) == x*x
+{
+  forall x:real | x > 0.0
+    ensures powr(x, 2.0) == x*x
+  {
+    lem_powrTwo(x);
+  }
+}
 
-lemma {:axiom} lem_powrDefAll()
+lemma lem_powrDef(x:real, y:real)
+  requires x > 0.0 
+  ensures  x*powr(x, y) == powr(x, y + 1.0)
+{ 
+  calc {
+       x*powr(x, y);
+    == { lem_powrOne(x); }
+       powr(x, 1.0)*powr(x, y);
+    == { lem_powrProduct(x, 1.0, y); }
+       powr(x, y + 1.0);
+  } 
+} 
+
+lemma lem_powrDefAll()
   ensures forall x:real, y:real :: 
           x > 0.0 ==> x*powr(x, y) == powr(x, y + 1.0)
+{
+  forall x:real, y:real | x > 0.0
+    ensures x*powr(x, y) == powr(x, y + 1.0)
+  {
+    lem_powrDef(x, y);
+  }
+}
 
 /**************************************************************************
   Function equality
