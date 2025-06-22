@@ -462,11 +462,38 @@ lemma lem_sumr_shiftIndex(i:int, j:int, d:int, f:int->real)
 
 // i <= j+1 /\ (∀ k : i<=k<=j : f(k) == g(k)) 
 //          ==> sum_{k=i}^{j}f = sum_{k=i}^{j}g
-lemma {:axiom} lem_sumr_leibniz(i:int, j:int, f:int->real, g:int->real)
+lemma lem_sumr_leibniz(i:int, j:int, f:int->real, g:int->real)
   requires i <= j+1
   requires forall k:int :: i<=k<=j ==> f(k) == g(k)
   ensures sumr(i, j, f) == sumr(i, j, g)
-
+  decreases j - i
+{
+  if i == j+1 {   
+    // BC: i > j
+    calc {
+         sumr(j+1, j, f);
+      == { reveal sumr(); }
+         0.0;
+      == { reveal sumr(); }
+         sumr(j+1, j, g);       
+    }
+  } else {  
+    // Step. i <= j
+    //   IH: sumr(i+1, j, f) = sumr(i+1, j, g)
+    //    T: sumr(i, j, f)   = sumr(i, j, g)
+    calc {  
+         sumr(i, j, f);
+      == { reveal sumr(); } 
+         f(i) + sumr(i+1, j, f);
+      == {  } 
+         g(i) + sumr(i+1, j, f);
+      == { lem_sumr_leibniz(i+1, j, f, g); }  // by IH
+         g(i) + sumr(i+1, j, g);
+      == { reveal sumr(); }
+         sumr(i, j, g);           
+    }
+  }
+} 
 
 /**************************************************************************
   A special version of Sum on integer codomain
@@ -542,10 +569,18 @@ lemma lem_sum_constAll(i:int, j:int)
 
 // i <= j+1 /\ (∀ k : i<=k<=j : f(k) == g(k)) 
 //          ==> sum_{k=i}^{j}f = sum_{k=i}^{j}g
-lemma {:axiom} lem_sum_leibniz(i:int, j:int, f:int->int, g:int->int)
+lemma lem_sum_leibniz(i:int, j:int, f:int->int, g:int->int)
   requires i <= j+1
   requires forall k:int :: i<=k<=j ==> f(k) == g(k)
   ensures  sum(i, j, f) == sum(i, j, g)
+{
+  var fr := liftCi2r(f);
+  var gr := liftCi2r(g);
+  lem_sumr_leibniz(i, j, fr, gr);
+  assert sumr(i, j, fr) == sumr(i, j, gr);
+  lem_sum_liftEq(i, j, f);
+  lem_sum_liftEq(i, j, g);
+}
 
 // Following sum lemmas are only stated for integer sum
 
