@@ -1,5 +1,6 @@
 
 include "./complexity.dfy"
+include "../theory/math_sum.dfy"
 
 // Following recurrence models a recursive computation where
 //      a = Branching factor, or number of recursive calls. Controls the breadth of computation.

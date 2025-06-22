@@ -1,5 +1,6 @@
  
 include "../theory/complexity.dfy"
+include "../theory/math_sum.dfy"
 
 ghost function f(N:nat) : nat
 {

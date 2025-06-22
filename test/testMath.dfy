@@ -1,5 +1,6 @@
 
 include "../theory/math.dfy"
+include "../theory/math_sum.dfy"
 
 ghost method test_sumrInterval() {
   reveal sumr();

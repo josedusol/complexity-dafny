@@ -6,7 +6,7 @@ include "./math.dfy"
 **************************************************************************/
 
 // n > 0 ==> 2^log2(n) <= n
-lemma lem_log2Pow2_bounds(n: nat)
+lemma lem_log2Pow2_bounds(n:nat)
   requires n > 0
   ensures  pow(2, log2(n)) <= n
 {
