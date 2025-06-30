@@ -4,26 +4,23 @@ include "./math/FloorCeil.dfy"
 include "./math/LemBoundsNat.dfy"
 include "./math/LemFunction.dfy"
 include "./math/LogNat.dfy"
-include "./math/Misc.dfy"
 include "./math/SqrtNat.dfy"
 include "./math/TypeR0.dfy"
 include "./ComplexityNat.dfy"
 
 /**************************************************************************
-  Common growth rates
+  Common growth rates with non-negative integer codomain
 **************************************************************************/
 
 module GrowthRatesNat { 
   import opened ExpNat
   import opened Factorial  
   import opened FloorCeil   
-  import opened Misc 
   import opened LemBoundsNat
   import opened LemFunction
   import opened LogNat
   import opened SqrtNat
   import opened TypeR0 
-
   import opened ComplexityNat
 
   ghost function constGrowth() : nat->nat
@@ -66,11 +63,6 @@ module GrowthRatesNat {
     n => pow(n,k)
   }
 
-  // ghost function polyGrowthR0(k:R0) : nat->R0
-  // {   
-  //   n => powr(n as R0,k)
-  // }
-
   ghost function expGrowth() : nat->nat
   {   
     n => pow(2,n)
@@ -105,7 +97,7 @@ module GrowthRatesNat {
 
   // log2(n+1) ∈ O(n) 
   lemma lem_bigO_logBigOlinV2()
-    ensures bigO(logGrowth2(), linGrowth()) 
+    ensures bigO(logGrowth2(), linGrowth())
   { 
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n

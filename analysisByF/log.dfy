@@ -63,7 +63,7 @@ lemma lem_fBigOlog() returns (c:nat, n0:nat)
   forall n:nat | 0 <= n0 <= n
     ensures f(n) <= c*logGrowth()(n)
   {
-    assert n >= n0 ==> f(n) <= c*logGrowth()(n); 
+    assert f(n) <= c*logGrowth()(n); 
   }
 }
 

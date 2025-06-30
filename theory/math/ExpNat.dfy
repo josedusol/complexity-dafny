@@ -22,7 +22,7 @@ module ExpNat {
     reveal pow();
   }
 
-  // b>1 /\ n <= m ==> b^n <= b^m
+  // b > 1 /\ n <= m ==> b^n <= b^m
   lemma lem_powMono(b:nat, n:nat, m:nat)
     requires b > 1
     ensures  n <= m ==> pow(b, n) <= pow(b, m)

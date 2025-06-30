@@ -1,10 +1,10 @@
 include "../theory/math/ExpNat.dfy"
-include "../theory/math/SummationInt.dfy"
+include "../theory/math/SumInt.dfy"
 include "../theory/ComplexityNat.dfy"
 include "../theory/GrowthRatesNat.dfy"
 
 import opened ExpNat
-import opened SummationInt
+import opened SumInt
 import opened ComplexityNat
 import opened GrowthRatesNat
 

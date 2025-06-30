@@ -10,20 +10,19 @@ include "./math/TypeR0.dfy"
 include "./ComplexityR0.dfy"
 
 /**************************************************************************
-  Common growth rates
+  Common growth rates with non-negative real codomain
 **************************************************************************/
 
 module GrowthRatesR0 { 
   import opened ExpReal
   import opened Factorial  
   import opened FloorCeil   
-  import opened Misc 
+  import opened Misc
   import opened LemBoundsNat
   import opened LemFunction
   import opened LogNat
   import opened SqrtNat
   import opened TypeR0 
-
   import opened ComplexityR0
 
   ghost function constGrowth() : nat->R0
@@ -48,27 +47,27 @@ module GrowthRatesR0 {
 
   ghost function linGrowth() : nat->R0
   {   
-    n => powr(n as R0, 1.0)
+    n => pow(n as R0, 1.0)
   }
 
   ghost function quadGrowth() : nat->R0
   {   
-    n => powr(n as R0, 2.0)
+    n => pow(n as R0, 2.0)
   }
 
   ghost function cubicGrowth() : nat->R0
   {   
-    n => powr(n as R0, 3.0)
+    n => pow(n as R0, 3.0)
   }
 
-  ghost function polyGrowthR0(k:R0) : nat->R0
+  ghost function polyGrowth(k:R0) : nat->R0
   {   
-    n => powr(n as R0, k)
+    n => pow(n as R0, k)
   }
 
   ghost function expGrowth() : nat->R0
   {   
-    n => powr(2.0, n as R0)
+    n => pow(2.0, n as R0)
   }
 
   ghost function facGrowth() : nat->R0
@@ -78,7 +77,7 @@ module GrowthRatesR0 {
 
   ghost function dexpGrowth() : nat->R0
   {   
-    n => powr(2.0, powr(2.0, n as R0))
+    n => pow(2.0, pow(2.0, n as R0))
   }
 
 }

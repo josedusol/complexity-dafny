@@ -1,7 +1,6 @@
-include "./math/FloorCeil.dfy"
 include "./math/ExpNat.dfy"
+include "./math/FloorCeil.dfy"
 include "./math/LemFunction.dfy"
-include "./math/Misc.dfy"
 include "./math/TypeR0.dfy"
 include "./ComplexityR0.dfy"
 
@@ -10,12 +9,11 @@ include "./ComplexityR0.dfy"
 **************************************************************************/
 
 module ComplexityNat { 
-  import opened ComplexityR0
   import opened ExpNat
   import opened FloorCeil   
-  import opened Misc 
   import opened LemFunction
   import opened TypeR0 
+  import CR0 = ComplexityR0
 
   ghost predicate bigO(f:nat->nat, g:nat->nat)
   { 
@@ -32,7 +30,7 @@ module ComplexityNat {
     exists f:nat->nat :: t <= f(n) && bigO(f,g)
   }
 
-  ghost predicate isPoly(f:nat->nat)
+  ghost predicate isBigOPoly(f:nat->nat)
   { 
     exists k:nat :: bigO(f, n => pow(n,k))
   }
@@ -45,7 +43,7 @@ module ComplexityNat {
   // the result for the lifted versions f',g':nat->R0.
   lemma lem_bigOtoBigOR0(f:nat->nat, g:nat->nat)  
     requires bigO(f, g) 
-    ensures  bigOR0(liftToR0(f), liftToR0(g))
+    ensures  CR0.bigO(liftToR0(f), liftToR0(g))
   {    
     var c:nat, n0:nat :| bigOfrom(c, n0, f, g);  
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
@@ -55,16 +53,16 @@ module ComplexityNat {
 
     var c':R0 := c as R0; // just view c:nat as a R0 number
     assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(f)(n) <= c'*liftToR0(g)(n); 
-    assert bigOR0from(c', n0, liftToR0(f), liftToR0(g));
+    assert CR0.bigOfrom(c', n0, liftToR0(f), liftToR0(g));
   }
   
   // If we prove f' ∈ O(g') for the lifted versions of f,g:nat->nat
   // then we can get back the result
   lemma lem_bigOR0toBigO(f:nat->nat, g:nat->nat)  
-    requires bigOR0(liftToR0(f), liftToR0(g))
+    requires CR0.bigO(liftToR0(f), liftToR0(g))
     ensures  bigO(f, g)
   { 
-    var c:R0, n0:nat :| bigOR0from(c, n0, liftToR0(f), liftToR0(g));
+    var c:R0, n0:nat :| CR0.bigOfrom(c, n0, liftToR0(f), liftToR0(g));
     assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(f)(n) <= c*liftToR0(g)(n);
     
     assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
@@ -89,8 +87,8 @@ module ComplexityNat {
     ensures bigO(f, f) 
   {  
     var f':nat->R0 := liftToR0(f);
-    assert bigOR0(f', f')
-      by { lem_bigOR0_refl(f'); }
+    assert CR0.bigO(f', f')
+      by { CR0.lem_bigO_refl(f'); }
     lem_bigOR0toBigO(f, f);
   }
 
@@ -103,10 +101,10 @@ module ComplexityNat {
     var f':nat->R0 := liftToR0(f);
     var g':nat->R0 := liftToR0(g); 
     var a':R0 := a as R0; 
-    assert bigOR0(f', g') 
+    assert CR0.bigO(f', g') 
       by { lem_bigOtoBigOR0(f, g); }
-    assert bigOR0(n => a'*f'(n), g')  
-      by { lem_bigOR0_constFactor(f', g', a'); }
+    assert CR0.bigO(n => a'*f'(n), g')  
+      by { CR0.lem_bigO_constFactor(f', g', a'); }
     lem_bigOR0toBigO(n => a*f(n), g)
       by { lem_funExt(liftToR0(n => a*f(n)), n => a'*f'(n)); }
   } 
@@ -121,12 +119,12 @@ module ComplexityNat {
     var f2':nat->R0 := liftToR0(f2);
     var g1':nat->R0 := liftToR0(g1); 
     var g2':nat->R0 := liftToR0(g2); 
-    assert bigOR0(f1', g1') 
+    assert CR0.bigO(f1', g1') 
       by { lem_bigOtoBigOR0(f1, g1); }
-    assert bigOR0(f2', g2') 
+    assert CR0.bigO(f2', g2') 
       by { lem_bigOtoBigOR0(f2, g2); } 
-    assert bigOR0(n => f1'(n)+f2'(n), n => g1'(n)+g2'(n))  
-      by { lem_bigOR0_sum(f1', g1', f2', g2'); }
+    assert CR0.bigO(n => f1'(n)+f2'(n), n => g1'(n)+g2'(n))  
+      by { CR0.lem_bigO_sum(f1', g1', f2', g2'); }
     lem_funExt(liftToR0(n => f1(n)+f2(n)), n => f1'(n)+f2'(n));
     lem_funExt(liftToR0(n => g1(n)+g2(n)), n => g1'(n)+g2'(n));  
     lem_bigOR0toBigO(n => f1(n)+f2(n), n => g1(n)+g2(n));     
@@ -142,12 +140,12 @@ module ComplexityNat {
     var f2':nat->R0 := liftToR0(f2);
     var g1':nat->R0 := liftToR0(g1); 
     var g2':nat->R0 := liftToR0(g2);  
-    assert A: bigOR0(f1', g1') 
+    assert A: CR0.bigO(f1', g1') 
       by { lem_bigOtoBigOR0(f1, g1); }
-    assert B: bigOR0(f2', g2') 
+    assert B: CR0.bigO(f2', g2') 
       by { lem_bigOtoBigOR0(f2, g2); } 
-    assert bigOR0(n => f1'(n)*f2'(n), n => g1'(n)*g2'(n))  
-      by { reveal A, B; lem_bigOR0_prod(f1', g1', f2', g2'); }
+    assert CR0.bigO(n => f1'(n)*f2'(n), n => g1'(n)*g2'(n))  
+      by { reveal A, B; CR0.lem_bigO_prod(f1', g1', f2', g2'); }
     lem_funExt(liftToR0(n => f1(n)*f2(n)), n => f1'(n)*f2'(n));
     lem_funExt(liftToR0(n => g1(n)*g2(n)), n => g1'(n)*g2'(n));
     lem_bigOR0toBigO(n => f1(n)*f2(n), n => g1(n)*g2(n));
@@ -163,12 +161,12 @@ module ComplexityNat {
     var f':nat->R0 := liftToR0(f);
     var g':nat->R0 := liftToR0(g);  
     var h':nat->R0 := liftToR0(h);  
-    assert bigOR0(f', g') 
+    assert CR0.bigO(f', g') 
       by { lem_bigOtoBigOR0(f, g); }
-    assert bigOR0(g', h') 
+    assert CR0.bigO(g', h') 
       by { lem_bigOtoBigOR0(g, h); }
-    assert bigOR0(f', h')  
-      by { lem_bigOR0_trans(f', g', h'); }
+    assert CR0.bigO(f', h')  
+      by { CR0.lem_bigO_trans(f', g', h'); }
     lem_bigOR0toBigO(f, h);
   }
 

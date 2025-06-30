@@ -1,12 +1,12 @@
 include "../theory/math/ExpReal.dfy"
-include "../theory/math/Misc.dfy"
+include "../theory/math/LemFunction.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityR0.dfy"
 include "../theory/GrowthRatesR0.dfy"
 include "../theory/MasterLR.dfy"
 
 import opened ExpReal
-import opened Misc
+import opened LemFunction
 import opened TypeR0
 import opened ComplexityR0
 import opened GrowthRatesR0
@@ -15,7 +15,7 @@ import opened MasterLR
 method lin(N:nat) 
   returns (ghost t:nat)
   ensures t == T(N)
-  ensures bigOR0(liftToR0(T), n => powr(n as R0, 1.0))
+  ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
 {
   var i; reveal T();
   i, t := 0, 0;
@@ -48,7 +48,7 @@ lemma lem_Tdef(n:nat)
 }
 
 lemma lem_T2BigOlin()
-  ensures bigOR0(liftToR0(T), n => powr(n as R0, 1.0))
+  ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -65,15 +65,15 @@ lemma lem_T2BigOlin()
     reveal TbodyLR;
     lem_Tdef(n);
   }    
-  assert bigOR0(w, n => powr(n as R0, k)) by {   
+  assert bigO(w, n => pow(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
-      ensures w(n) <= 1.0*polyGrowthR0(k)(n)
+      ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
-      assert w(n) <= 1.0*polyGrowthR0(k)(n); 
+      assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+      assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
+    assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T', w, k);
 }

@@ -5,78 +5,78 @@
 
 module ExpReal {
 
-  ghost function {:axiom} powr(x:real, y:real) : real
-    ensures x >= 0.0 && y >= 0.0 ==> powr(x, y) >= 0.0  
+  ghost function {:axiom} pow(x:real, y:real) : real
+    ensures x >= 0.0 && y >= 0.0 ==> pow(x, y) >= 0.0  
 
-  lemma {:axiom} lem_powrZeroZero() // assume 0.0^0.0 = 1
-    ensures  powr(0.0, 0.0) == 1.0 
+  lemma {:axiom} lem_powZeroZero() // assume 0.0^0.0 = 1
+    ensures pow(0.0, 0.0) == 1.0 
 
-  lemma {:axiom} lem_powrZero(x:real)
+  lemma {:axiom} lem_powZero(x:real)
     requires x > 0.0
-    ensures  powr(x, 0.0) == 1.0 
+    ensures pow(x, 0.0) == 1.0 
 
-  lemma {:axiom} lem_powrOne(x:real)
+  lemma {:axiom} lem_powOne(x:real)
     requires x > 0.0
-    ensures  powr(x, 1.0) == x
+    ensures pow(x, 1.0) == x
 
-  lemma {:axiom} lem_powrProduct(x:real, y:real, z:real)
+  lemma {:axiom} lem_powProduct(x:real, y:real, z:real)
     requires x > 0.0 
-    ensures powr(x, y+z) == powr(x, y)*powr(x, z)  
+    ensures pow(x, y+z) == pow(x, y)*pow(x, z)  
 
-  lemma {:axiom} lem_powrZeroAll()
-    ensures forall x:real :: x > 0.0 ==> powr(x, 0.0) == 1.0 
+  lemma {:axiom} lem_powZeroAll()
+    ensures forall x:real :: x > 0.0 ==> pow(x, 0.0) == 1.0 
 
-  lemma {:axiom} lem_powrOneAll()
-    ensures forall x:real :: x > 0.0 ==> powr(x, 1.0) == x  
+  lemma {:axiom} lem_powOneAll()
+    ensures forall x:real :: x > 0.0 ==> pow(x, 1.0) == x  
 
-  lemma {:axiom} lem_powrProductAll()
+  lemma {:axiom} lem_powProductAll()
     ensures forall x:real, y:real, z:real :: 
-            x > 0.0 ==> powr(x, y+z) == powr(x, y)*powr(x, z)
+            x > 0.0 ==> pow(x, y+z) == pow(x, y)*pow(x, z)
 
-  lemma lem_powrTwo(x:real) 
+  lemma lem_powTwo(x:real) 
     requires x > 0.0
-    ensures  powr(x, 2.0) == x*x
+    ensures  pow(x, 2.0) == x*x
   {  
     calc {
-        powr(x, 2.0);
-      == { lem_powrProduct(x, 1.0, 1.0); }
-        powr(x, 1.0)*powr(x, 1.0);
-      == { lem_powrOne(x); }
+        pow(x, 2.0);
+      == { lem_powProduct(x, 1.0, 1.0); }
+        pow(x, 1.0)*pow(x, 1.0);
+      == { lem_powOne(x); }
         x*x;
     } 
   } 
 
-  lemma lem_powrTwoAll()
-    ensures forall x:real :: x > 0.0 ==> powr(x, 2.0) == x*x
+  lemma lem_powTwoAll()
+    ensures forall x:real :: x > 0.0 ==> pow(x, 2.0) == x*x
   {
     forall x:real | x > 0.0
-      ensures powr(x, 2.0) == x*x
+      ensures pow(x, 2.0) == x*x
     {
-      lem_powrTwo(x);
+      lem_powTwo(x);
     }
   }
 
-  lemma lem_powrDef(x:real, y:real)
+  lemma lem_powDef(x:real, y:real)
     requires x > 0.0 
-    ensures  x*powr(x, y) == powr(x, y + 1.0)
+    ensures  x*pow(x, y) == pow(x, y + 1.0)
   { 
     calc {
-        x*powr(x, y);
-      == { lem_powrOne(x); }
-        powr(x, 1.0)*powr(x, y);
-      == { lem_powrProduct(x, 1.0, y); }
-        powr(x, y + 1.0);
+        x*pow(x, y);
+      == { lem_powOne(x); }
+        pow(x, 1.0)*pow(x, y);
+      == { lem_powProduct(x, 1.0, y); }
+        pow(x, y + 1.0);
     } 
   } 
 
-  lemma lem_powrDefAll()
+  lemma lem_powDefAll()
     ensures forall x:real, y:real :: 
-            x > 0.0 ==> x*powr(x, y) == powr(x, y + 1.0)
+            x > 0.0 ==> x*pow(x, y) == pow(x, y + 1.0)
   {
     forall x:real, y:real | x > 0.0
-      ensures x*powr(x, y) == powr(x, y + 1.0)
+      ensures x*pow(x, y) == pow(x, y + 1.0)
     {
-      lem_powrDef(x, y);
+      lem_powDef(x, y);
     }
   }
 

@@ -1,6 +1,12 @@
+include "../theory/math/ExpNat.dfy"
+include "../theory/math/SumInt.dfy"
+include "../theory/ComplexityNat.dfy"
+include "../theory/GrowthRatesNat.dfy"
 
-include "../theory/complexity.dfy"
-include "../theory/mathSum.dfy"
+import opened ExpNat
+import opened SumInt
+import opened ComplexityNat
+import opened GrowthRatesNat
 
 ghost function f(N:nat) : nat
 {
@@ -68,7 +74,7 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
     == { lem_solveInnerSum(1, N, 1); }
        sum(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0);
     == { lem_sum_leibniz(1, N, k => if 1<=k<=N then 1*(N-k+1) else 0,
-                              k => if 1<=k<=N then N-k+1 else 0); }
+                               k => if 1<=k<=N then N-k+1 else 0); }
        sum(1, N, k => if 1<=k<=N then (N-k+1) else 0);
     == { lem_sumReverseIndexAux(1, N); }
        sum(1, N, k => k);
@@ -91,7 +97,7 @@ lemma {:axiom} lem_sumGuardedShiftLowerBound(i:int, j:int, f:int->int)
 //              = f(i) + sum_{k=i+1}^{j}ITE(i+1<=k<=j,f(k),0)
 lemma {:axiom} lem_sumGuardedDropFirst(i:int, j:int, f:int->int)
   requires i <= j+1
-  ensures    sum(i, j, k => if i<=k<=j then f(k) else 0) 
+  ensures    sum(i, j, k => if i<=k<=j then f(k) else 0)
           ==   (if i<=i<=j then f(i) else 0) 
              + sum(i+1, j, k => if i+1<=k<=j then f(k) else 0) 
 
@@ -143,9 +149,9 @@ lemma lem_solveInnerSumAUX(i:nat, N:nat, c:nat)
     == { reveal sum(); }
        (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i<=k<=N then c*(N-k+1) else 0);
     == { assert i+1 <= N+1; assert forall k :: i+1 <= k <= N ==> 
-       ((k => (if i+1<=k<=N then c*(N-k+1) else 0))(k) == (k => (if i<=k<=N then c*(N-k+1) else 0))(k));
+           ((k => (if i+1<=k<=N then c*(N-k+1) else 0))(k) == (k => (if i<=k<=N then c*(N-k+1) else 0))(k));
          lem_sum_leibniz(i+1, N, k => (if i+1<=k<=N then c*(N-k+1) else 0), 
-                                k => (if i<=k<=N then c*(N-k+1) else 0)); }
+                                 k => (if i<=k<=N then c*(N-k+1) else 0)); }
        (if i<=i<=N then c*(N-i+1) else 0) + sum(i+1, N, k => if i+1<=k<=N then c*(N-k+1) else 0); 
   } 
 } 

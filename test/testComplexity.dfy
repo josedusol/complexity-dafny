@@ -1,10 +1,23 @@
+include "../theory/math/ExpNat.dfy"
+include "../theory/math/LemBoundsNat.dfy"
+include "../theory/math/LemFunction.dfy"
+include "../theory/math/LogNat.dfy"
+include "../theory/math/SumInt.dfy"
+include "../theory/ComplexityNat.dfy"
+include "../theory/GrowthRatesNat.dfy"
 
-include "../theory/complexity.dfy"
+import opened ExpNat
+import opened LemBoundsNat
+import opened LemFunction
+import opened LogNat
+import opened SumInt
+import opened ComplexityNat
+import opened GrowthRatesNat
 
 lemma test_bigOprod()
   requires bigO(n => 2*n, linGrowth())
   requires bigO(n => 3*n, linGrowth())
-  ensures bigO(n => (2*n)*(3*n), quadGrowth())
+  ensures  bigO(n => (2*n)*(3*n), quadGrowth())
 {
   var f1:nat->nat := n => 2*n; 
   var f2:nat->nat := n => 3*n;
@@ -30,11 +43,10 @@ lemma test_polyBigO() returns (c:nat, n0:nat)
     ensures poly(n) <= c*quadGrowth()(n)
   {
     calc {
-        poly(n);
-      ==
-        3*pow(n,2) + 100*pow(n,1) + 10;
+         poly(n);
+      == 3*pow(n,2) + 100*pow(n,1) + 10;
       <= { reveal pow(); }
-        c*pow(n,2); 
+         c*pow(n,2); 
     }
     assert poly(n) <= c*quadGrowth()(n);
   }
@@ -52,11 +64,11 @@ lemma test_log2BigOn() returns (c:nat, n0:nat)
     ensures log2(n+1) <= c*linGrowth()(n)
   {
     calc {
-        log2(n+1);
+         log2(n+1);
       <= { lem_log2nPlus1LEQn(n); }
-        n;
-      == {reveal pow();}
-          c*pow(n,1);  
+         n;
+      == { reveal pow(); }
+         c*pow(n,1);  
     }
     assert log2(n+1) <= c*linGrowth()(n);
   }

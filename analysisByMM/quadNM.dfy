@@ -1,12 +1,12 @@
 include "../theory/math/ExpReal.dfy"
-include "../theory/math/Misc.dfy"
+include "../theory/math/LemFunction.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityR0.dfy"
 include "../theory/GrowthRatesR0.dfy"
 include "../theory/MasterLR.dfy"
 
 import opened ExpReal
-import opened Misc
+import opened LemFunction
 import opened TypeR0
 import opened ComplexityR0
 import opened GrowthRatesR0
@@ -16,9 +16,9 @@ method quad(N:nat, M:nat)
   returns (ghost t:nat, ghost t':nat)
   requires N == M
   ensures t == T1(N, N, N)  
-  //ensures bigOR0(liftToR0((n:nat) => T1(N,N,n)), polyGrowthR0(2.0))
-  ensures bigOR0(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), polyGrowthR0(2.0))
-  //ensures bigOR0(liftToR0((n:nat) requires n<=N => T1(N,N,n)), polyGrowthR0(2.0))
+  //ensures bigO(liftToR0((n:nat) => T1(N,N,n)), polyGrowth(2.0))
+  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), polyGrowth(2.0))
+  //ensures bigO(liftToR0((n:nat) requires n<=N => T1(N,N,n)), polyGrowth(2.0))
 {
   var i, j; reveal T1(),T2(); //var M := N;
   i, j, t, t' := 0, 0, 0, 0;
@@ -93,7 +93,7 @@ lemma lem_T2def(N:nat, M:nat, j:nat)
 
 lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   requires N == M
-  ensures bigOR0(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), n => powr(n as R0, 2.0))
+  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), n => pow(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -121,19 +121,19 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   //lem_T2BigOlin(N, N);
   //assert bigOR0(liftToR0(n => T2(N,N,n)), n => powr0(n as R0, 1.0));
 
-  assert bigOR0(w, n => powr(n as R0, k)) by {
+  assert bigO(w, n => pow(n as R0, k)) by {
     lem_T2BigOlin(N, N);
-    var c:R0, n0:nat :| bigOR0from(c, n0, liftToR0(n => T2(N,N,n)), n => powr(n as R0, 1.0));
-    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*powr(n as R0, 1.0);
+    var c:R0, n0:nat :| bigOfrom(c, n0, liftToR0(n => T2(N,N,n)), n => pow(n as R0, 1.0));
+    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*pow(n as R0, 1.0);
  
     forall n:nat | 0 <= n0 <= n
-      ensures w(n) <= c*powr(n as R0, k)
+      ensures w(n) <= c*pow(n as R0, k)
     {
        if n <= N {
          assert T2(N,N,n) <= T2(N,N,N);
-         assert liftToR0(n => T2(N,N,n))(n) <= c*powr(n as R0, 1.0);
-         assert liftToR0(n => T2(N,N,N))(n) <= c*powr(n as R0, 1.0);
-         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c*powr(n as R0, k);
+         assert liftToR0(n => T2(N,N,n))(n) <= c*pow(n as R0, 1.0);
+         assert liftToR0(n => T2(N,N,N))(n) <= c*pow(n as R0, 1.0);
+         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c*pow(n as R0, k);
        }
     }
   }
@@ -205,7 +205,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
 // }
 
 lemma lem_T2BigOlin(N:nat, M:nat)
-  ensures bigOR0(liftToR0(n => T2(N,M,n)), n => powr(n as R0, 1.0)) 
+  ensures bigO(liftToR0(n => T2(N,M,n)), n => pow(n as R0, 1.0)) 
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -221,15 +221,15 @@ lemma lem_T2BigOlin(N:nat, M:nat)
     reveal TbodyLR;
     lem_T2def(N,M,n);
   } 
-  assert bigOR0(w, n => powr(n as R0, k)) by {   
+  assert bigO(w, n => pow(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
-      ensures w(n) <= 1.0*polyGrowthR0(k)(n)
+      ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
-      assert w(n) <= 1.0*polyGrowthR0(k)(n); 
+      assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+      assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
+    assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T2', w, k);
 }

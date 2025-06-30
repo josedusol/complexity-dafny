@@ -1,13 +1,13 @@
-include "./SummationReal.dfy"
-include "./Misc.dfy"
+include "./LemFunction.dfy"
+include "./SumReal.dfy"
 
 /**************************************************************************
   Sum over integer intervals and integer codomain
 **************************************************************************/
 
-module SummationInt {
-  import opened SummationReal
-  import opened Misc
+module SumInt {
+  import opened LemFunction  
+  import R = SumReal
 
   // sum_{k=a}^{b}f(k)
   opaque ghost function sum(a:int, b:int, f:int->int) : int
@@ -20,10 +20,10 @@ module SummationInt {
 
   lemma lem_sum_liftEq(a:int, b:int, f:int->int)
     requires a <= b+1
-    ensures  sumr(a, b, liftCi2r(f)) == sum(a, b, f) as real
+    ensures  R.sum(a, b, liftCi2r(f)) == sum(a, b, f) as real
     decreases b - a
   {
-    reveal sum(), sumr();
+    reveal sum(), R.sum();
   }  
 
   // a <= b+1 ==> sum_{k=a}^{b+1}f(k) = sum_{k=a}^{b}f(k) + f(b+1)
@@ -32,8 +32,8 @@ module SummationInt {
     ensures  sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
   { 
     var fr := liftCi2r(f);
-    lem_sumr_dropLast(a, b, fr);
-    assert sumr(a, b+1, fr) == sumr(a, b, fr) + fr(b+1);
+    R.lem_sum_dropLast(a, b, fr);
+    assert R.sum(a, b+1, fr) == R.sum(a, b, fr) + fr(b+1);
     lem_sum_liftEq(a, b+1, f);
     lem_sum_liftEq(a, b, f);
   }
@@ -57,13 +57,13 @@ module SummationInt {
     var fr := liftCi2r(k => c);
     var c' := c as real;
     assert c' == c as real;
-    lem_sumr_const(a, b, c');
-    assert sumr(a, b, k => c') == (c*(b - a + 1)) as real;
+    R.lem_sum_const(a, b, c');
+    assert R.sum(a, b, k => c') == (c*(b - a + 1)) as real;
     lem_sum_liftEq(a, b, k => c);
-    assert sumr(a, b, fr) == sum(a, b, k => c) as real;
-    assert sumr(a, b, fr) == sumr(a, b, k => c')
+    assert R.sum(a, b, fr) == sum(a, b, k => c) as real;
+    assert R.sum(a, b, fr) == R.sum(a, b, k => c')
     by { assert forall k:int :: a<=k<=b ==> c as real == c';
-          lem_sumr_leibniz(a, b, fr, k => c'); } 
+         R.lem_sum_leibniz(a, b, fr, k => c'); } 
   } 
 
   lemma lem_sum_constAll(a:int, b:int)
@@ -86,8 +86,8 @@ module SummationInt {
   {
     var fr := liftCi2r(f);
     var gr := liftCi2r(g);
-    lem_sumr_leibniz(a, b, fr, gr);
-    assert sumr(a, b, fr) == sumr(a, b, gr);
+    R.lem_sum_leibniz(a, b, fr, gr);
+    assert R.sum(a, b, fr) == R.sum(a, b, gr);
     lem_sum_liftEq(a, b, f);
     lem_sum_liftEq(a, b, g);
   }

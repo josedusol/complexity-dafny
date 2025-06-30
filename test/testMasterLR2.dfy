@@ -1,5 +1,21 @@
+include "../theory/math/ExpReal.dfy"
+include "../theory/math/LemBoundsNat.dfy"
+include "../theory/math/LemFunction.dfy"
+include "../theory/math/LogNat.dfy"
+include "../theory/math/SumInt.dfy"
+include "../theory/math/TypeR0.dfy"
+include "../theory/ComplexityR0.dfy"
+include "../theory/GrowthRatesR0.dfy"
+include "../theory/MasterLR.dfy"
 
-include "../theory/masterLR.dfy"
+import opened ExpReal
+import opened LemBoundsNat
+import opened LemFunction
+import opened LogNat
+import opened TypeR0
+import opened ComplexityR0
+import opened GrowthRatesR0
+import opened MasterLR
 
 // Recurrence:
 //   T1(n) = / 0             , n <= 0
@@ -24,7 +40,7 @@ lemma lem_T1def(n:nat)
 // Asymptotic closed form:
 //   T1(n) in O(n)
 lemma test_masterMethodForT1lifted()
-  ensures bigOR0(liftToR0(T1), n => powr(n as R0, 1.0))
+  ensures bigO(liftToR0(T1), n => pow(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -41,17 +57,17 @@ lemma test_masterMethodForT1lifted()
     reveal TbodyLR;
     lem_T1def(n);
   }           
-  assert bigOR0(w, n => powr(n as R0, k)) by {   
+  assert bigO(w, n => pow(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowthR0(k)(n)
+      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert powr(n as R0, k) == 1.0 by { lem_powrZeroAll(); }
-        assert w(n) <= 1.0*polyGrowthR0(k)(n); 
+        assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+        assert w(n) <= 1.0*polyGrowth(k)(n); 
       }
     }
-    assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
+    assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T1', w, k);
 }   
@@ -81,7 +97,7 @@ lemma lem_T2def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT2lifted() 
-  ensures bigOR0(liftToR0(T2), n => powr(n as R0, 1.0))
+  ensures bigO(liftToR0(T2), n => pow(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 2;
@@ -98,17 +114,17 @@ lemma test_masterMethodForT2lifted()
     reveal TbodyLR;
     lem_T2def(n);
   }
-  assert bigOR0(w, n => powr(n as R0, k)) by {  // k=0
+  assert bigO(w, n => pow(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowthR0(k)(n)
+      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowthR0(k)(n) == 1.0 by { lem_powrZeroAll(); }
-        assert 1.0 <= 1.0*polyGrowthR0(k)(n); 
+        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert 1.0 <= 1.0*polyGrowth(k)(n); 
       }
     }
-    assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
+    assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T2', w, k); 
 } 
@@ -138,7 +154,7 @@ lemma lem_T3def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT3lifted() 
-  ensures bigOR0(liftToR0(T3), n => powr(n as R0, 1.0))
+  ensures bigO(liftToR0(T3), n => pow(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 4;
@@ -155,17 +171,17 @@ lemma test_masterMethodForT3lifted()
     reveal TbodyLR;
     lem_T3def(n);
   }
-  assert bigOR0(w, n => powr(n as R0, k)) by {  // k=0
+  assert bigO(w, n => pow(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowthR0(k)(n)
+      ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowthR0(k)(n) == 1.0 by { lem_powrZeroAll(); }
-        assert 1.0 <= 1.0*polyGrowthR0(k)(n); 
+        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert 1.0 <= 1.0*polyGrowth(k)(n); 
       }
     }
-    assert bigOR0from(1.0, 1, w, polyGrowthR0(k));
+    assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T3', w, k); 
 } 
