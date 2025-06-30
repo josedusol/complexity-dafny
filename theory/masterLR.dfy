@@ -1,6 +1,6 @@
 
 include "./complexity.dfy"
-include "../theory/math_sum.dfy"
+include "../theory/mathSum.dfy"
 
 // Following recurrence models a recursive computation where
 //      a = Branching factor, or number of recursive calls. Controls the breadth of computation.
@@ -9,7 +9,7 @@ include "../theory/math_sum.dfy"
 //      c = Cost at the base case
 //   w(n) = Additive term, cost by recursive call.
 //
-//  It is assumed sub-exponential work is donde at each recursive call
+//  It is assumed sub-exponential work is done at each recursive call
 //  (if not we would be doing exponential work from the very beggining!).
 //
 // Let T:nat->R0 be such that

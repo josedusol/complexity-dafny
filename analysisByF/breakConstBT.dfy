@@ -11,7 +11,7 @@ method breakConstBT(N:nat, P:nat->bool)
   ensures t <= f(N) 
   ensures tIsBigO(N, t, constGrowth())
 {
-  assume N > 0 ==> P(0);  // best case
+  assume {:axiom} N > 0 ==> P(0);  // best case
   var i;
   i, t := 0, 0;
   while i != N

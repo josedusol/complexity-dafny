@@ -39,6 +39,11 @@ ghost predicate bigOR0from(c:R0, n0:nat, f:nat->R0, g:nat->R0)
 {
   forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)
 }
+
+ghost predicate tIsBigOR0(n:nat, t:R0, g:nat->R0)
+{ 
+  exists f:nat->R0 :: t <= f(n) && bigOR0(f,g)
+}
  
 /**************************************************************************
   Mapping of results between unlifted and lifted functions

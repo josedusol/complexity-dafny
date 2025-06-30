@@ -11,7 +11,7 @@ method breakLinWT(N:nat, P:nat->bool)
   ensures t == f(N)
   ensures tIsBigO(N, t, linGrowth())
 {
-  assume forall i :: 0 <= i <= N ==> !P(i);  // worst case
+  assume {:axiom} forall i :: 0 <= i <= N ==> !P(i);  // worst case
   var i;
   i, t := 0, 0;
   while i != N
@@ -48,7 +48,7 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
       == { reveal pow(); }
         n;   
     }
-    assert n >= n0 ==> f(n) <= c*linGrowth()(n); 
+    assert f(n) <= c*linGrowth()(n); 
   }
 }
 
