@@ -1,6 +1,10 @@
- 
-include "../theory/complexity.dfy"
-include "../theory/mathSum.dfy"
+include "../theory/math/SummationReal.dfy"
+include "../theory/math/TypeR0.dfy"
+include "../theory/ComplexityR0.dfy"
+
+import opened SummationReal
+import opened TypeR0
+import opened ComplexityR0
 
 ghost function T(N:nat, i:nat) : nat
   requires 0 <= i < N

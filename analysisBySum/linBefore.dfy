@@ -1,6 +1,12 @@
- 
-include "../theory/complexity.dfy"
-include "../theory/mathSum.dfy"
+include "../theory/math/ExpNat.dfy"
+include "../theory/math/SummationInt.dfy"
+include "../theory/ComplexityNat.dfy"
+include "../theory/GrowthRatesNat.dfy"
+
+import opened ExpNat
+import opened SummationInt
+import opened ComplexityNat
+import opened GrowthRatesNat
 
 ghost function f(N:nat) : nat
 {

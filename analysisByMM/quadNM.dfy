@@ -1,6 +1,16 @@
+include "../theory/math/ExpReal.dfy"
+include "../theory/math/Misc.dfy"
+include "../theory/math/TypeR0.dfy"
+include "../theory/ComplexityR0.dfy"
+include "../theory/GrowthRatesR0.dfy"
+include "../theory/MasterLR.dfy"
 
-include "../theory/complexity.dfy"
-include "../theory/masterLR.dfy"
+import opened ExpReal
+import opened Misc
+import opened TypeR0
+import opened ComplexityR0
+import opened GrowthRatesR0
+import opened MasterLR
 
 method quad(N:nat, M:nat)
   returns (ghost t:nat, ghost t':nat)

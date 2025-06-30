@@ -1,5 +1,6 @@
- 
-include "../theory/complexity.dfy"
+include "../theory/math/LogNat.dfy"
+
+import opened LogNat
 
 // Instanciamos las definiciones de complejidad para log2 con n>0
 

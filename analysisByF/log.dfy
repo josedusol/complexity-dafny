@@ -1,5 +1,10 @@
- 
-include "../theory/complexity.dfy"
+include "../theory/math/LogNat.dfy"
+include "../theory/ComplexityNat.dfy"
+include "../theory/GrowthRatesNat.dfy"
+
+import opened LogNat
+import opened ComplexityNat
+import opened GrowthRatesNat
 
 ghost function f(N:nat) : nat
 {

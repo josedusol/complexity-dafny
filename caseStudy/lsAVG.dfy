@@ -1,6 +1,10 @@
+include "../theory/math/SummationReal.dfy"
+include "../theory/math/TypeR0.dfy"
+include "../theory/ComplexityR0.dfy"
 
-include "../theory/complexity.dfy"
-include "../theory/mathSum.dfy"
+import opened SummationReal
+import opened TypeR0
+import opened ComplexityR0
 
 predicate inv(s:seq<int>, x:int, i:nat, N:int)
 {
