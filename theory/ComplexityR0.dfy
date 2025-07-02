@@ -1,5 +1,8 @@
 include "./math/ExpReal.dfy"
-include "./math/LemFunction.dfy"
+include "./math/Factorial.dfy"
+include "./math/FloorCeil.dfy"
+include "./math/LogNat.dfy"
+include "./math/SqrtNat.dfy"
 include "./math/TypeR0.dfy"
 
 /**************************************************************************
@@ -8,8 +11,13 @@ include "./math/TypeR0.dfy"
 
 module ComplexityR0 { 
   import opened ExpReal
-  import opened LemFunction 
+  import opened Factorial  
+  import opened FloorCeil   
+  import opened LogNat
+  import opened SqrtNat
   import opened TypeR0 
+
+  /* Big O */
 
   ghost predicate bigO(f:nat->R0, g:nat->R0)
   { 
@@ -31,96 +39,95 @@ module ComplexityR0 {
     exists k:R0 :: bigO(f, n => pow(n as R0, k))
   }
 
-  /**************************************************************************
-    Basic O properties
-  **************************************************************************/
+  /* Big Ω */
 
-  // Reflexivity
-  // f ∈ O(f)
-  lemma lem_bigO_refl(f:nat->R0)  
-    ensures bigO(f, f) 
-  {  
-    // we show that c=1.0 and n0=0
-    assert forall n:nat :: 0 <= 0 <= n ==> f(n) <= 1.0*f(n);
-    assert bigOfrom(1.0, 0, f, f);
+  ghost predicate bigOmega(f:nat->R0, g:nat->R0)
+  { 
+    exists c:R0, n0:nat :: bigOmegaFrom(c, n0, f, g) 
   }
 
-  // If f ∈ O(g) and a>0 then a*f ∈ O(g)
-  lemma lem_bigO_constFactor(f:nat->R0, g:nat->R0, a:R0)  
-    requires bigO(f, g) 
-    requires a > 0.0 
-    ensures  bigO(n => a*f(n), g) 
-  {  
-    var c:R0, n0:nat :| bigOfrom(c, n0, f, g);  
-    assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
-    
-    // we show that c'=a*c and n0'=n0
-    assert forall n:nat :: 0 <= n0 <= n ==> a*f(n) <= (a*c)*g(n);
-    assert bigOfrom(a*c, n0, n => a*f(n), g);
+  ghost predicate bigOmegaFrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)
+  {
+    forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n)
   }
 
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then f1+f2 ∈ O(g1+g2)
-  lemma lem_bigO_sum(f1:nat->R0, g1:nat->R0, f2:nat->R0, g2:nat->R0)  
-    requires bigO(f1, g1) 
-    requires bigO(f2, g2) 
-    ensures  bigO(n => f1(n)+f2(n), n => g1(n)+g2(n)) 
-  {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f1, g1);  
-    assert forall n:nat :: 0 <= n1 <= n ==> f1(n) <= c1*g1(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, f2, g2);  
-    assert forall n:nat :: 0 <= n2 <= n ==> f2(n) <= c2*g2(n);   
-    
-    // we show that c=c1+c2 and n0=n1+n2
-    assert forall n:nat :: 0 <= n1+n2 <= n ==> f1(n) + f2(n) <= c1*g1(n) + c2*g2(n);
-    assert forall n:nat :: 0 <= n1+n2 <= n ==> f1(n) + f2(n) <= (c1+c2)*(g1(n) + g2(n));
-    assert bigOfrom(c1+c2, n1+n2, n => f1(n)+f2(n), n => g1(n)+g2(n));
+  ghost predicate tIsBigOmega(n:nat, t:R0, g:nat->R0)
+  { 
+    exists f:nat->R0 :: f(n) <= t && bigOmega(f, g)
   }
 
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then f1*f2 ∈ O(g1*g2)
-  lemma lem_bigO_prod(f1:nat->R0, g1:nat->R0, f2:nat->R0, g2:nat->R0)  
-    requires bigO(f1, g1) 
-    requires bigO(f2, g2) 
-    ensures  bigO(n => f1(n)*f2(n), n => g1(n)*g2(n)) 
-  {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f1, g1);  
-    assert forall n:nat :: 0 <= n1 <= n ==> f1(n) <= c1*g1(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, f2, g2);  
-    assert forall n:nat :: 0 <= n2 <= n ==> f2(n) <= c2*g2(n);   
-    
-    // we show that c=c1*c2 and n0=n1+n2
-    assert forall n:nat :: 0 <= n1+n2 <= n ==> f1(n)*f2(n) <= (c1*g1(n))*(c2*g2(n));
-    assert forall n:nat :: 0 <= n1+n2 <= n ==> f1(n)*f2(n) <= (c1*c2)*(g1(n)*g2(n));
-    assert bigOfrom(c1*c2, n1+n2, n => f1(n)*f2(n), n => g1(n)*g2(n));
+  /* Big Θ */
+
+  ghost predicate bigTheta1(f:nat->R0, g:nat->R0)
+  { 
+    bigOmega(f, g) && bigO(f, g) 
   }
 
-  // Transitivity
-  // If f ∈ O(g) and g ∈ O(h) then f ∈ O(h)
-  lemma lem_bigO_trans(f:nat->R0, g:nat->R0, h:nat->R0)  
-    requires bigO(f, g) 
-    requires bigO(g, h) 
-    ensures  bigO(f, h) 
-  {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f, g);  
-    assert forall n:nat :: 0 <= n1 <= n ==> f(n) <= c1*g(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, g, h);  
-    assert forall n:nat :: 0 <= n2 <= n ==> g(n) <= c2*h(n);   
-    
-    // we show that c=c1*c2 and n0=n1+n2
-    forall n:nat | 0 <= n1+n2 <= n
-      ensures f(n) <= c1*c2*h(n)
-    {
-      if 0 <= n1+n2 <= n {
-        calc {
-             f(n); 
-          <= c1*g(n);
-          <= { assert g(n) <= c2*h(n); } 
-             c1*c2*h(n);         
-        }
-      }
-    }
-    assert bigOfrom(c1*c2, n1+n2, f, h);
+  ghost predicate bigTheta2(f:nat->R0, g:nat->R0)
+  { 
+    exists c1:R0, c2:R0, n0:nat :: bigThetaFrom(c1, c2, n0, f, g) 
   }
 
-  // TODO: prove If f ∈ O(g) then f+g ∈ O(g)
+  ghost predicate bigThetaFrom(c1:R0, c2:R0, n0:nat, f:nat->R0, g:nat->R0)
+  {
+    forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
+  }
+
+  /* Common growth rates */
+
+  ghost function constGrowth() : nat->R0
+  {   
+    n => 1.0
+  }
+
+  ghost function logGrowth() : nat->R0
+  {   
+    n => if n>0 then log2(n) as R0 else 0.0
+  }
+
+  ghost function logGrowth2() : nat->R0
+  {   
+    n => log2(n+1) as R0
+  }
+
+  ghost function sqrtGrowth() : nat->R0
+  {   
+    n => sqrt(n) as R0
+  }
+
+  ghost function linGrowth() : nat->R0
+  {   
+    n => pow(n as R0, 1.0)
+  }
+
+  ghost function quadGrowth() : nat->R0
+  {   
+    n => pow(n as R0, 2.0)
+  }
+
+  ghost function cubicGrowth() : nat->R0
+  {   
+    n => pow(n as R0, 3.0)
+  }
+
+  ghost function polyGrowth(k:R0) : nat->R0
+  {   
+    n => pow(n as R0, k)
+  }
+
+  ghost function expGrowth() : nat->R0
+  {   
+    n => pow(2.0, n as R0)
+  }
+
+  ghost function facGrowth() : nat->R0
+  {   
+    n => fac(n) as R0
+  }
+
+  ghost function dexpGrowth() : nat->R0
+  {   
+    n => pow(2.0, pow(2.0, n as R0))
+  }
 
 }

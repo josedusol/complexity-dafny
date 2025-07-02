@@ -1,10 +1,8 @@
 include "../theory/math/ExpNat.dfy"
 include "../theory/ComplexityNat.dfy"
-include "../theory/GrowthRatesNat.dfy"
 
 import opened ExpNat
 import opened ComplexityNat
-import opened GrowthRatesNat
 
 ghost function f(N:nat) : nat
 {
@@ -16,7 +14,7 @@ method breakLinWT(N:nat, P:nat->bool)
   ensures t == f(N)
   ensures tIsBigO(N, t, linGrowth())
 {
-  assume {:axiom} forall i :: 0 <= i <= N ==> !P(i);  // worst case
+  assume {:axiom} forall i :: 0 <= i < N ==> !P(i);  // worst case
   var i;
   i, t := 0, 0;
   while i != N
@@ -47,11 +45,10 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
     ensures f(n) <= c*linGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        pow(n,1);
+         f(n);
+      == pow(n,1);
       == { reveal pow(); }
-        n;   
+         n;   
     }
     assert f(n) <= c*linGrowth()(n); 
   }

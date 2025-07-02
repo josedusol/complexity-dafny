@@ -1,33 +1,52 @@
 include "../theory/math/ExpReal.dfy"
 include "../theory/math/LemFunction.dfy"
+include "../theory/math/SumReal.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityR0.dfy"
 include "../theory/MasterLR.dfy"
 
 import opened ExpReal
 import opened LemFunction
+import opened SumReal
 import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
 
-method lin(N:nat) 
-  returns (ghost t:nat)
-  ensures t == T(N)
+ghost predicate inv<A>(s:seq<A>, x:A, i:nat, N:int)
+{
+     0 <= i <= N && N <= |s|
+  && (0 <= N < |s| ==> s[i] == x)      
+  && (N == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
+}
+
+ghost predicate post<A>(s:seq<A>, x:A, i:nat)
+{
+     (0 <= i < |s| ==> s[i] == x)
+  && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
+}
+
+ghost method linearSearch<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
+  ensures post(s, x, i)
+  ensures t == T(|s|)
   ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
 {
-  var i; reveal T();
-  i, t := 0, 0;
+  assume {:axiom} forall i :: 0 <= i < |s| ==> s[i] != x;  // worst case
+  var N; reveal T();
+  i, N, t := 0, |s|, 0;
   while i != N
-    invariant 0 <= i <= N
-    invariant t == T(N) - T(N-i)  // = T2(i) 
+    invariant inv(s, x, i, N)
+    invariant t == T(|s|) - T(|s|-i)  // = T(N, N-i)
     decreases N - i
   {
-    // Op. interesante
-    i := i+1 ; 
-    t := t+1 ;
+    if s[i] != x {  // Op. interesante
+      i := i+1 ;     
+    } else {
+      N := i;  // break;
+    }
+    t := t + 1;
   }
-  assert t == T(N); 
-  lem_TbigOlin();
+  assert t == T(|s|); 
+  lem_TbigOlin();  
 } 
 
 opaque ghost function T(N:nat): nat

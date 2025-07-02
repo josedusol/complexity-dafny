@@ -1,12 +1,10 @@
 include "../theory/math/ExpNat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/ComplexityNat.dfy"
-include "../theory/GrowthRatesNat.dfy"
 
 import opened ExpNat
 import opened SumInt
 import opened ComplexityNat
-import opened GrowthRatesNat
 
 ghost function f(N:nat) : nat
 {
@@ -57,8 +55,7 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
   {
     calc {
          f(n); 
-      ==
-         pow(n,2);
+      == pow(n,2);
       == { reveal pow(); }
          n*n;   
     }

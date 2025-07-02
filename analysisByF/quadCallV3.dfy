@@ -1,12 +1,12 @@
 include "../theory/math/ExpNat.dfy"
 include "../theory/math/LemFunction.dfy"
 include "../theory/ComplexityNat.dfy"
-include "../theory/GrowthRatesNat.dfy"
+include "../theory/LemComplexityNat.dfy"
 
 import opened ExpNat
 import opened LemFunction
 import opened ComplexityNat
-import opened GrowthRatesNat
+import opened LemComplexityNat
 
 ghost function f(N:nat) : nat
 {

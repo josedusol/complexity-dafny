@@ -4,7 +4,7 @@ include "../theory/math/LemFunction.dfy"
 include "../theory/math/LogNat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/ComplexityNat.dfy"
-include "../theory/GrowthRatesNat.dfy"
+include "../theory/LemComplexityNat.dfy"
 
 import opened ExpNat
 import opened LemBoundsNat
@@ -12,7 +12,7 @@ import opened LemFunction
 import opened LogNat
 import opened SumInt
 import opened ComplexityNat
-import opened GrowthRatesNat
+import opened LemComplexityNat
 
 lemma test_bigOprod()
   requires bigO(n => 2*n, linGrowth())

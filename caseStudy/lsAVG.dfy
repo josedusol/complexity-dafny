@@ -6,28 +6,29 @@ import opened SumReal
 import opened TypeR0
 import opened ComplexityR0
 
-predicate inv(s:seq<int>, x:int, i:nat, N:int)
+ghost predicate inv<A>(s:seq<A>, x:A, i:nat, N:int)
 {
      0 <= i <= N && N <= |s|
   && (0 <= N < |s| ==> s[i] == x)      
   && (N == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
 }
 
-predicate post(s:seq<int>, x:int, i:nat)
+ghost predicate post<A>(s:seq<A>, x:A, i:nat)
 {
      (0 <= i < |s| ==> s[i] == x)
   && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
 }
 
-ghost function T(s:seq<int>, x:int, i:nat) : nat
+ghost function T<A>(s:seq<A>, x:A, i:nat) : nat
   requires 0 <= i < |s|
   requires s[i] == x
 {
   i+1
 }
 
-ghost method linearSearch(s:seq<int>, x:int)
-  returns (i:nat, t:nat)
+// For the purposes of our average case analysis, the core algorithm assumes
+// the target element appears in the sequence.
+ghost method linearSearch<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   requires x in s
   ensures  post(s, x, i)
   ensures  exists k :: 0 <= k < |s| && s[k] == x && t == T(s, x, k)
@@ -52,7 +53,7 @@ ghost function Tavg(N:nat) : R0
   (N + 1) as real / 2.0
 }
 
-ghost method expectationLoop(N:nat)
+ghost method expectationLoop<A>(N:nat)
   returns (tE:real)
   requires N > 0
   ensures tE == Tavg(N)
@@ -66,7 +67,7 @@ ghost method expectationLoop(N:nat)
     decreases N - p
   {
     // Run algorithm in scenario where s[p] == x
-    var s, x := inputScenario(N, p); 
+    var s:seq<A>, x:A := inputScenario(N, p); 
     var _, t := linearSearch(s, x); 
     assert exists k :: 0 <= k < |s| && s[k] == x && t == k+1;
     assert t == T(s,x,p);
@@ -82,7 +83,7 @@ ghost method expectationLoop(N:nat)
   assert bigO(Tavg, n => n as R0) by { var c, n0 := lem_TavgBigOlin(); }
 }
 
-ghost function probability(s:seq<int>, x:int, p:nat) : R0
+ghost function probability<A>(s:seq<A>, x:A, p:nat) : R0
   requires 0 <= p < |s|
   requires forall i, j :: 0 <= i < j < |s| ==> s[i] != s[j]
   requires s[p] == x
@@ -90,7 +91,7 @@ ghost function probability(s:seq<int>, x:int, p:nat) : R0
   1.0 / |s| as R0
 }
 
-ghost method inputScenario(N:nat, p:nat) returns (s0:seq<int>, x0:int)
+ghost method inputScenario<A>(N:nat, p:nat) returns (s0:seq<A>, x0:A)
   requires N > 0
   requires 0 <= p < N
   ensures  |s0| == N
@@ -98,10 +99,10 @@ ghost method inputScenario(N:nat, p:nat) returns (s0:seq<int>, x0:int)
   ensures  s0[p] == x0
 {
   assume {:axiom} 
-    exists s:seq<int> :: |s| == N && (forall i, j :: 0 <= i < j < N ==> s[i] != s[j]);
+    exists s:seq<A> :: |s| == N && (forall i, j :: 0 <= i < j < N ==> s[i] != s[j]);
   s0 :| |s0| == N && forall i, j :: 0 <= i < j < N ==> s0[i] != s0[j];
   assume {:axiom} 
-    exists x:int :: s0[p] == x;
+    exists x:A :: s0[p] == x;
   x0 :| s0[p] == x0;
 }
 

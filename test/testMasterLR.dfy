@@ -6,7 +6,6 @@ include "../theory/math/LogNat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityR0.dfy"
-include "../theory/GrowthRatesR0.dfy"
 include "../theory/MasterLR.dfy"
 
 import Nat = ExpNat
@@ -16,7 +15,6 @@ import opened LemFunction
 import opened LogNat 
 import opened TypeR0
 import opened ComplexityR0
-import opened GrowthRatesR0
 import opened MasterLR
 
 // Recurrence:
