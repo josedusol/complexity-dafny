@@ -12,11 +12,11 @@ import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
 
-ghost predicate inv<A>(s:seq<A>, x:A, i:nat, N:int)
+ghost predicate inv<A>(s:seq<A>, x:A, i:nat, n:nat)
 {
-     0 <= i <= N && N <= |s|
-  && (0 <= N < |s| ==> s[i] == x)      
-  && (N == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
+     0 <= i <= n && n <= |s|
+  && (0 <= n < |s| ==> s[i] == x)      
+  && (n == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
 }
 
 ghost predicate post<A>(s:seq<A>, x:A, i:nat)
@@ -25,27 +25,54 @@ ghost predicate post<A>(s:seq<A>, x:A, i:nat)
   && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
 }
 
-ghost method linearSearch<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
+ghost method linearSearchWT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
   ensures t == T(|s|)
   ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
 {
-  assume {:axiom} forall i :: 0 <= i < |s| ==> s[i] != x;  // worst case
-  var N; reveal T();
-  i, N, t := 0, |s|, 0;
-  while i != N
-    invariant inv(s, x, i, N)
-    invariant t == T(|s|) - T(|s|-i)  // = T(N, N-i)
-    decreases N - i
+  assume {:axiom} forall i :: 0 <= i < |s| ==> s[i] != x;  // worst case 1
+  var n:nat; reveal T();
+  i, n, t := 0, |s|, 0;
+  while i != n
+    invariant inv(s, x, i, n)
+    invariant t == T(|s|) - T(|s|-i)  // = T(i)
+    decreases n - i 
   {
     if s[i] != x {  // Op. interesante
       i := i+1 ;     
     } else {
-      N := i;  // break;
+      n := i;  // break;
     }
-    t := t + 1;
+    t := t+1;
   }
   assert t == T(|s|); 
+  lem_TbigOlin();  
+} 
+
+ghost method linearSearchWT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
+  ensures  post(s, x, i)
+  ensures  t == T(|s|)
+  ensures  bigO(liftToR0(T), n => pow(n as R0, 1.0))
+{
+  assume {:axiom} |s| > 0;
+  assume {:axiom} (forall i :: 0 <= i < |s|-1 ==> s[i] != x) && s[|s|-1] == x;  // worst case 2
+  var n:nat; reveal T();
+  i, n, t := 0, |s|, 0;
+  while i != n
+    invariant inv(s, x, i, n)
+    invariant forall j :: 0 <= j < i ==> s[j] != x
+    invariant i <= n-1 ==> t == T(i)    // =  T(|s|) - T(|s|-i)
+    invariant i == n   ==> t == T(i)+1  // = (T(|s|) - T(|s|-i)) + 1
+    decreases n - i
+  {
+    if s[i] != x {  // Op. interesante
+      i := i+1 ;     
+    } else {
+      n := i;  // break;
+    }
+    t := t+1;
+  }
+  assert t == T(i)+1 == T(n)+1 == T(|s|);
   lem_TbigOlin();  
 } 
 

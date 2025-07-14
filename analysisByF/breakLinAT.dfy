@@ -12,7 +12,7 @@ ghost function T(N:nat, i:nat) : nat
   i+1
 }
 
-ghost method breakLinAVG(N:nat, P:nat->bool)
+ghost method breakLinAT(N:nat, P:nat->bool)
   returns (t:nat)
   requires N > 0
   requires exists i :: 0 <= i < N && P(i)
@@ -53,7 +53,7 @@ ghost method expectationLoop(N:nat)
   {
     // Run the algorithm in scenario where P(p) holds
     var pred := inputScenario(N, p); 
-    ghost var t := breakLinAVG(N, pred); 
+    ghost var t := breakLinAT(N, pred); 
     assert exists k :: 0 <= k < N && pred(k) && t == k+1;
     assert t == T(N,p);
     

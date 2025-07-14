@@ -14,14 +14,20 @@ module FloorCeil {
   ghost function {:axiom} ceil(x:real) : int
     ensures (ceil(x) as real) - 1.0 < x
     ensures x <= ceil(x) as real
-  // { 
-    //-floor(-x)
-    // if x == floor(x) as real 
-    // then floor(x) 
-    // else floor(x) + 1 
-  // }
+
+  ghost function ceil2(x:real, n:int) : int
+  { 
+    if x == floor(x) as real 
+    then floor(x) 
+    else floor(x) + 1 
+  }
+
+  ghost function ceil3(x:real, n:int) : int
+  { 
+     -floor(-x)
+  }  
 
   lemma {:axiom} lem_ceilxLEQnIFFxLEQn(x:real, n:int)
     ensures ceil(x) <= n <==> x <= n as real
-
+    
 }

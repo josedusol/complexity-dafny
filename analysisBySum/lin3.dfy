@@ -54,12 +54,11 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
     ensures f(n) <= c*linGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        3*pow(n,1);
+         f(n);
+      == 3*pow(n,1);
       == { reveal pow(); }
-        3*n;   
+         3*n;   
     }
-    assert n >= n0 ==> f(n) <= c*linGrowth()(n); 
+    assert f(n) <= c*linGrowth()(n); 
   }
 }
