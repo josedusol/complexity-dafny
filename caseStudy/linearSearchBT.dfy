@@ -3,6 +3,7 @@ include "../theory/math/LemFunction.dfy"
 include "../theory/math/SumReal.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityNat.dfy"
+include "./linearSearch.dfy"
 
 import opened ExpReal
 import opened LemFunction
@@ -10,19 +11,7 @@ import opened SumReal
 import opened TypeR0
 import opened ComplexityNat
 
-ghost predicate inv<A>(s:seq<A>, x:A, i:nat, n:nat)
-{
-     0 <= i <= n && n <= |s|
-  && (0 <= n < |s| ==> s[i] == x)      
-  && (n == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
-}
-
-ghost predicate post<A>(s:seq<A>, x:A, i:nat)
-{
-     (0 <= i < |s| ==> s[i] == x)
-  && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
-}
-
+// Postcondition for a correct linear search algorithm
 ghost function f1(N:nat) : nat
 {
   0

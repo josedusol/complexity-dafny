@@ -4,6 +4,7 @@ include "../theory/math/SumReal.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityR0.dfy"
 include "../theory/MasterLR.dfy"
+include "./linearSearch.dfy"
 
 import opened ExpReal
 import opened LemFunction
@@ -11,19 +12,6 @@ import opened SumReal
 import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
-
-ghost predicate inv<A>(s:seq<A>, x:A, i:nat, n:nat)
-{
-     0 <= i <= n && n <= |s|
-  && (0 <= n < |s| ==> s[i] == x)      
-  && (n == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
-}
-
-ghost predicate post<A>(s:seq<A>, x:A, i:nat)
-{
-     (0 <= i < |s| ==> s[i] == x)
-  && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
-}
 
 ghost method linearSearchWT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
