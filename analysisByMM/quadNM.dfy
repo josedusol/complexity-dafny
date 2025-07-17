@@ -91,7 +91,7 @@ lemma lem_T2def(N:nat, M:nat, j:nat)
 
 lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   requires N == M
-  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), n => pow(n as R0, 2.0))
+  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), n => exp(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -119,19 +119,19 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   //lem_T2BigOlin(N, N);
   //assert bigOR0(liftToR0(n => T2(N,N,n)), n => powr0(n as R0, 1.0));
 
-  assert bigO(w, n => pow(n as R0, k)) by {
+  assert bigO(w, n => exp(n as R0, k)) by {
     lem_T2BigOlin(N, N);
-    var c:R0, n0:nat :| bigOfrom(c, n0, liftToR0(n => T2(N,N,n)), n => pow(n as R0, 1.0));
-    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*pow(n as R0, 1.0);
+    var c:R0, n0:nat :| bigOfrom(c, n0, liftToR0(n => T2(N,N,n)), n => exp(n as R0, 1.0));
+    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*exp(n as R0, 1.0);
  
     forall n:nat | 0 <= n0 <= n
-      ensures w(n) <= c*pow(n as R0, k)
+      ensures w(n) <= c*exp(n as R0, k)
     {
        if n <= N {
          assert T2(N,N,n) <= T2(N,N,N);
-         assert liftToR0(n => T2(N,N,n))(n) <= c*pow(n as R0, 1.0);
-         assert liftToR0(n => T2(N,N,N))(n) <= c*pow(n as R0, 1.0);
-         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c*pow(n as R0, k);
+         assert liftToR0(n => T2(N,N,n))(n) <= c*exp(n as R0, 1.0);
+         assert liftToR0(n => T2(N,N,N))(n) <= c*exp(n as R0, 1.0);
+         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c*exp(n as R0, k);
        }
     }
   }
@@ -203,7 +203,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
 // }
 
 lemma lem_T2BigOlin(N:nat, M:nat)
-  ensures bigO(liftToR0(n => T2(N,M,n)), n => pow(n as R0, 1.0)) 
+  ensures bigO(liftToR0(n => T2(N,M,n)), n => exp(n as R0, 1.0)) 
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -219,12 +219,12 @@ lemma lem_T2BigOlin(N:nat, M:nat)
     reveal TbodyLR;
     lem_T2def(N,M,n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {   
+  assert bigO(w, n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));

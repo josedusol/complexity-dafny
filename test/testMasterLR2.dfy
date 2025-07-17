@@ -38,7 +38,7 @@ lemma lem_T1def(n:nat)
 // Asymptotic closed form:
 //   T1(n) in O(n)
 lemma test_masterMethodForT1lifted()
-  ensures bigO(liftToR0(T1), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T1), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -55,13 +55,13 @@ lemma test_masterMethodForT1lifted()
     reveal TbodyLR;
     lem_T1def(n);
   }           
-  assert bigO(w, n => pow(n as R0, k)) by {   
+  assert bigO(w, n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+        assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
         assert w(n) <= 1.0*polyGrowth(k)(n); 
       }
     }
@@ -95,7 +95,7 @@ lemma lem_T2def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT2lifted() 
-  ensures bigO(liftToR0(T2), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T2), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 2;
@@ -112,13 +112,13 @@ lemma test_masterMethodForT2lifted()
     reveal TbodyLR;
     lem_T2def(n);
   }
-  assert bigO(w, n => pow(n as R0, k)) by {  // k=0
+  assert bigO(w, n => exp(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
         assert 1.0 <= 1.0*polyGrowth(k)(n); 
       }
     }
@@ -152,7 +152,7 @@ lemma lem_T3def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT3lifted() 
-  ensures bigO(liftToR0(T3), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T3), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 4;
@@ -169,13 +169,13 @@ lemma test_masterMethodForT3lifted()
     reveal TbodyLR;
     lem_T3def(n);
   }
-  assert bigO(w, n => pow(n as R0, k)) by {  // k=0
+  assert bigO(w, n => exp(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
         assert 1.0 <= 1.0*polyGrowth(k)(n); 
       }
     }

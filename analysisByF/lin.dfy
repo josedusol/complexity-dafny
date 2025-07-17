@@ -6,7 +6,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 { 
-  pow(N,1)
+  exp(N,1)
 }
 
 method lin(N:nat)
@@ -26,7 +26,7 @@ method lin(N:nat)
     t := t+1 ;
   }
   assert t == T(N, 0); 
-  assert t == f(N) by { reveal pow(); lem_Tclosed(N, 0); }
+  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
@@ -40,13 +40,12 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
     ensures f(n) <= c*linGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        pow(n,1);
-      == { reveal pow(); }
-        n;   
+         f(n);
+      == exp(n,1);
+      == { reveal exp(); }
+         n;   
     }
-    assert n >= n0 ==> f(n) <= c*linGrowth()(n); 
+    assert f(n) <= c*linGrowth()(n); 
   }
 }
 

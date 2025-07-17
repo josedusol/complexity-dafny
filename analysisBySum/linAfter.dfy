@@ -8,7 +8,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 {
-  if N < 10 then 20 else pow(N,1)
+  if N < 10 then 20 else exp(N,1)
 }
 
 method linAfter2(N:nat)
@@ -35,7 +35,7 @@ method linAfter2(N:nat)
     }
   }
   assert t == if N < 10 then 20 else sum(1, N, k => 1); 
-  assert t == f(N) by { reveal pow(); lem_sum_constAll(1, N); }
+  assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
  
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
@@ -52,8 +52,8 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
     calc {
          f(n);
       ==
-         if n < 10 then 20 else pow(n,1);
-      == { reveal pow(); }
+         if n < 10 then 20 else exp(n,1);
+      == { reveal exp(); }
          if n < 10 then 20 else n;   
     }
     assert n >= n0 ==> f(n) <= c*linGrowth()(n);

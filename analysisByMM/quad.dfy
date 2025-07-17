@@ -70,7 +70,7 @@ lemma lem_T2def(n:nat)
 }
 
 lemma lem_T1BigOquad(N:nat)
-  ensures bigO(liftToR0(n => T1(n,N)), n => pow(n as R0, 2.0))
+  ensures bigO(liftToR0(n => T1(n,N)), n => exp(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -87,13 +87,13 @@ lemma lem_T1BigOquad(N:nat)
     reveal TbodyLR; 
     lem_T1def(n, N);
   } 
-  assert bigO(w, n => pow(n as R0, k))
+  assert bigO(w, n => exp(n as R0, k))
    by { lem_T1BigOquadAux(N); }
   thm_masterMethodLR(a, b, c, s, T1', w, k); 
 }
 
 lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
-  ensures bigO(liftToR0(n => T2(N)), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(n => T2(N)), n => exp(n as R0, 1.0))
 {
   var k:R0 := 1.0;
   var w:nat->R0 := liftToR0(n => T2(N)); 
@@ -101,21 +101,21 @@ lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
   var c:R0 := T2(N) as R0;
   var n0:nat := 1; 
   forall n:nat | 0 <= 1 <= n
-    ensures w(n) <= c * pow(n as R0, k) as R0
+    ensures w(n) <= c * exp(n as R0, k) as R0
   {
     assert T2(N) as R0 <= c * n as R0
       by { assert T2(N) <= (T2(N))*n; }
-    assert pow(n as R0, k) == n as R0 
-      by { assert n as R0 > 0.0; lem_powOne(n as R0); }
-    assert T2(N) as R0 <= c * pow(n as R0, k); 
-    assert w(n) <= c * pow(n as R0, k)
+    assert exp(n as R0, k) == n as R0 
+      by { assert n as R0 > 0.0; lem_expOne(n as R0); }
+    assert T2(N) as R0 <= c * exp(n as R0, k); 
+    assert w(n) <= c * exp(n as R0, k)
       by { assert w(n) == T2(N) as R0; }
   }
-  assert bigOfrom(c, n0, w, n => pow(n as R0, k));  
+  assert bigOfrom(c, n0, w, n => exp(n as R0, k));  
 }
 
 lemma lem_T2BigOlin()
-  ensures bigO(liftToR0(T2), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T2), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -131,12 +131,12 @@ lemma lem_T2BigOlin()
     reveal TbodyLR;
     lem_T2def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {   
+  assert bigO(w, n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));

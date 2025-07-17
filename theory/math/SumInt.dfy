@@ -77,21 +77,6 @@ module SumInt {
     }
   } 
 
-  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) == g(k)) 
-  //          ==> sum_{k=a}^{b}f = sum_{k=a}^{b}g
-  lemma lem_sum_leibniz(a:int, b:int, f:int->int, g:int->int)
-    requires a <= b+1
-    requires forall k:int :: a<=k<=b ==> f(k) == g(k)
-    ensures  sum(a, b, f) == sum(a, b, g)
-  {
-    var fr := liftCi2r(f);
-    var gr := liftCi2r(g);
-    R.lem_sum_leibniz(a, b, fr, gr);
-    assert R.sum(a, b, fr) == R.sum(a, b, gr);
-    lem_sum_liftEq(a, b, f);
-    lem_sum_liftEq(a, b, g);
-  }
-
   // a <= b+1 ==> sum_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
   lemma lem_sum_interval(a:int, b:int)
     requires a <= b+1 
@@ -119,6 +104,62 @@ module SumInt {
         == (b*(b+1) + a*(1-a))/2;            
       }
     }
+  }
+
+  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) == g(k)) 
+  //          ==> sum_{k=a}^{b}f = sum_{k=a}^{b}g
+  lemma lem_sum_leibniz(a:int, b:int, f:int->int, g:int->int)
+    requires a <= b+1
+    requires forall k:int :: a<=k<=b ==> f(k) == g(k)
+    ensures  sum(a, b, f) == sum(a, b, g)
+  {
+    var fr := liftCi2r(f);
+    var gr := liftCi2r(g);
+    R.lem_sum_leibniz(a, b, fr, gr);
+    assert R.sum(a, b, fr) == R.sum(a, b, gr);
+    lem_sum_liftEq(a, b, f);
+    lem_sum_liftEq(a, b, g);
+  }
+
+  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) <= g(k)) 
+  //          ==> sum_{k=a}^{b}f <= sum_{k=a}^{b}g
+  lemma lem_sum_mono(a:int, b:int, f:int->int, g:int->int)
+    requires a <= b+1
+    requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
+    ensures  sum(a, b, f) <= sum(a, b, g)
+  {
+    var fr := liftCi2r(f);
+    var gr := liftCi2r(g);
+    R.lem_sum_mono(a, b, fr, gr);
+    assert R.sum(a, b, fr) <= R.sum(a, b, gr);
+    lem_sum_liftEq(a, b, f);
+    lem_sum_liftEq(a, b, g);
+  }
+
+  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j}f + sum_{k=j+1}^{b}f
+  lemma lem_sum_split(a:int, b:int, j:int, f:int->int)
+    requires a <= j <= b
+    ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
+  {
+    var fr := liftCi2r(f);
+    R.lem_sum_split(a, b, j, fr);
+    assert R.sum(a, b, fr) == R.sum(a, j, fr) + R.sum(j+1, b, fr);
+    lem_sum_liftEq(a, b, f);  
+    lem_sum_liftEq(a, j, f);   
+    lem_sum_liftEq(j+1, b, f);   
+  }
+
+  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j-1}f + sum_{k=j}^{b}f
+  lemma lem_sum_split2(a:int, b:int, j:int, f:int->int)
+    requires a <= j <= b
+    ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)
+  {
+    var fr := liftCi2r(f);
+    R.lem_sum_split2(a, b, j, fr);
+    assert R.sum(a, b, fr) == R.sum(a, j-1, fr) + R.sum(j, b, fr);
+    lem_sum_liftEq(a, b, f);  
+    lem_sum_liftEq(a, j-1, f);   
+    lem_sum_liftEq(j, b, f);     
   }
 
   // Following sum lemmas are only stated for integer sum

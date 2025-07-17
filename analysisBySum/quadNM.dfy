@@ -57,8 +57,8 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
     calc {
          f(n,n);
       == n*n;  
-      == { reveal pow(); }
-         pow(n,2); 
+      == { reveal exp(); }
+         exp(n,2); 
     }
     assert f(n,n) <= c*quadGrowth()(n); 
   }

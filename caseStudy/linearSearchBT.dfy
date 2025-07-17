@@ -1,11 +1,9 @@
-include "../theory/math/ExpReal.dfy"
 include "../theory/math/LemFunction.dfy"
 include "../theory/math/SumReal.dfy"
 include "../theory/math/TypeR0.dfy"
 include "../theory/ComplexityNat.dfy"
 include "./linearSearch.dfy"
 
-import opened ExpReal
 import opened LemFunction
 import opened SumReal
 import opened TypeR0

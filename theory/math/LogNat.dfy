@@ -50,14 +50,14 @@ module LogNat {
 
   // log2(2^n) = n 
   lemma lem_log2AndPow2Inverse(n:nat)
-    requires pow(2,n) > 0
-    ensures  log2(pow(2,n)) == n 
+    requires exp(2,n) > 0
+    ensures  log2(exp(2,n)) == n 
   {
     if n == 0 {
       // BC: n = 0
       calc {
-          log2(pow(2,0));
-        == { lem_pow2FirstValues(); }
+          log2(exp(2,0));
+        == { lem_exp2FirstValues(); }
           log2(1);
         == { lem_log2FirstValues(); }
           0;   
@@ -67,11 +67,11 @@ module LogNat {
       //   IH: log2(2^(n-1)) = n-1 
       //    T: log2(2^n)     = n 
       calc {
-          log2(pow(2, n));
-        == { reveal pow(); }
-          log2(2*pow(2, n-1));
+          log2(exp(2, n));
+        == { reveal exp(); }
+          log2(2*exp(2, n-1));
         == { reveal log2(); }
-          1 + log2(pow(2, n-1));
+          1 + log2(exp(2, n-1));
         == { lem_log2AndPow2Inverse(n-1); } // IH
           1 + (n - 1);
         == n;
@@ -80,9 +80,9 @@ module LogNat {
   }
 
   // If n=2^k then log2(2^n)=n 
-  lemma {:axiom} lem_pow2Andlog2Inverse(n:nat, k:nat)
-    requires pow(2, k) > 0
-    requires n == pow(2, k) 
-    ensures pow(2, log2(n)) == n
+  lemma {:axiom} lem_exp2Andlog2Inverse(n:nat, k:nat)
+    requires exp(2, k) > 0
+    requires n == exp(2, k) 
+    ensures exp(2, log2(n)) == n
 
 }

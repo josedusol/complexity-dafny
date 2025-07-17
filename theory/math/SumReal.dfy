@@ -23,23 +23,23 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          sum(b+1, b+1, f);
+           sum(b+1, b+1, f);
         == { reveal sum(); }
-          f(b+1);
+           f(b+1);
         == 0.0 + f(b+1) ;
         == { reveal sum(); }
-          sum(a, b, f) + f(b+1) ;       
+           sum(a, b, f) + f(b+1) ;       
       }
     } else {  
       // Step. a <= j
       //   IH: sum(a+1, b+1, f) = sum(a+1, b, f) + f(b+1)
       //    T: sum(a, b+1, f)   = sum(a, b, f)   + f(b+1)
       calc {  
-          sum(a, b+1, f);
+           sum(a, b+1, f);
         == { reveal sum(); } 
-          f(a) + sum(a+1, b+1, f);
+           f(a) + sum(a+1, b+1, f);
         == { lem_sum_dropLast(a+1, b, f); }  // by IH
-          f(a) + (sum(a+1, b, f) + f(b+1));
+           f(a) + (sum(a+1, b, f) + f(b+1));
         == (f(a) + sum(a+1, b, f)) + f(b+1);
         == { reveal sum(); }
           sum(a, b, f) + f(b+1);           
@@ -67,26 +67,26 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          c*sum(b+1, b, f);
+           c*sum(b+1, b, f);
         == { reveal sum(); }
-          0.0;
+           0.0;
         == { reveal sum(); }
-          sum(b+1, b, k => c*f(k));       
+           sum(b+1, b, k => c*f(k));       
       }
     } else {  
       // Step. a <= b
       //   IH: c*sum(a+1, b, f) = c*sum(a+1, b, k => c*f(k))
       //    T: c*sum(a, b, f)   = c*sum(a, b, k => f(k))
       calc {  
-          c*sum(a, b, f);
+           c*sum(a, b, f);
         == { reveal sum(); } 
-          c*(f(a) + sum(a+1, b, f));
+           c*(f(a) + sum(a+1, b, f));
         == c*f(a) + c*sum(a+1, b, f);         
         == { lem_sum_linearityConst(a+1, b, c, f); }  // by IH
-          c*f(a) + sum(a+1, b, k => c*f(k)); 
+           c*f(a) + sum(a+1, b, k => c*f(k)); 
         == (k => c*f(k))(a) + sum(a+1, b, k => c*f(k));
         == { reveal sum(); } 
-          sum(a, b, k => c*f(k));           
+           sum(a, b, k => c*f(k));           
       } 
     }  
   }
@@ -100,9 +100,9 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          sum(b+1, b, k => c); 
+           sum(b+1, b, k => c); 
         == { reveal sum(); } 
-          0.0; 
+           0.0; 
         == (b - (b+1) + 1) as real;
       }
     } else {  
@@ -110,11 +110,11 @@ module SumReal {
       //   IH: sum(a+1, b, k => c) = c*(b - (a+1) + 1) = c*(b - a)
       //    T: sum(a, b, k => c)   = c*(b - a + 1) 
       calc {  
-          sum(a, b, k => c);
+           sum(a, b, k => c);
         == { reveal sum(); }
-          c + sum(a+1, b, x => c);
+           c + sum(a+1, b, x => c);
         == { lem_sum_const(a+1, b, c); }  // by IH
-          (c + c* (b - (a+1) + 1) as real);
+           (c + c* (b - (a+1) + 1) as real);
         == c + c*((b - a) as real);      
         == c* (b - a + 1) as real;             
       }
@@ -141,25 +141,25 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          sum(b+1, b, f);
+           sum(b+1, b, f);
         == { reveal sum(); }
-          0.0;
+           0.0;
         == { reveal sum(); }
-          sum(b+1+d, b+d, k => f(k-d));       
+           sum(b+1+d, b+d, k => f(k-d));       
       }
     } else {  
       // Step. a <= b
       //   IH: sum(a+1, b, f) = sum((a+d)+1, b+d, k => f(k-d))
       //    T: sum(a, b, f)   = sum(a+d, b+d, k => f(k-d))
       calc {  
-          sum(a, b, f);
+           sum(a, b, f);
         == { reveal sum(); } 
-          f(a) + sum(a+1, b, f);
+           f(a) + sum(a+1, b, f);
         == { lem_sum_shiftIndex(a+1, b, d, f); }  // by IH
-          f(a) + sum(a+1+d, b+d, k => f(k-d));
+           f(a) + sum(a+1+d, b+d, k => f(k-d));
         == (k => f(k-d))(a+d) + sum((a+d)+1, b+d, k => f(k-d));
         == { reveal sum(); }
-          sum(a+d, b+d, k => f(k-d));           
+           sum(a+d, b+d, k => f(k-d));           
       }
     }
   } 
@@ -173,9 +173,9 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          sum(b+1, b, k => k as real);
+           sum(b+1, b, k => k as real);
         == { reveal sum(); }
-          0.0;
+           0.0;
         == (b*(b+1) + ((b+1))*(1-((b+1)))) as real / 2.0;
       }
     } else {  
@@ -183,11 +183,11 @@ module SumReal {
       //   IH: sumr(a+1, b, K => k) = (b*(b+1) + (a+1)*(1-(a+1)))/2 
       //    T: sumr(a, b, k => k)   = (b*(b+1) + a*(1-a))/2 
       calc {  
-          sum(a, b, k => k as real);
+           sum(a, b, k => k as real);
         == { reveal sum(); }
-          a as real + sum(a+1, b, k => k as real);
+           a as real + sum(a+1, b, k => k as real);
         == { lem_sum_interval(a+1, b); }  // by IH
-          a as real + (b*(b+1) + (a+1)*(1-(a+1))) as real / 2.0;
+           a as real + (b*(b+1) + (a+1)*(1-(a+1))) as real / 2.0;
         == (b*(b+1) + a*(1-a)) as real / 2.0;            
       }
     } 
@@ -204,27 +204,116 @@ module SumReal {
     if a == b+1 {   
       // BC: a > b
       calc {
-          sum(b+1, b, f);
+           sum(b+1, b, f);
         == { reveal sum(); }
-          0.0;
+           0.0;
         == { reveal sum(); }
-          sum(b+1, b, g);       
+           sum(b+1, b, g);       
       }
     } else {  
       // Step. a <= b
       //   IH: sum(a+1, b, f) = sum(a+1, b, g)
       //    T: sum(a, b, f)   = sum(a, b, g)
       calc {  
-          sum(a, b, f);
+           sum(a, b, f);
         == { reveal sum(); } 
-          f(a) + sum(a+1, b, f);
+           f(a) + sum(a+1, b, f);
         == g(a) + sum(a+1, b, f);
         == { lem_sum_leibniz(a+1, b, f, g); }  // by IH
-          g(a) + sum(a+1, b, g);
+           g(a) + sum(a+1, b, g);
         == { reveal sum(); }
-          sum(a, b, g);           
+           sum(a, b, g);           
       }
     }
   } 
+
+  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) <= g(k)) 
+  //          ==> sum_{k=a}^{b}f <= sum_{k=a}^{b}g
+  lemma lem_sum_mono(a:int, b:int, f:int->real, g:int->real)
+    requires a <= b+1
+    requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
+    ensures sum(a, b, f) <= sum(a, b, g)
+    decreases b - a
+  {
+    if a == b+1 {   
+      // BC: a > b
+      calc {
+           sum(b+1, b, f);
+        == { reveal sum(); }
+           0.0;
+        == { reveal sum(); }
+           sum(b+1, b, g);       
+      }
+    } else {  
+      // Step. a <= b
+      //   IH: sum(a+1, b, f) <= sum(a+1, b, g)
+      //    T: sum(a, b, f)   <= sum(a, b, g)
+      calc {  
+           sum(a, b, f);
+        == { reveal sum(); } 
+           f(a) + sum(a+1, b, f);
+        <= { assert f(a) <= g(a);  }
+           g(a) + sum(a+1, b, f);
+        <= { lem_sum_mono(a+1, b, f, g); }  // by IH
+           g(a) + sum(a+1, b, g);
+        == { reveal sum(); }
+           sum(a, b, g);           
+      }
+    }
+  } 
+
+  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j}f + sum_{k=j+1}^{b}f
+  lemma lem_sum_split(a:int, b:int, j:int, f:int->real)
+    requires a <= j <= b
+    ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
+    decreases b - a
+  {
+    if a == b+1 {   
+      // BC: a > b 
+      assert true; // trivial
+    } else {  
+      // Step. a <= b
+      //   IH: sum(a+1, b, f) = sum(a+1, j, f) + sum(j+1, b, f)
+      //    T: sum(a, b, f)   = sum(a, j, f) + sum(j+1, b, f)
+      if a == j {
+        calc {  
+             sum(j, b, f);
+          == { reveal sum(); } 
+             f(j) + sum(j+1, b, f);
+          == { reveal sum(); } 
+             sum(j, j, f) + sum(j+1, b, f);   
+        }
+      } else if a < j {
+        calc {  
+             sum(a, b, f);
+          == { reveal sum(); } 
+             f(a) + sum(a+1, b, f);
+          == { lem_sum_split(a+1, b, j, f); }  // by IH
+             f(a) + (sum(a+1, j, f) + sum(j+1, b, f));
+          == (f(a) + sum(a+1, j, f)) + sum(j+1, b, f);
+          == { reveal sum(); } 
+             sum(a, j, f) + sum(j+1, b, f);        
+        }
+      }
+    }
+  } 
+
+  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j-1}f + sum_{k=j}^{b}f
+  lemma lem_sum_split2(a:int, b:int, j:int, f:int->real)
+    requires a <= j <= b
+    ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)
+    decreases b - a
+  {
+    calc {
+         sum(a, b, f);
+      == { lem_sum_split(a, b, j, f); } 
+         sum(a, j, f) + sum(j+1, b, f);
+      == { lem_sum_dropLast(a, j-1, f); }
+         (sum(a, j-1, f) + f(j)) + sum(j+1, b, f); 
+      == sum(a, j-1, f) + (f(j) + sum(j+1, b, f));      
+      == { reveal sum; }
+         sum(a, j-1, f) + sum(j, b, f);
+    }
+  }
 
 }

@@ -45,21 +45,22 @@ module MasterLR {
   //       require a case by case analysis.
   lemma thm_masterMethodLR(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0)
     requires a > 0 && s > 0 && b >= s-1
-    requires bigO(w, n => pow(n as R0, k)) 
+    requires bigO(w, n => exp(n as R0, k)) 
     requires forall n:nat :: T(n) == TbodyLR(a, b, c, s, T, w, n) 
 
-    ensures a == 1 ==> bigO(T, (n:nat) => pow(n as R0, k + 1.0))
-    ensures a > 1  ==> bigO(T, (n:nat) => pow(n as R0, k)*pow(a as R0, (n/s) as R0))
+    ensures a == 1 ==> bigO(T, (n:nat) => exp(n as R0, k + 1.0))
+    ensures a > 1  ==> bigO(T, (n:nat) => exp(n as R0, k)*exp(a as R0, (n/s) as R0))
   {
     // 1. Prove: ∀ n : T(n) = a^m*c + S(n) where m=ceil((n-b)/s)
     assert forall n:nat :: T(n) == TsumForm(a, b, c, s, w, n)
       by { lem_mmLR_sumForm(a, b, c, s, T, w); }
 
-    // 2. Prove: ∃ d: ∀ n : S(n) <= d*n^k*sum_{i=0}^{m-1}a^i
-    assert exists d :: SupBoundPred(a, b, s, w, k, d)
-      by { lem_mmLR_SupBound(a, b, c, s, T, w, k); }
+    // 2. Prove: ∀ n >= n_1 : S(n) <= d*n^k*sum_{i=0}^{m-1}a^i
+    var d:R0, n0:nat :| bigOfrom(d, n0, w, n => exp(n as R0, k));
+    assert forall n:nat :: n >= n1(b,s,n0) ==> SupBoundPred(a, b, s, w, k, d, n)
+      by { lem_mmLR_SupBound(a, b, c, s, T, w, k, d, n0); }
 
-    // Cases on a:
+    // Cases on "a":
     if a == 1 {    
   //     assert sumr(0, m-1, i => powr(a as R0, i as real)) == m;
   //     assert bigOR0(n => m, n => powr(n as R0, 1.0));
@@ -83,7 +84,7 @@ module MasterLR {
     else (a as R0)*T(n - s) + w(n)    
   } 
 
-  // Expression: ceil((n-b)/s)
+  // Expression: max(0, ceil((n-b)/s))
   opaque ghost function m(b:nat, s:nat, n:nat) : int
     requires s > 0
   {    
@@ -94,7 +95,7 @@ module MasterLR {
   opaque ghost function TsumForm(a:nat, b:nat, c:R0, s:nat, w:nat->R0, n:nat) : real
     requires s > 0
   {    
-    pow(a as R0, m(b,s,n) as real)*c + S(a, b, s, w, n)    
+    exp(a as R0, m(b,s,n) as real)*c + S(a, b, s, w, n)    
   } 
 
   // Expression: sum_{i=0}^{m-1}a^i*w(n-i*s)
@@ -107,10 +108,10 @@ module MasterLR {
   // Expression: a^i
   opaque ghost function S1(a:nat, i:int) : real
   {    
-    pow(a as R0, i as real)     
+    exp(a as R0, i as real)     
   } 
 
-  // Expression: n-i*s
+  // Expression: w(n-i*s)
   opaque ghost function S2(s:nat, w:nat->R0, n:nat, i:int) : real
   {    
     liftD(w,0.0)(n-i*s)
@@ -120,14 +121,22 @@ module MasterLR {
   opaque ghost function SupBound(a:nat, b:nat, s:nat, w:nat->R0, k:R0, n:nat, d:R0) : real
     requires s > 0
   {    
-    d*pow(n as R0, k)*sum(0, m(b,s,n)-1, i => S1(a,i))    
+    d*exp(n as R0, k)*sum(0, m(b,s,n)-1, i => S1(a,i))    
   } 
 
-  // Predicate: ∀ n : S(n) <= SupBound(n,d)
-  ghost predicate SupBoundPred(a:nat, b:nat, s:nat, w:nat->R0, k:R0, d:R0)
+  // Predicate: S(n) <= SupBound(n,d)
+  ghost predicate SupBoundPred(a:nat, b:nat, s:nat, w:nat->R0, k:R0, d:R0, n:nat)
     requires s > 0
   {    
-    forall n:nat :: S(a, b, s, w, n) <= SupBound(a, b, s, w, k, n, d) 
+    S(a, b, s, w, n) <= SupBound(a, b, s, w, k, n, d) 
+  } 
+
+  // Expression: n1
+  opaque ghost function n1(b:nat, s:nat, n0:nat) : nat
+    requires s > 0 && b >= s-1
+  {    
+    lem_mmLR_mValue(b, s, n0);
+    n0 + m(b,s,n0)*s
   } 
 
   // If n <= b then m = 0
@@ -196,8 +205,8 @@ module MasterLR {
            c;
         == { lem_mmLR_mValue(b, s, n); reveal S, sum();  }
            c + S(a, b, s, w, n);
-        == { lem_mmLR_mValue(b, s, n); lem_powZero(aR); }
-           pow(aR, mv as real)*c + S(a, b, s, w, n);
+        == { lem_mmLR_mValue(b, s, n); lem_expZero(aR); }
+           exp(aR, mv as real)*c + S(a, b, s, w, n);
         == { reveal TsumForm(); } 
            TsumForm(a, b, c, s, w, n);  
       }      
@@ -227,10 +236,10 @@ module MasterLR {
             == { reveal S2(); } 
                S1(a,0)*liftD(w,0.0)(n-0*s);
             == { reveal S1(); } 
-               pow(a as R0, 0 as real)*liftD(w,0.0)(n-0*s); 
-            == { lem_powZero(a as R0); }    
+               exp(a as R0, 0 as real)*liftD(w,0.0)(n-0*s); 
+            == { lem_expZero(a as R0); }    
                1.0*liftD(w,0.0)(n-0*s); 
-            == { lem_powZero(a as R0); }    
+            == { lem_expZero(a as R0); }    
                liftD(w,0.0)(n);             
           }      
         }  
@@ -243,22 +252,22 @@ module MasterLR {
         == { lem_mmLR_sumFormInd(a, b, c, s, T, w, n-s); }
            aR*TsumForm(a, b, c, s, w, n-s) + w(n); 
         == { reveal TsumForm(); }
-           aR*(pow(aR, mv' as real)*c + S(a, b, s, w, n-s)) + w(n);  
+           aR*(exp(aR, mv' as real)*c + S(a, b, s, w, n-s)) + w(n);  
         == { reveal mRewr; }
-           aR*(pow(aR, (mv-1) as real)*c + S(a, b, s, w, n-s)) + w(n); 
-        == aR*pow(aR, (mv-1) as real)*c + aR*S(a, b, s, w, n-s) + w(n); 
-        == { lem_powDef(aR, (mv-1) as real); }
-           pow(aR, mv as real)*c + aR*S(a, b, s, w, n-s) + w(n);     
+           aR*(exp(aR, (mv-1) as real)*c + S(a, b, s, w, n-s)) + w(n); 
+        == aR*exp(aR, (mv-1) as real)*c + aR*S(a, b, s, w, n-s) + w(n); 
+        == { lem_expDef(aR, (mv-1) as real); }
+           exp(aR, mv as real)*c + aR*S(a, b, s, w, n-s) + w(n);     
         == { reveal sumRewr; }
-           pow(aR, mv as real)*c + aR*sum(0, mv-2, i => S1(a,i)*S2(s,w,n,i+1)) + w(n);
+           exp(aR, mv as real)*c + aR*sum(0, mv-2, i => S1(a,i)*S2(s,w,n,i+1)) + w(n);
         == { reveal sumRewr2; }
-           pow(aR, mv as real)*c + sum(0, mv-2, i => S1(a,i+1)*S2(s,w,n,i+1)) + w(n);    
+           exp(aR, mv as real)*c + sum(0, mv-2, i => S1(a,i+1)*S2(s,w,n,i+1)) + w(n);    
         == { reveal sumRewr3; }
-           pow(aR, mv as real)*c + sum(1, mv-1, i => S1(a,i)*S2(s,w,n,i)) + w(n); 
+           exp(aR, mv as real)*c + sum(1, mv-1, i => S1(a,i)*S2(s,w,n,i)) + w(n); 
         == { reveal wRewr; }
-           pow(aR, mv as real)*c + sum(1, mv-1, i => S1(a,i)*S2(s,w,n,i)) + S1(a,0)*S2(s,w,n,0); 
+           exp(aR, mv as real)*c + sum(1, mv-1, i => S1(a,i)*S2(s,w,n,i)) + S1(a,0)*S2(s,w,n,0); 
         == { reveal sum(); }
-           pow(aR, mv as real)*c + sum(0, mv-1, i => S1(a,i)*S2(s,w,n,i));           
+           exp(aR, mv as real)*c + sum(0, mv-1, i => S1(a,i)*S2(s,w,n,i));           
         == { reveal TsumForm(), S(); }
            TsumForm(a, b, c, s, w, n);                                                                   
       }  
@@ -301,15 +310,15 @@ module MasterLR {
            sum(0, mv-2, l => aR*(i => S1(a,i)*S2(s,w,n,i+1))(l)); 
         == { reveal S1(); assert aR == a as real;
              assert forall l :: 0 <= l <= mv-2 ==> 
-               aR*(i => S1(a,i)*S2(s,w,n,i+1))(l) == aR*pow(a as real,l as real)*S2(s,w,n,l+1);
+               aR*(i => S1(a,i)*S2(s,w,n,i+1))(l) == aR*exp(a as real,l as real)*S2(s,w,n,l+1);
              lem_sum_leibniz(0, mv-2, l => aR*(i => S1(a,i)*S2(s,w,n,i+1))(l), 
-                                      l => aR*pow(a as real,l as real)*S2(s,w,n,l+1)); } 
-           sum(0, mv-2, i => aR*pow(aR,i as real)*S2(s,w,n,i+1));  
-        == { reveal S1(); lem_powDefAll();
+                                      l => aR*exp(a as real,l as real)*S2(s,w,n,l+1)); } 
+           sum(0, mv-2, i => aR*exp(aR,i as real)*S2(s,w,n,i+1));  
+        == { reveal S1(); lem_expDefAll();
              assert forall l :: 0 <= l <= mv-2 ==> 
-               aR*pow(aR,l as real)*S2(s,w,n,l+1) == S1(a,l+1)*S2(s,w,n,l+1);
-             lem_sum_leibniz(0, mv-2, i => aR*pow(aR,i as real)*S2(s,w,n,i+1), 
-                                       i => S1(a,i+1)*S2(s,w,n,i+1)); }       
+               aR*exp(aR,l as real)*S2(s,w,n,l+1) == S1(a,l+1)*S2(s,w,n,l+1);
+             lem_sum_leibniz(0, mv-2, i => aR*exp(aR,i as real)*S2(s,w,n,i+1), 
+                                      i => S1(a,i+1)*S2(s,w,n,i+1)); }       
            sum(0, mv-2, i => S1(a,i+1)*S2(s,w,n,i+1));       
       }         
   }
@@ -326,22 +335,22 @@ module MasterLR {
       == { reveal S(); lem_mmLR_mRewr(a, b, s, n); }
          sum(0, mv-2, i => S1(a,i)*S2(s,w,n-s,i));
       == { reveal S2();
-            assert forall i :: 0 <= i <= mv-2 ==> 
-              S1(a,i)*S2(s,w,n-s,i) == S1(a,i)*liftD(w,0.0)((n-s)-i*s);
-            lem_sum_leibniz(0, mv-2, i => S1(a,i)*S2(s,w,n-s,i), 
-                                     i => S1(a,i)*liftD(w,0.0)((n-s)-i*s));  }
+           assert forall i :: 0 <= i <= mv-2 ==> 
+             S1(a,i)*S2(s,w,n-s,i) == S1(a,i)*liftD(w,0.0)((n-s)-i*s);
+           lem_sum_leibniz(0, mv-2, i => S1(a,i)*S2(s,w,n-s,i), 
+                                    i => S1(a,i)*liftD(w,0.0)((n-s)-i*s));  }
          sum(0, mv-2, i => S1(a,i)*liftD(w,0.0)((n-s)-i*s)); 
       == { assert forall i {:trigger S1(a,i), liftD(w,0.0)((n-s)-i*s)} :: 
-              0 <= i <= mv-2 ==>     S1(a,i)*liftD(w,0.0)((n-s)-i*s) 
-                                  == S1(a,i)*liftD(w,0.0)(n-(i+1)*s);
-            lem_sum_leibniz(0, mv-2, i => S1(a,i)*liftD(w,0.0)((n-s)-i*s), 
-                                      i => S1(a,i)*liftD(w,0.0)(n-(i+1)*s));  }
+             0 <= i <= mv-2 ==>     S1(a,i)*liftD(w,0.0)((n-s)-i*s) 
+                                 == S1(a,i)*liftD(w,0.0)(n-(i+1)*s);
+           lem_sum_leibniz(0, mv-2, i => S1(a,i)*liftD(w,0.0)((n-s)-i*s), 
+                                    i => S1(a,i)*liftD(w,0.0)(n-(i+1)*s));  }
          sum(0, mv-2, i => S1(a,i)*liftD(w,0.0)((n-(i+1)*s)));  
       == { reveal S2();
-            assert forall i :: 0 <= i <= mv-2 ==> 
-              S1(a,i)*liftD(w,0.0)(n-(i+1)*s) == S1(a,i)*S2(s,w,n,i+1);
-            lem_sum_leibniz(0, mv-2, i => S1(a,i)*liftD(w,0.0)(n-(i+1)*s), 
-                                     i => S1(a,i)*S2(s,w,n,i+1));  }
+           assert forall i :: 0 <= i <= mv-2 ==> 
+             S1(a,i)*liftD(w,0.0)(n-(i+1)*s) == S1(a,i)*S2(s,w,n,i+1);
+           lem_sum_leibniz(0, mv-2, i => S1(a,i)*liftD(w,0.0)(n-(i+1)*s), 
+                                    i => S1(a,i)*S2(s,w,n,i+1));  }
          sum(0, mv-2, i => S1(a,i)*S2(s,w,n,i+1));      
     }  
   }
@@ -373,13 +382,74 @@ module MasterLR {
     }  
   }
 
-  // ∃ d: ∀ n : S(n) <= Sbound(n,d)
-  // ∃ d: ∀ n : S(n) <= d*n^k*sum_{i=0}^{m-1}a^i
-  lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0)  
+  // ∀ n >= n1 : S(n) <= Sbound(n,d)
+  //                   = d*n^k*sum_{i=0}^{m-1}a^i
+  lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, d:R0, n0:nat)  
     requires a > 0 && s > 0 && b >= s-1
-    requires bigO(w, n => pow(n as R0, k))
-    ensures exists d :: SupBoundPred(a, b, s, w, k, d)
+    //requires bigO(w, n => pow(n as R0, k))
+    requires bigOfrom(d, n0, w, n => exp(n as R0, k))
+    ensures  forall n:nat :: n >= n1(b,s,n0) ==> SupBoundPred(a, b, s, w, k, d, n)
+  {
+    assert AA: forall n:nat :: 0 <= n0 <= n ==> w(n) <= d*exp(n as R0, k);
 
+    forall n:nat | n >= n1(b,s,n0)
+      ensures SupBoundPred(a, b, s, w, k, d, n)
+    {
+      var mv := m(b,s,n); 
+      assert mv >= 0 by { lem_mmLR_mValue(b,s,n); }
+      assert AB: n0 <= n1(b,s,n0) by { reveal n1, m; }
+      assert AC: forall i:nat :: 0 <= i <= mv-1 ==> n1(b,s,n0) <= n-i*s by { reveal n1, m; }
+
+      assert A: forall i :: 0 <= i <= mv-1 ==> S2(s,w,n,i) <= d*exp(n as R0, k) by {
+        forall i:nat | 0 <= i <= mv-1
+          ensures S2(s,w,n,i) <= d*exp(n as R0, k)
+        {         
+          if n - i*s < 0 {
+            calc {
+                 S2(s,w,n,i);
+              == { reveal S2(); }
+                 0.0;
+              <= d*exp(n as R0, k);   
+            }            
+          } else {
+            calc {
+                 S2(s,w,n,i);
+              == { reveal S2(); }
+                 w(n - i*s); 
+              <= { reveal AA, AB, AC; }
+                 d*exp((n - i*s) as R0, k);
+              <= { lem_expBaseMono(k, (n - i*s) as R0, n as R0); }
+                 d*exp(n as R0, k);    
+            }   
+          }
+        }
+      }    
+      assert B: forall i :: 0 <= i <= mv-1 ==> S1(a,i) >= 0.0 by {
+        reveal S1;
+      }      
+
+      calc {
+           S(a, b, s, w, n);
+        == { reveal S(); }
+           sum(0, mv-1, i => S1(a,i)*S2(s,w,n,i));  
+        <= { assert forall i :: 0 <= i <= mv-1 ==> 
+               S1(a,i)*S2(s,w,n,i) <= S1(a,i)*(d*exp(n as R0, k)) 
+                 by { reveal A, B; }
+             lem_sum_mono(0, mv-1, i => S1(a,i)*S2(s,w,n,i), 
+                                   i => S1(a,i)*(d*exp(n as R0, k))); }
+           sum(0, mv-1, i => S1(a,i)*(d*exp(n as R0, k)));  
+        == { assert forall l :: 0 <= l <= mv-1 ==> 
+               S1(a,l)*(d*exp(n as R0, k)) == (d*exp(n as R0, k))*(i => S1(a,i))(l);
+             lem_sum_leibniz(0, mv-1, l => S1(a,l)*(d*exp(n as R0, k)), 
+                                      l => (d*exp(n as R0, k))*(i => S1(a,i))(l)); }
+           sum(0, mv-1, l => (d*exp(n as R0, k))*(i => S1(a,i))(l)); 
+        == { lem_sum_linearityConst(0, mv-1, d*exp(n as R0, k), i => S1(a,i)); }
+           d*exp(n as R0, k)*sum(0, mv-1, i => S1(a,i));  
+        == { reveal SupBound(); }
+           SupBound(a, b, s, w, k, n, d);     
+      }
+    }  
+  }
 
   // A special case of thm_masterMethodLR.
   // This version doesn't admit recurrences with base case at n <= 0.
@@ -393,17 +463,17 @@ module MasterLR {
   //          \ O(n^k*a^{n/b})    , a > 1
   lemma thm_masterMethodLR2(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0)  
     requires a > 0 && b > 0
-    requires bigO(w, (n:nat) => pow(n as R0, k)) 
+    requires bigO(w, (n:nat) => exp(n as R0, k)) 
     requires forall n:nat :: T(n) == TbodyLR2(a, b, c, T, w, n) 
 
-    ensures a == 1 ==> bigO(T, (n:nat) => pow(n as R0, k + 1.0))
-    ensures a > 1  ==> bigO(T, (n:nat) => pow(n as R0, k)*pow(a as R0, (n/b) as R0))
+    ensures a == 1 ==> bigO(T, (n:nat) => exp(n as R0, k + 1.0))
+    ensures a > 1  ==> bigO(T, (n:nat) => exp(n as R0, k)*exp(a as R0, (n/b) as R0))
   {
     // proof using thm_masterMethodLR with s := b.
     assert a > 0;   
     assert b > 0;   
     assert b >= b - 1;
-    assert bigO(w, n => pow(n as R0, k));
+    assert bigO(w, n => exp(n as R0, k));
     assert forall n:nat :: T(n) == TbodyLR2(a, b, c, T, w, n); 
     assert forall n:nat :: T(n) == TbodyLR(a, b, c, b, T, w, n)
       by { reveal TbodyLR2, TbodyLR; } 

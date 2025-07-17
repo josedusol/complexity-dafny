@@ -158,7 +158,7 @@ module LemComplexityNat {
     forall n:nat | 0 <= n0 <= n
       ensures logGrowth()(n) <= c*linGrowth()(n)
     {
-      reveal pow();
+      reveal exp();
       lem_log2nLEQnMinus1(n);
       assert logGrowth()(n) <= c*linGrowth()(n);
     }
@@ -174,7 +174,7 @@ module LemComplexityNat {
     forall n:nat | 0 <= n0 <= n
       ensures logGrowth2()(n) <= c*linGrowth()(n)
     {
-      reveal pow();
+      reveal exp();
       lem_log2nPlus1LEQn(n);
       assert logGrowth2()(n) <= c*linGrowth()(n);
     }
@@ -190,8 +190,8 @@ module LemComplexityNat {
     forall n:nat | 0 <= n0 <= n
       ensures linGrowth()(n) <= c*quadGrowth()(n)
     {
-      reveal pow();
-      lem_nLQpown2(n);
+      reveal exp();
+      lem_nLQexpn2(n);
       assert linGrowth()(n) <= c*quadGrowth()(n);
     }
     assert bigOfrom(c, n0, linGrowth(), quadGrowth());
@@ -206,8 +206,8 @@ module LemComplexityNat {
     forall n:nat | 0 <= n0 <= n
       ensures quadGrowth()(n) <= c*expGrowth()(n)
     {
-      reveal pow();
-      lem_pown2LQpow2n(n);
+      reveal exp();
+      lem_expn2LQexp2n(n);
       assert quadGrowth()(n) <= c*expGrowth()(n);
     }
     assert bigOfrom(c, n0, quadGrowth(), expGrowth());

@@ -6,7 +6,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 {
-  pow(N,2)
+  exp(N,2)
 }
 
 method quad(N:nat)
@@ -35,7 +35,7 @@ method quad(N:nat)
     t := t+t';
   }
   assert t == T1(N, 0); 
-  assert t == f(N) by { reveal pow(); lem_T1closed(N, 0); }
+  assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
  
   assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
@@ -89,12 +89,11 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
     ensures f(n) <= c*quadGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        pow(n,2);
-      == { reveal pow(); }
-        n*n;   
+         f(n);
+      == exp(n,2);
+      == { reveal exp(); }
+         n*n;   
     }
-    assert n >= n0 ==> f(n) <= c*quadGrowth()(n); 
+    assert f(n) <= c*quadGrowth()(n); 
   }
 }

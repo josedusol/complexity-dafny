@@ -6,7 +6,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 {
-  pow(N,2)
+  exp(N,2)
 }
 
 method quadCall(N:nat)
@@ -27,7 +27,7 @@ method quadCall(N:nat)
     t := t + t'; 
   }
   assert t == T1(N, 0); 
-  assert t == f(N) by { reveal pow(); lem_T1closed(N, 0); }
+  assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
  
   assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
@@ -111,8 +111,8 @@ lemma lem_subBigOlin() returns (c:nat, n0:nat)
     calc {
          f'(n);
       == n;
-      == { reveal pow(); }
-         pow(n,1);
+      == { reveal exp(); }
+         exp(n,1);
     }
     assert f'(n) <= c*linGrowth()(n); 
   }
@@ -128,8 +128,8 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
   {
     calc {
          f(n);
-      == pow(n,2);
-      == { reveal pow(); }
+      == exp(n,2);
+      == { reveal exp(); }
          n*n;   
     }
     assert f(n) <= c*quadGrowth()(n); 

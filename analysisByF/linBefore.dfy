@@ -6,7 +6,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 {
-  if N < 10 then pow(N,1) else 20 
+  if N < 10 then exp(N,1) else 20 
 }
 
 method linBefore(N:nat)
@@ -31,7 +31,7 @@ method linBefore(N:nat)
     t := 20 ;
   }
   assert t == if N < 10 then T(N, 0) else 20;
-  assert t == f(N) by { reveal pow(); lem_Tclosed(N, 0); }
+  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
  
   assert bigO(f, constGrowth()) by { var c, n0 := lem_fBigOconst(); }
@@ -62,12 +62,11 @@ lemma lem_fBigOconst() returns (c:nat, n0:nat)
     ensures f(n) <= c*constGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        if n < 10 then pow(n,1) else 20;
-      == { reveal pow(); }
-        if n < 10 then n else 20;    
+         f(n);
+      == if n < 10 then exp(n,1) else 20;
+      == { reveal exp(); }
+         if n < 10 then n else 20;    
     }
-    assert n >= n0 ==> f(n) <= c*constGrowth()(n);
+    assert f(n) <= c*constGrowth()(n);
   }
 }

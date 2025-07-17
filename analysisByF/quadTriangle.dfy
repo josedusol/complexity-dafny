@@ -103,7 +103,7 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
         n*n;   
     }
     assert n >= n0 ==> f(n) <= c*quadGrowth()(n) 
-      by { reveal pow(); } 
+      by { reveal exp(); } 
   }
 }
 

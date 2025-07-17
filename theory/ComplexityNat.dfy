@@ -40,7 +40,7 @@ module ComplexityNat {
 
   ghost predicate isBigOPoly(f:nat->nat)
   { 
-    exists k:nat :: bigO(f, n => pow(n,k))
+    exists k:nat :: bigO(f, n => exp(n,k))
   }
 
   /* Big Ω */
@@ -101,27 +101,27 @@ module ComplexityNat {
 
   ghost function linGrowth() : nat->nat
   {   
-    n => pow(n,1)
+    n => exp(n,1)
   }
 
   ghost function quadGrowth() : nat->nat
   {   
-    n => pow(n,2)
+    n => exp(n,2)
   }
 
   ghost function cubicGrowth() : nat->nat
   {   
-    n => pow(n,3)
+    n => exp(n,3)
   }
 
   ghost function polyGrowth(k:nat) : nat->nat
   {   
-    n => pow(n,k)
+    n => exp(n,k)
   }
 
   ghost function expGrowth() : nat->nat
   {   
-    n => pow(2,n)
+    n => exp(2,n)
   }
 
   ghost function facGrowth() : nat->nat
@@ -131,7 +131,7 @@ module ComplexityNat {
 
   ghost function dexpGrowth() : nat->nat
   {   
-    n => pow(2,pow(2,n))
+    n => exp(2,exp(2,n))
   }
 
 }

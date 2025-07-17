@@ -40,7 +40,7 @@ lemma lem_T1def(n:nat)
 // Asymptotic closed form:
 //   T1(n) in O(n)
 lemma test_masterMethodForT1lifted()
-  ensures bigO(liftToR0(T1), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T1), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 1;
@@ -55,13 +55,13 @@ lemma test_masterMethodForT1lifted()
     reveal TbodyLR2;
     lem_T1def(n);
   }     
-  assert bigO(w, n => pow(n as R0, k)) by {   
+  assert bigO(w, n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+        assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
         assert w(n) <= 1.0*polyGrowth(k)(n); 
       }
     }
@@ -95,7 +95,7 @@ lemma lem_T2def(n:nat)
 // Asymptotic closed form:
 //   T2(n) in O(n)
 lemma test_masterMethodForT2lifted()
-  ensures bigO(liftToR0(T2), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T2), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 2;
@@ -110,20 +110,20 @@ lemma test_masterMethodForT2lifted()
     reveal TbodyLR2;
     lem_T2def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {  // k=0
+  assert bigO(w, n => exp(n as R0, k)) by {  // k=0
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
         assert 1.0 <= 1.0*polyGrowth(k)(n); 
       }
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR2(a, b, c, T2', w, k); 
-  assert bigO(T2', (n:nat) => pow(n as R0, 1.0));
+  assert bigO(T2', (n:nat) => exp(n as R0, 1.0));
 } 
 
 //**************************************************************************//
@@ -151,7 +151,7 @@ lemma lem_T3def(n:nat)
 // Asymptotic closed form:
 //   T3(n) in O(n)
 lemma test_masterMethodForT3lifted()
-  ensures bigO(liftToR0(T3), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T3), n => exp(n as R0, 1.0))
 { 
   var a:nat       := 1;
   var b:nat       := 2;
@@ -166,20 +166,20 @@ lemma test_masterMethodForT3lifted()
     reveal TbodyLR2;
     lem_T3def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {
+  assert bigO(w, n => exp(n as R0, k)) by {
     // we show that c=4 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 4.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
         assert w(n) <= 4.0*polyGrowth(k)(n); 
       }
     }
     assert bigOfrom(4.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR2(a, b, c, T3', w, k);
-  assert bigO(T3', n => pow(n as R0, 1.0));
+  assert bigO(T3', n => exp(n as R0, 1.0));
 } 
 
 //**************************************************************************//
@@ -207,7 +207,7 @@ lemma lem_T4def(n:nat)
 // Asymptotic closed form:
 //   T4(n) in O(2^n)
 lemma test_masterMethodForT4lifted()
-  ensures bigO(liftToR0(T4), (n:nat) => pow(n as R0, 0.0)*pow(2.0, (n/1) as R0))
+  ensures bigO(liftToR0(T4), (n:nat) => exp(n as R0, 0.0)*exp(2.0, (n/1) as R0))
 { 
   var a:nat       := 2;
   var b:nat       := 1;
@@ -215,7 +215,7 @@ lemma test_masterMethodForT4lifted()
   var k:R0        := 0.0;
   var T4':nat->R0 := liftToR0(T4);
   var w:nat->R0   := liftToR0(n => 1);
-  var g:nat->R0   := (n:nat) => pow(n as R0, 0.0)*pow(2.0, (n/1) as R0);
+  var g:nat->R0   := (n:nat) => exp(n as R0, 0.0)*exp(2.0, (n/1) as R0);
 
   forall n:nat 
     ensures T4'(n) == TbodyLR2(a, b, c, T4', w, n)
@@ -223,20 +223,20 @@ lemma test_masterMethodForT4lifted()
     reveal TbodyLR2;
     lem_T4def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {
+  assert bigO(w, n => exp(n as R0, k)) by {
     // we show that c=1 and n0=1
     forall n:nat 
       ensures 0 <= 1 <= n ==> w(n) <= 1.0*polyGrowth(k)(n)
     {
       if 0 <= 1 <= n {
-        assert polyGrowth(k)(n) == 1.0 by { lem_powZeroAll(); }
+        assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
         assert w(n) <= 1.0*polyGrowth(k)(n); 
       }
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR2(a, b, c, T4', w, k);
-  assert bigO(T4', (n:nat) => pow(n as R0, 0.0)*pow(2.0, (n/1) as R0));
+  assert bigO(T4', (n:nat) => exp(n as R0, 0.0)*exp(2.0, (n/1) as R0));
 }  
 
 //**************************************************************************//
@@ -266,7 +266,7 @@ lemma lem_T5def(n:nat)
 // Thiger bound:
 //   T5(n) ∈ Θ(2^n)
 lemma test_masterMethodForT5lifted() 
-  ensures bigO(liftToR0(T5), n => (n as R0)*pow(2.0, n as R0))
+  ensures bigO(liftToR0(T5), n => (n as R0)*exp(2.0, n as R0))
 { 
   var a:nat       := 2;
   var b:nat       := 1;
@@ -281,34 +281,34 @@ lemma test_masterMethodForT5lifted()
     reveal TbodyLR2;
     lem_T5def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by { 
+  assert bigO(w, n => exp(n as R0, k)) by { 
     // we show that c=3 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 3.0*pow(n as R0, k)
+      ensures 0 <= 1 <= n ==> w(n) <= 3.0*exp(n as R0, k)
     {
       if 0 <= 1 <= n {
-        assert pow(n as R0, k) == n as R0 by { lem_powOneAll(); } 
-        assert w(n) <= 3.0*pow(n as R0, k); 
+        assert exp(n as R0, k) == n as R0 by { lem_expOneAll(); } 
+        assert w(n) <= 3.0*exp(n as R0, k); 
       }
     }
-    assert bigOfrom(3.0, 1, w, n => pow(n as R0, k));
+    assert bigOfrom(3.0, 1, w, n => exp(n as R0, k));
   } 
   thm_masterMethodLR2(a, b, c, T5', w, k);
   test_masterMethodForT5lifted_simplify();
 }  
 
 lemma test_masterMethodForT5lifted_simplify() 
-  requires bigO(liftToR0(T5), (n:nat) => pow(n as R0, 1.0)*pow(2.0 as R0, (n/1) as R0))
-  ensures  bigO(liftToR0(T5), (n:nat) => (n as R0)*pow(2.0, n as R0))
+  requires bigO(liftToR0(T5), (n:nat) => exp(n as R0, 1.0)*exp(2.0 as R0, (n/1) as R0))
+  ensures  bigO(liftToR0(T5), (n:nat) => (n as R0)*exp(2.0, n as R0))
 {
   var T5':nat->R0 := liftToR0(T5);
-  var c:R0, n0:nat :| bigOfrom(c, n0, T5', (n:nat) => pow(n as R0, 1.0)*pow(2.0, (n/1) as R0));
-  assert forall n:nat :: 0 <= n0 <= n   ==> T5'(n) <= c*pow(n as R0, 1.0)*pow(2.0, (n/1) as R0);
-  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*pow(n as R0, 1.0)*pow(2.0, (n/1) as R0);
-  lem_powOneAll();
-  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*pow(2.0, (n/1) as R0);
-  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*pow(2.0, n as R0);
-  assert bigOfrom(c, n0+1, T5', (n:nat) => (n as R0)*pow(2.0, n as R0)); 
+  var c:R0, n0:nat :| bigOfrom(c, n0, T5', (n:nat) => exp(n as R0, 1.0)*exp(2.0, (n/1) as R0));
+  assert forall n:nat :: 0 <= n0 <= n   ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
+  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
+  lem_expOneAll();
+  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*exp(2.0, (n/1) as R0);
+  assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*exp(2.0, n as R0);
+  assert bigOfrom(c, n0+1, T5', (n:nat) => (n as R0)*exp(2.0, n as R0)); 
 }
 
 //**************************************************************************//
@@ -321,12 +321,12 @@ opaque ghost function T6(n:nat) : nat
 {
   if n <= 2
   then 0   
-  else 2*T6(n-2) + 3*Nat.pow(n,2)
+  else 2*T6(n-2) + 3*Nat.exp(n,2)
 }
 
 lemma lem_T6def(n:nat)
   ensures n <= 2 ==> T6(n) == 0
-  ensures n > 2  ==> T6(n) == 2*T6(n-2) + 3*Nat.pow(n,2) 
+  ensures n > 2  ==> T6(n) == 2*T6(n-2) + 3*Nat.exp(n,2) 
 {
   reveal T6();
 }
@@ -338,14 +338,14 @@ lemma lem_T6def(n:nat)
 // Thiger bound:
 //   T7(n) ∈ Θ(2^(n/2)) 
 lemma test_masterMethodForT6() 
-  ensures bigO(liftToR0(T6), n => ((n*n) as R0)*pow(2.0, (n/2) as R0))
+  ensures bigO(liftToR0(T6), n => ((n*n) as R0)*exp(2.0, (n/2) as R0))
 { 
   var a:nat       := 2;
   var b:nat       := 2;
   var c:R0        := 0.0;
   var k:R0        := 2.0;
   var T6':nat->R0 := liftToR0(T6);
-  var w:nat->R0   := liftToR0(n => 3*Nat.pow(n,2));
+  var w:nat->R0   := liftToR0(n => 3*Nat.exp(n,2));
 
   forall n:nat 
     ensures T6'(n) == TbodyLR2(a, b, c, T6', w, n)
@@ -353,42 +353,42 @@ lemma test_masterMethodForT6()
     reveal TbodyLR2;
     lem_T6def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by {
+  assert bigO(w, n => exp(n as R0, k)) by {
     // we show that c=3 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 3.0*pow(n as R0, k)
+      ensures 0 <= 1 <= n ==> w(n) <= 3.0*exp(n as R0, k)
     {
       if 0 <= 1 <= n {
-        reveal Nat.pow();
-        assert pow(n as R0, 2.0) == (n*n) as R0 by { lem_powTwo(n as R0); } 
-        assert w(n) <= 3.0*pow(n as R0, k);  
+        reveal Nat.exp();
+        assert exp(n as R0, 2.0) == (n*n) as R0 by { lem_expTwo(n as R0); } 
+        assert w(n) <= 3.0*exp(n as R0, k);  
       }
     }
-    assert bigOfrom(3.0, 1, w, n => pow(n as R0, k));
+    assert bigOfrom(3.0, 1, w, n => exp(n as R0, k));
   } 
   thm_masterMethodLR2(a, b, c, T6', w, k);
   lem_simplifyPowrTwo();
 }
 
 lemma lem_simplifyPowrTwo() 
-  requires bigO(liftToR0(T6), n => pow(n as R0, 2.0)*pow(2.0, (n/2) as R0))
-  ensures  bigO(liftToR0(T6), n => ((n*n) as R0)*pow(2.0, (n/2) as R0))
+  requires bigO(liftToR0(T6), n => exp(n as R0, 2.0)*exp(2.0, (n/2) as R0))
+  ensures  bigO(liftToR0(T6), n => ((n*n) as R0)*exp(2.0, (n/2) as R0))
 {  
   var T6':nat->R0 := liftToR0(T6);
 
-  var c:R0, n0:nat :| bigOfrom(c, n0, T6', n => pow(n as R0, 2.0)*pow(2.0, (n/2) as R0));
-  assert forall n:nat :: 0 <= n0 <= n ==> T6'(n) <= c*pow(n as R0, 2.0)*pow(2.0, (n/2) as R0);   
+  var c:R0, n0:nat :| bigOfrom(c, n0, T6', n => exp(n as R0, 2.0)*exp(2.0, (n/2) as R0));
+  assert forall n:nat :: 0 <= n0 <= n ==> T6'(n) <= c*exp(n as R0, 2.0)*exp(2.0, (n/2) as R0);   
   forall n:nat 
-    ensures 0 <= n0+1 <= n ==> T6'(n) <= c*((n*n) as R0)*pow(2.0, (n/2) as R0)
+    ensures 0 <= n0+1 <= n ==> T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0)
   {
     if 0 <= n0+1 <= n {
-      assert T6'(n) <= c*pow(n as R0, 2.0)*pow(2.0, (n/2) as R0);
-      lem_powTwo(n as R0);
-      assert T6'(n) <= c*((n*n) as R0)*pow(2.0, (n/2) as R0);
+      assert T6'(n) <= c*exp(n as R0, 2.0)*exp(2.0, (n/2) as R0);
+      lem_expTwo(n as R0);
+      assert T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0);
     }
   }
-  assert forall n:nat :: 0 <= n0+1 <= n ==> T6'(n) <= c*((n*n) as R0)*pow(2.0, (n/2) as R0);  
-  assert bigOfrom(c, n0+1, T6', (n:nat) => ((n*n) as R0)*pow(2.0, (n/2) as R0)); 
+  assert forall n:nat :: 0 <= n0+1 <= n ==> T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0);  
+  assert bigOfrom(c, n0+1, T6', (n:nat) => ((n*n) as R0)*exp(2.0, (n/2) as R0)); 
 }
 
 //**************************************************************************//
@@ -418,7 +418,7 @@ lemma lem_T7def(n:nat)
 // Thiger bound:
 //   T7(n) ∈ Θ(n*log(n))
 lemma test_masterMethodForT7lifted()
-  ensures bigO(liftToR0(T7), n => pow(n as R0, 2.0))
+  ensures bigO(liftToR0(T7), n => exp(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 1;
@@ -433,18 +433,18 @@ lemma test_masterMethodForT7lifted()
     reveal TbodyLR2;
     lem_T7def(n);
   } 
-  assert bigO(w, n => pow(n as R0, k)) by { 
+  assert bigO(w, n => exp(n as R0, k)) by { 
     // we show that c=1 and n0=1
     forall n:nat 
-      ensures 0 <= 1 <= n ==> w(n) <= 1.0*pow(n as R0, k)
+      ensures 0 <= 1 <= n ==> w(n) <= 1.0*exp(n as R0, k)
     {
       if 0 <= 1 <= n {
-        assert pow(n as R0, k) == n as R0 by { lem_powOne(n as R0); } // n >= 1
+        assert exp(n as R0, k) == n as R0 by { lem_expOne(n as R0); } // n >= 1
         assert log2(n+1) <= n by { lem_log2nPlus1LEQn(n); }  // n >= 1
         assert w(n) <= 1.0*(n as R0);
       }
     }
-    assert bigOfrom(1.0, 1, w, n => pow(n as R0, k));
+    assert bigOfrom(1.0, 1, w, n => exp(n as R0, k));
   } 
   thm_masterMethodLR2(a, b, c, T7', w, k);
 }

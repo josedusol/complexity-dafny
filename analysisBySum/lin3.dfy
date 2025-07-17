@@ -8,7 +8,7 @@ import opened ComplexityNat
 
 ghost function f(N:nat) : nat
 {
-  3*pow(N,1)
+  3*exp(N,1)
 }
 
 method lin(N:nat)
@@ -39,7 +39,7 @@ method lin(N:nat)
     t := t+t' ;
   }
   assert t == sum(1, 3, k => sum(1, N, k' => 1)); 
-  assert t == f(N) by { reveal pow(); lem_sum_constAll(1, N); }
+  assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
  
   assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
@@ -55,8 +55,8 @@ lemma lem_fBigOlin() returns (c:nat, n0:nat)
   {
     calc {
          f(n);
-      == 3*pow(n,1);
-      == { reveal pow(); }
+      == 3*exp(n,1);
+      == { reveal exp(); }
          3*n;   
     }
     assert f(n) <= c*linGrowth()(n); 

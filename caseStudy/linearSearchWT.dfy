@@ -16,7 +16,7 @@ import opened MasterLR
 ghost method linearSearchWT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
   ensures t == T(|s|)
-  ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T), n => exp(n as R0, 1.0))
 {
   assume {:axiom} forall i :: 0 <= i < |s| ==> s[i] != x;  // worst case 1
   var n:nat; reveal T();
@@ -40,7 +40,7 @@ ghost method linearSearchWT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
 ghost method linearSearchWT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures  post(s, x, i)
   ensures  t == T(|s|)
-  ensures  bigO(liftToR0(T), n => pow(n as R0, 1.0))
+  ensures  bigO(liftToR0(T), n => exp(n as R0, 1.0))
 {
   assume {:axiom} |s| > 0;
   assume {:axiom} (forall i :: 0 <= i < |s|-1 ==> s[i] != x) && s[|s|-1] == x;  // worst case 2
@@ -80,7 +80,7 @@ lemma lem_Tdef(n:nat)
 }
 
 lemma lem_TbigOlin()
-  ensures bigO(liftToR0(T), n => pow(n as R0, 1.0))
+  ensures bigO(liftToR0(T), n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -97,12 +97,12 @@ lemma lem_TbigOlin()
     reveal TbodyLR;
     lem_Tdef(n);
   }    
-  assert bigO(w, n => pow(n as R0, k)) by {   
+  assert bigO(w, n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert pow(n as R0, k) == 1.0 by { lem_powZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
