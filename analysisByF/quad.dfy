@@ -37,8 +37,7 @@ method quad(N:nat)
   assert t == T1(N, 0); 
   assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
- 
-  assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 ghost function T1(N:nat, i:nat): nat

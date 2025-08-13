@@ -1,14 +1,13 @@
-
 include "./ExpNat.dfy"
-include "./LogNat.dfy"
+include "./Log2Nat.dfy"
 
-/**************************************************************************
+/******************************************************************************
   Bounds of mathematical functions over non-negative integers
-**************************************************************************/
+******************************************************************************/
 
 module LemBoundsNat {
   import opened ExpNat
-  import opened LogNat
+  import opened Log2Nat
 
   // n > 0 ==> 2^log2(n) <= n
   lemma lem_log2exp2_bounds(n:nat)
@@ -35,7 +34,7 @@ module LemBoundsNat {
            exp(2, log2(n));
         == { reveal exp(); }
            2*exp(2, log2(n)-1);
-        <= { reveal A; lem_expMono(2, log2(n)-1, log2(n/2)); }
+        <= { reveal A; lem_expMonoIncr(2, log2(n)-1, log2(n/2)); }
            2*exp(2, log2(n/2));
         <= { lem_log2exp2_bounds(n/2); }
            2*(n/2);
@@ -98,7 +97,7 @@ module LemBoundsNat {
            log2(n+1);
         == { reveal log2(); }
            1 + log2((n+1)/2);
-        <= { assert (n+1)/2 <= n; lem_log2Mono((n+1)/2, n); } 
+        <= { assert (n+1)/2 <= n; lem_log2MonoIncr((n+1)/2, n); } 
            1 + log2(n);   
         <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
            1 + (n-1);
@@ -130,7 +129,7 @@ module LemBoundsNat {
            log2(n);
         == { reveal log2(); }
            1 + log2(n/2);
-        <= { assert n/2 <= n-1; lem_log2Mono(n/2, n-1); } 
+        <= { assert n/2 <= n-1; lem_log2MonoIncr(n/2, n-1); } 
            1 + log2(n-1);   
         <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
            1 + (n-3);
@@ -153,7 +152,7 @@ module LemBoundsNat {
 
   // n <= n^2
   lemma lem_nLQexpn2(n:nat)
-    ensures n <= exp(n,2)
+    ensures n <= exp(n, 2)
     decreases n
   {
     if n == 0 {
@@ -235,30 +234,30 @@ module LemBoundsNat {
   }
 
   // 4^2 <= 2^4
-  lemma lem_expn2LQexp2nBC()
+  lemma lem_expn2LEQexp2nBC()
     ensures exp(4,2) <= exp(2,4)
   {
     reveal exp();
   }
 
-  // n>=4 ==> n^2 < 2^n
-  lemma lem_expn2LQexp2n(n:nat)
+  // n>=4 ==> n^2 <= 2^n
+  lemma lem_expn2LEQexp2n(n:nat)
     requires n >= 4
     ensures  exp(n,2) <= exp(2,n)
     decreases n
   {
     if n == 4 {   
       // BC: n = 4
-      lem_expn2LQexp2nBC();
+      lem_expn2LEQexp2nBC();
     } else {  
       // Step. n > 4
       //   IH: (n-1)^2 <= 2^{n-1}
-      //    T: n^2 <= 2^n
+      //    T:     n^2 <= 2^n
       calc {   
            exp(n,2);
         == { lem_binomial(n); }
            exp(n-1,2) + 2*(n-1) + 1;
-        <= { lem_expn2LQexp2n(n-1);  }   // by IH  
+        <= { lem_expn2LEQexp2n(n-1);  }   // by IH  
            exp(2,n-1) + 2*(n-1) + 1; 
         <= { lem_nLEQexp2nMinus2(n); reveal exp(); assert 2*n <= exp(2,n-1); }  
            2*exp(2,n-1);

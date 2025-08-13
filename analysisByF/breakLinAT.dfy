@@ -64,8 +64,7 @@ ghost method expectationLoop(N:nat)
   }
   assert tE == sum(0, N-1, i => (i+1) as real * (1.0 / N as real)); 
   assert tE == Tavg(N) by { lem_solveSum(N); }
-
-  assert bigO(Tavg, n => n as R0) by { var c, n0 := lem_TavgBigOlin(); }
+  assert Tavg in O(n => n as R0) by { var c, n0 := lem_TavgBigOlin(); }
 }
 
 ghost function probability(N:nat, pred:nat->bool, p:nat) : R0

@@ -29,8 +29,7 @@ method quadCall(N:nat)
   assert t == T1(N, 0); 
   assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
- 
-  assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 ghost function f'(N:nat) : nat
@@ -57,8 +56,7 @@ method quadCallSub(N:nat)
   assert t == T2(N, 0); 
   assert t == f'(N) by { lem_T2closed(N, 0); }
   assert t <= f'(N); 
- 
-  assert bigO(f', linGrowth()) by { var c, n0 := lem_subBigOlin(); }
+  assert f' in O(linGrowth()) by { var c, n0 := lem_subBigOlin(); }
 } 
 
 ghost function T1(N:nat, i:nat): nat

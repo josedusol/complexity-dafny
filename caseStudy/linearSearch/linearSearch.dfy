@@ -1,6 +1,6 @@
 
 /**************************************************************************
-  A correct linear search algorithm
+  A functionally correct linear search algorithm
 **************************************************************************/
 
 // Postcondition

@@ -28,8 +28,7 @@ method breakConstBT(N:nat, P:nat->bool)
     t := t+1 ;
   }
   assert t <= f(N);
- 
-  assert bigO(f, constGrowth()) by { var c, n0 := lem_fBigOconst(); }
+  assert f in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
 } 
 
 lemma lem_fBigOconst() returns (c:nat, n0:nat)

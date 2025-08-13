@@ -13,7 +13,7 @@ import opened MasterLR
 method lin(N:nat) 
   returns (ghost t:nat)
   ensures t == T(N)
-  ensures bigO(liftToR0(T), n => exp(n as R0, 1.0))
+  ensures liftToR0(T) in O(n => exp(n as R0, 1.0))
 {
   var i; reveal T();
   i, t := 0, 0;
@@ -46,7 +46,7 @@ lemma lem_Tdef(n:nat)
 }
 
 lemma lem_TbigOlin()
-  ensures bigO(liftToR0(T), n => exp(n as R0, 1.0))
+  ensures liftToR0(T) in O(n => exp(n as R0, 1.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -63,7 +63,7 @@ lemma lem_TbigOlin()
     reveal TbodyLR;
     lem_Tdef(n);
   }    
-  assert bigO(w, n => exp(n as R0, k)) by {   
+  assert w in O(n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)

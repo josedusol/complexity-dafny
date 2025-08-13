@@ -1,7 +1,7 @@
-include "../theory/math/LogNat.dfy"
+include "../theory/math/Log2Nat.dfy"
 include "../theory/ComplexityNat.dfy"
 
-import opened LogNat
+import opened Log2Nat
 import opened ComplexityNat
 
 ghost function f(N:nat) : nat
@@ -12,7 +12,7 @@ ghost function f(N:nat) : nat
 method log(N:nat)
   returns (ghost t:nat)
   ensures t <= f(N)
-  ensures tIsBigO(N, t, logGrowth())
+  ensures tIsBigO(N, t, log2Growth())
 {
   var i;
   i, t := N, 0;
@@ -28,7 +28,7 @@ method log(N:nat)
   assert t == T(N); 
   assert t <= f(N) by { lem_TclosedBound(N); }
  
-  assert bigO(f, logGrowth()) by { var c, n0 := lem_fBigOlog(); }
+  assert f in O(log2Growth()) by { var c, n0 := lem_fBigOlog2(); }
 } 
 
 ghost function T(i:nat) : nat
@@ -53,15 +53,15 @@ lemma lem_TclosedBound(N:nat)
   } 
 }
 
-lemma lem_fBigOlog() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f, logGrowth())
+lemma lem_fBigOlog2() returns (c:nat, n0:nat)
+  ensures bigOfrom(c, n0, f, log2Growth())
 {
   // we show that c=1 and n0=1
   c, n0 := 1, 1;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*logGrowth()(n)
+    ensures f(n) <= c*log2Growth()(n)
   {
-    assert f(n) <= c*logGrowth()(n); 
+    assert f(n) <= c*log2Growth()(n); 
   }
 }
 

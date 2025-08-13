@@ -39,7 +39,7 @@ method quadNM(N:nat, M:nat)
   assert t <= f(N,M); 
  
   assert N == M ==> t == (n => f(n,n))(N);
-  assert bigO(n => f(n,n), quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert (n => f(n,n)) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 ghost function T1(N:nat, M:nat, i:nat): nat

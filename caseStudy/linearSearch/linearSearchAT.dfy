@@ -1,25 +1,13 @@
-include "../theory/math/SumReal.dfy"
-include "../theory/math/TypeR0.dfy"
-include "../theory/ComplexityR0.dfy"
+include "../../theory/math/ExpReal.dfy"
+include "../../theory/math/SumReal.dfy"
+include "../../theory/math/TypeR0.dfy"
+include "../../theory/ComplexityR0.dfy"
+include "./linearSearch.dfy"
 
+import opened ExpReal
 import opened SumReal
 import opened TypeR0
 import opened ComplexityR0
-
-// Postcondition for a correct linear search algorithm
-ghost predicate post<A>(s:seq<A>, x:A, i:nat)
-{
-     (0 <= i < |s| ==> s[i] == x)
-  && (i == |s|     ==> (forall j :: 0 <= j < |s| ==> s[j] != x))
-}
-
-// Invariant for a correct linear search algorithm
-ghost predicate inv<A>(s:seq<A>, x:A, i:nat, n:nat)
-{
-     0 <= i <= n && n <= |s|
-  && (0 <= n < |s| ==> s[i] == x)      
-  && (n == |s|     ==> (forall j :: 0 <= j < i ==> s[j] != x))
-}
 
 ghost function T<A>(s:seq<A>, x:A, i:nat) : nat
   requires 0 <= i < |s|
@@ -36,15 +24,18 @@ ghost method linearSearchAT<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures  exists k :: 0 <= k < |s| && s[k] == x && t == T(s, x, k)
 {
   var n:nat;
-  i, n, t := 0, |s|, 1;
-  while i != n && s[i] != x
+  i, n, t := 0, |s|, 0;
+  while i != n
     invariant inv(s, x, i, n)
-    invariant forall j :: 0 <= j < i ==> s[j] != x
-    invariant exists k :: i <= k < |s| && s[k] == x
-    invariant t == i+1
+    invariant i <= n-1 ==> t == i    // =  T(|s|) - T(|s|-i)
+    invariant i == n   ==> t == i+1  // = (T(|s|) - T(|s|-i)) + 1
     decreases n - i
   {
-    i := i + 1;
+    if s[i] != x {  // Op. interesante
+      i := i + 1 ;     
+    } else {
+      n := i;  // break;
+    }
     t := t + 1;
   }
   assert s[i] == x && t == T(s,x,i);
@@ -59,7 +50,7 @@ ghost method expectationLoop<A>(N:nat)
   returns (tE:real)
   requires N > 0
   ensures  tE == Tavg(N)
-  ensures  tIsBigO(N, tE, n => n as R0)
+  ensures  tIsBigO(N, tE, linGrowth())
 {
   tE := 0.0; 
   var p := 0; reveal sum();  
@@ -82,7 +73,22 @@ ghost method expectationLoop<A>(N:nat)
   assert tE == sum(0, N-1, i => (i+1) as real * (1.0 / N as real)); 
   assert tE == Tavg(N) by { lem_solveSum(N); }
 
-  assert bigO(Tavg, n => n as R0) by { var c, n0 := lem_TavgBigOlin(); }
+  assert Tavg in O(linGrowth()) by { var c, n0 := lem_TavgBigOlin(); }
+}
+
+ghost method inputScenario<A>(N:nat, p:nat) returns (s0:seq<A>, x0:A)
+  requires N > 0
+  requires 0 <= p < N
+  ensures  |s0| == N
+  ensures  forall i,j :: 0 <= i <= j < |s0| && i != j ==> s0[i] != s0[j]
+  ensures  s0[p] == x0
+{
+  assume {:axiom} 
+    exists s:seq<A> :: |s| == N && (forall i,j :: 0 <= i <= j < N && i != j ==> s[i] != s[j]);
+  s0 :| |s0| == N && forall i,j :: 0 <= i <= j < N && i != j ==> s0[i] != s0[j];
+  assume {:axiom} 
+    exists x:A :: s0[p] == x;
+  x0 :| s0[p] == x0;
 }
 
 ghost function probability<A>(s:seq<A>, x:A, p:nat) : R0
@@ -93,24 +99,9 @@ ghost function probability<A>(s:seq<A>, x:A, p:nat) : R0
   1.0 / |s| as R0
 }
 
-ghost method inputScenario<A>(N:nat, p:nat) returns (s0:seq<A>, x0:A)
-  requires N > 0
-  requires 0 <= p < N
-  ensures  |s0| == N
-  ensures  s0[p] == x0
-  ensures  forall i :: 0 <= i < |s0| && i != p ==> s0[i] != s0[p]
-{
-  assume {:axiom} 
-    exists s:seq<A> :: |s| == N && (forall i :: 0 <= i < N && i != p ==> s[i] != s[p]);
-  s0 :| |s0| == N && forall i :: 0 <= i < N && i != p ==> s0[i] != s0[p];
-  assume {:axiom} 
-    exists x:A :: s0[p] == x;
-  x0 :| s0[p] == x0;
-}
-
 lemma lem_solveSum(N:nat)
   requires N > 0
-  ensures Tavg(N) == sum(0, N-1, i => (i+1) as real * (1.0 / N as real))
+  ensures  Tavg(N) == sum(0, N-1, i => (i+1) as real * (1.0 / N as real))
 { 
   var c:real := 1.0 / N as real; 
   calc {
@@ -136,18 +127,19 @@ lemma lem_solveSum(N:nat)
 } 
 
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
-  ensures bigOfrom(c, n0, Tavg, n => n as R0)
+  ensures bigOfrom(c, n0, Tavg, linGrowth())
 {
   // we show that c=1 and n0=1
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
-    ensures Tavg(n) <= c*(n => n as R0)(n)
+    ensures Tavg(n) <= c*linGrowth()(n)
   {
     calc {
          Tavg(n);
       == (n + 1) as real / 2.0;
       <= n as real;
+      == { lem_expOne(n as R0); }
+         exp(n as R0, 1.0);
     }
-    assert Tavg(n) <= c*(n => n as R0)(n); 
   }
 }

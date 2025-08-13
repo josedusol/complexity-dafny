@@ -33,8 +33,7 @@ method linAfter(N:nat)
   assert t == if N < 10 then 20 else T(N, 0); 
   assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
- 
-  assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
 ghost function T(N:nat, i:nat): nat

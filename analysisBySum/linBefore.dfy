@@ -37,8 +37,7 @@ method linAfter(N:nat)
   assert t == if N < 10 then sum(1, N, k => 1) else 20; 
   assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
- 
-  assert bigO(f, constGrowth()) by { var c, n0 := lem_fBigOconst(); }
+  assert f in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
 } 
 
 lemma lem_fBigOconst() returns (c:nat, n0:nat)
@@ -51,8 +50,7 @@ lemma lem_fBigOconst() returns (c:nat, n0:nat)
   {
     calc {
          f(n);
-      ==
-         if n < 10 then exp(n,1) else 20;
+      == if n < 10 then exp(n,1) else 20;
       == { reveal exp(); }
          if n < 10 then n else 20;    
     }

@@ -41,8 +41,7 @@ method lin(N:nat)
   assert t == sum(1, 3, k => sum(1, N, k' => 1)); 
   assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
- 
-  assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
 lemma lem_fBigOlin() returns (c:nat, n0:nat)

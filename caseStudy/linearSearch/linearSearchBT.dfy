@@ -1,7 +1,7 @@
-include "../theory/math/LemFunction.dfy"
-include "../theory/math/SumReal.dfy"
-include "../theory/math/TypeR0.dfy"
-include "../theory/ComplexityNat.dfy"
+include "../../theory/math/LemFunction.dfy"
+include "../../theory/math/SumReal.dfy"
+include "../../theory/math/TypeR0.dfy"
+include "../../theory/ComplexityNat.dfy"
 include "./linearSearch.dfy"
 
 import opened LemFunction
@@ -36,7 +36,7 @@ ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f1(|s|);
-  assert bigO(f1, constGrowth()) by { var c, n0 := lem_f1BigOconst(); }
+  assert f1 in O(constGrowth()) by { var c, n0 := lem_f1BigOconst(); }
 } 
 
 ghost function f2(N:nat) : nat
@@ -66,7 +66,7 @@ ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f2(|s|);
-  assert bigO(f2, constGrowth()) by { var c, n0 := lem_f2BigOconst(); }
+  assert f2 in O(constGrowth()) by { var c, n0 := lem_f2BigOconst(); }
 } 
 
 lemma lem_f1BigOconst() returns (c:nat, n0:nat)

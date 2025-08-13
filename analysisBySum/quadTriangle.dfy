@@ -41,8 +41,7 @@ method quadTriangle(N:nat)
   assert t == sum(1, N, k => sum(k, N, k' => 1));
   assert t == f(N) by { lem_solveSum(1, N, 1); } 
   assert t <= f(N); 
-
-  assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 lemma lem_fBigOquad() returns (c:nat, n0:nat)

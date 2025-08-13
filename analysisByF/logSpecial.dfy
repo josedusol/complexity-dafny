@@ -1,6 +1,6 @@
-include "../theory/math/LogNat.dfy"
+include "../theory/math/Log2Nat.dfy"
 
-import opened LogNat
+import opened Log2Nat
 
 // Instanciamos las definiciones de complejidad para log2 con n>0
 
@@ -45,7 +45,7 @@ method log(N:nat)
   }
   assert t == T(N); 
   assert t <= log2(N) by { lem_TclosedBound(N); }
-  assert t <= f(N)    by { lem_log2Mono(N, N+1); }
+  assert t <= f(N)    by { lem_log2MonoIncr(N, N+1); }
  
   assert bigOLog(f) by { var c, n0 := lem_fBigOlog(); }
 } 
@@ -84,7 +84,7 @@ lemma lem_fBigOlog() returns (c:nat, n0:nat)
         f(n);
       ==
         log2(n+1);
-      <= { assert n>=1; lem_log2Mono(n+1, 2*n); }
+      <= { assert n>=1; lem_log2MonoIncr(n+1, 2*n); }
         log2(2*n);  
       == { reveal log2(); }
         log2(2) + log2(n);             

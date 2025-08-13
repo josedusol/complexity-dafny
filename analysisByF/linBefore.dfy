@@ -33,8 +33,7 @@ method linBefore(N:nat)
   assert t == if N < 10 then T(N, 0) else 20;
   assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
- 
-  assert bigO(f, constGrowth()) by { var c, n0 := lem_fBigOconst(); }
+  assert f in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
 } 
 
 ghost function T(N:nat, i:nat): nat

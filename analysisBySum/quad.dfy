@@ -41,8 +41,7 @@ method quad(N:nat)
   assert t == sum(1, N, k => sum(1, N, k' => 1)); 
   assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
- 
-  assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 lemma lem_fBigOquad() returns (c:nat, n0:nat)

@@ -14,9 +14,9 @@ method quad(N:nat, M:nat)
   returns (ghost t:nat, ghost t':nat)
   requires N == M
   ensures t == T1(N, N, N)  
-  //ensures bigO(liftToR0((n:nat) => T1(N,N,n)), polyGrowth(2.0))
-  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), polyGrowth(2.0))
-  //ensures bigO(liftToR0((n:nat) requires n<=N => T1(N,N,n)), polyGrowth(2.0))
+  //ensures liftToR0((n:nat) => T1(N,N,n)) in O(polyGrowth(2.0))
+  ensures liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0) in O(polyGrowth(2.0))
+  //ensures liftToR0((n:nat) requires n<=N => T1(N,N,n)) in O(polyGrowth(2.0))
 {
   var i, j; reveal T1(),T2(); //var M := N;
   i, j, t, t' := 0, 0, 0, 0;
@@ -91,7 +91,7 @@ lemma lem_T2def(N:nat, M:nat, j:nat)
 
 lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   requires N == M
-  ensures bigO(liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0), n => exp(n as R0, 2.0))
+  ensures liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0) in O(n => exp(n as R0, 2.0))
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -119,7 +119,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
   //lem_T2BigOlin(N, N);
   //assert bigOR0(liftToR0(n => T2(N,N,n)), n => powr0(n as R0, 1.0));
 
-  assert bigO(w, n => exp(n as R0, k)) by {
+  assert w in O(n => exp(n as R0, k)) by {
     lem_T2BigOlin(N, N);
     var c:R0, n0:nat :| bigOfrom(c, n0, liftToR0(n => T2(N,N,n)), n => exp(n as R0, 1.0));
     assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*exp(n as R0, 1.0);
@@ -203,7 +203,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
 // }
 
 lemma lem_T2BigOlin(N:nat, M:nat)
-  ensures bigO(liftToR0(n => T2(N,M,n)), n => exp(n as R0, 1.0)) 
+  ensures liftToR0(n => T2(N,M,n)) in O(n => exp(n as R0, 1.0)) 
 {
   var a:nat       := 1;
   var b:nat       := 0;
@@ -219,7 +219,7 @@ lemma lem_T2BigOlin(N:nat, M:nat)
     reveal TbodyLR;
     lem_T2def(N,M,n);
   } 
-  assert bigO(w, n => exp(n as R0, k)) by {   
+  assert w in O(n => exp(n as R0, k)) by {   
     // we show that c=1 and n0=1
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)

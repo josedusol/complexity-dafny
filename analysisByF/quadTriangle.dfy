@@ -38,8 +38,7 @@ method quadTriangle(N:nat)
   assert t == T1(N, 0); 
   assert t == f(N) by { lem_T1closed(N, 0); }
   assert t <= f(N); 
- 
-  assert bigO(f, quadGrowth()) by { var c, n0 := lem_fBigOquad(); }  
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }  
 } 
 
 ghost function T1(N:nat, i:int): nat
@@ -96,13 +95,11 @@ lemma lem_fBigOquad() returns (c:nat, n0:nat)
     ensures f(n) <= c*quadGrowth()(n)
   {
     calc {
-        f(n);
-      ==
-        (n*(n+1))/2; 
-      <=
-        n*n;   
+         f(n);
+      == (n*(n+1))/2; 
+      <= n*n;   
     }
-    assert n >= n0 ==> f(n) <= c*quadGrowth()(n) 
+    assert f(n) <= c*quadGrowth()(n) 
       by { reveal exp(); } 
   }
 }

@@ -1,7 +1,7 @@
 include "../theory/math/ExpNat.dfy"
 include "../theory/math/LemBoundsNat.dfy"
 include "../theory/math/LemFunction.dfy"
-include "../theory/math/LogNat.dfy"
+include "../theory/math/Log2Nat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/ComplexityNat.dfy"
 include "../theory/LemComplexityNat.dfy"
@@ -9,21 +9,21 @@ include "../theory/LemComplexityNat.dfy"
 import opened ExpNat
 import opened LemBoundsNat
 import opened LemFunction
-import opened LogNat
+import opened Log2Nat
 import opened SumInt
 import opened ComplexityNat
 import opened LemComplexityNat
 
 lemma test_bigOprod()
-  requires bigO(n => 2*n, linGrowth())
-  requires bigO(n => 3*n, linGrowth())
-  ensures  bigO(n => (2*n)*(3*n), quadGrowth())
+  requires ((n:nat) => 2*n) in O(linGrowth())
+  requires ((n:nat) => 3*n) in O(linGrowth())
+  ensures  ((n:nat) => (2*n)*(3*n)) in O(quadGrowth())
 {
   var f1:nat->nat := n => 2*n; 
   var f2:nat->nat := n => 3*n;
 
   lem_bigO_prod(f1, linGrowth(), f2, linGrowth());  
-  assert bigO((n:nat) => f1(n)*f2(n), n => linGrowth()(n)*linGrowth()(n));
+  assert ((n:nat) => f1(n)*f2(n)) in O(n => linGrowth()(n)*linGrowth()(n));
 
   lem_funExt((n:nat) => linGrowth()(n)*linGrowth()(n), quadGrowth())
     by { assert forall n:nat :: linGrowth()(n)*linGrowth()(n) == quadGrowth()(n) 
@@ -33,7 +33,7 @@ lemma test_bigOprod()
 }
 
 lemma test_polyBigO() returns (c:nat, n0:nat)
-  ensures bigO(n => 3*exp(n,2) + 100*exp(n,1) + 10, quadGrowth())
+  ensures ((n:nat) => 3*exp(n,2) + 100*exp(n,1) + 10) in O(quadGrowth())
 {
   var poly := n => 3*exp(n,2) + 100*exp(n,1) + 10;
 
@@ -53,10 +53,8 @@ lemma test_polyBigO() returns (c:nat, n0:nat)
   assert bigOfrom(c, n0, poly, quadGrowth());
 } 
 
-//**************************************************************************//
-
 lemma test_log2BigOn() returns (c:nat, n0:nat)
-  ensures bigO(n => log2(n+1), linGrowth())
+  ensures ((n:nat) => log2(n+1)) in O(linGrowth())
 {
   // we show that c=1 y n0=1
   c, n0 := 1, 1;

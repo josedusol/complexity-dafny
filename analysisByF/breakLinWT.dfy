@@ -32,8 +32,7 @@ method breakLinWT(N:nat, P:nat->bool)
   assert t == T(N, 0); 
   assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
- 
-  assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
 lemma lem_fBigOlin() returns (c:nat, n0:nat)

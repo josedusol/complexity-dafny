@@ -1,10 +1,10 @@
 include "./ExpNat.dfy"
 
-/**************************************************************************
+/******************************************************************************
   Base 2 logarithm over non-negative integers
-**************************************************************************/
+******************************************************************************/
 
-module LogNat {
+module Log2Nat {
   import opened ExpNat
 
   // log2(n) 
@@ -25,15 +25,23 @@ module LogNat {
     reveal log2();
   }
 
-  // n>0 /\ m>0 /\ n <= m ==> log2(n) <= log2(m)
-  lemma lem_log2Mono(n:nat, m:nat)
+  // n >= 2 ==> log2(n) >= 1
+  lemma lem_logGEQone(n:nat)
+    requires n >= 2
+    ensures  log2(n) >= 1
+  {
+    reveal log2();
+  }
+
+  // n > 0 /\ m > 0 /\ n <= m ==> log2(n) <= log2(m)
+  lemma lem_log2MonoIncr(n:nat, m:nat)
     requires n > 0 && m > 0
     ensures  n <= m ==> log2(n) <= log2(m)
     decreases n, m
   {
     reveal log2();
     if n != 1 && m != 1 { 
-      lem_log2Mono(n-1, m-1); 
+      lem_log2MonoIncr(n-1, m-1); 
     }
   }
 
@@ -49,7 +57,7 @@ module LogNat {
   **************************************************************************/
 
   // log2(2^n) = n 
-  lemma lem_log2AndPow2Inverse(n:nat)
+  lemma lem_log2AndExp2Inverse(n:nat)
     requires exp(2,n) > 0
     ensures  log2(exp(2,n)) == n 
   {
@@ -72,7 +80,7 @@ module LogNat {
           log2(2*exp(2, n-1));
         == { reveal log2(); }
           1 + log2(exp(2, n-1));
-        == { lem_log2AndPow2Inverse(n-1); } // IH
+        == { lem_log2AndExp2Inverse(n-1); } // IH
           1 + (n - 1);
         == n;
       }
@@ -83,6 +91,6 @@ module LogNat {
   lemma {:axiom} lem_exp2Andlog2Inverse(n:nat, k:nat)
     requires exp(2, k) > 0
     requires n == exp(2, k) 
-    ensures exp(2, log2(n)) == n
+    ensures  exp(2, log2(n)) == n
 
 }

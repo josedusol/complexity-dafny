@@ -38,7 +38,7 @@ method lin3(N:nat)
   assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
  
-  assert bigO(f, linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
 ghost function T1(N:nat, i:nat): nat
