@@ -4,16 +4,20 @@ include "../theory/ComplexityNat.dfy"
 import opened ExpNat
 import opened ComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   exp(N,2)
 }
 
-method quadCall(N:nat)
-  returns (ghost t:nat)
-  ensures t == f(N)
-  ensures tIsBigO(N, t, quadGrowth())
+method quadCall(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, quadGrowth())
 {
+  var N := x.size();
   var i;
   i, t := 0, 0;
   while i != N
@@ -21,7 +25,7 @@ method quadCall(N:nat)
     invariant t == T1(N,0) - T1(N,i)  // = T1(N, N-i)
     decreases N - i
   {
-    var t' := quadCallSub(N);
+    var t' := quadCallSub(x);
     lem_T1closed(N, N-i); lem_T1closed(N, N-(i+1));
     i := i+1;
     t := t + t'; 
@@ -37,11 +41,11 @@ ghost function f'(N:nat) : nat
   N
 }
 
-method quadCallSub(N:nat)
-  returns (ghost t:nat)
-  ensures t == f'(N)
-  ensures tIsBigO(N, t, linGrowth())
+method quadCallSub(x:Input) returns (ghost t:nat)
+  ensures t == f'(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
 {
+  var N := x.size();
   var i;
   i, t := 0, 0;
   while i != N

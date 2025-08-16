@@ -21,17 +21,21 @@ ghost predicate bigOLogfrom(c:nat, n0:nat, f:nat->nat)
 
 //**************************************************************************//
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   log2(N+1) 
 }
 
-method log(N:nat)
-  returns (ghost t:nat)
-  requires N > 0
-  ensures t <= f(N)
-  ensures tIsBigOLog(N, t)
+method log(x:Input) returns (ghost t:nat)
+  requires x.size() > 0
+  ensures  t <= f(x.size())
+  ensures  tIsBigOLog(x.size(), t)
 {
+  var N := x.size();
   var i;
   i, t := N, 0;
   while i > 1
@@ -77,19 +81,18 @@ lemma lem_fBigOlog() returns (c:nat, n0:nat)
 {
   // Probar que c=2 y n0=2
   c, n0 := 2, 2;
-  forall n:nat | 1 <= 2 <= n
+  forall n:nat | 1 <= n0 <= n
     ensures f(n) <= c*log2(n)
   {
     calc {
-        f(n);
-      ==
-        log2(n+1);
+         f(n);
+      == log2(n+1);
       <= { assert n>=1; lem_log2MonoIncr(n+1, 2*n); }
-        log2(2*n);  
+         log2(2*n);  
       == { reveal log2(); }
-        log2(2) + log2(n);             
+         log2(2) + log2(n);             
       == { reveal log2(); }
-        1+log2(n);    
+         1+log2(n);    
     }
     assert n >= 0 ==> f(n) <= 1+log2(n);
     assert n >= n0 ==> f(n) <= c*log2(n) by { reveal log2(); } 

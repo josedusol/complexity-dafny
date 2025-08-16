@@ -4,16 +4,20 @@ include "../theory/ComplexityNat.dfy"
 import opened ExpNat
 import opened ComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat, M:nat) : nat
 {
   N*M
 }
 
-method quadNM(N:nat, M:nat)
-  returns (ghost t:nat, ghost t':nat)
-  ensures t == f(N,M)
-  ensures N == M ==> tIsBigO(N, t, quadGrowth())
+method quadNM(x:Input, y:Input) returns (ghost t:nat, ghost t':nat)
+  ensures t == f(x.size(), y.size())
+  ensures x.size() == y.size() ==> tIsBigO(x.size(), t, quadGrowth())
 {
+  var N, M := x.size(), y.size();
   var i, j;
   i, j, t, t' := 0, 0, 0, 0;
   while i != N

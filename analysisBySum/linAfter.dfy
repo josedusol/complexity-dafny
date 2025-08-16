@@ -6,16 +6,20 @@ import opened ExpNat
 import opened SumInt
 import opened ComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   if N < 10 then 20 else exp(N,1)
 }
 
-method linAfter2(N:nat)
-  returns (ghost t:nat)
-  ensures t == f(N)
-  ensures tIsBigO(N, t, linGrowth())
+method linAfter2(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
 {
+  var N := x.size();
   reveal sum();
   if N < 10 {
     // Op. interesante ocurre 100 veces

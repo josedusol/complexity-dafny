@@ -126,7 +126,7 @@ module LemComplexityNat {
     assert CR0.bigO(f1', g1') 
       by { lem_bigOtoBigOR0(f1, g1); }
     assert CR0.bigO(f2', g2') 
-      by { lem_bigOtoBigOR0(f2, g2); } 
+      by { lem_bigOtoBigOR0(f2, g2); }
     assert CR0.bigO(n => f1'(n)+f2'(n), n => g1'(n)+g2'(n))  
       by { LCR0.lem_bigO_sum(f1', g1', f2', g2'); }
     lem_funExt(liftToR0(n => f1(n)+f2(n)), n => f1'(n)+f2'(n));
@@ -376,15 +376,15 @@ module LemComplexityNat {
 
   // log2(n+1) ∈ O(n) 
   lemma lem_bigO_log2BigOlinV2()
-    ensures log2Growth2() in O(linGrowth())
+    ensures log2Plus1Growth() in O(linGrowth())
   { 
     // we show that c=1 and n0=1
     var c:nat, n0:nat := 1, 1;
     forall n:nat | 0 <= n0 <= n
-      ensures log2Growth2()(n) <= c*linGrowth()(n)
+      ensures log2Plus1Growth()(n) <= c*linGrowth()(n)
     {
       calc {      
-           log2Growth2()(n); 
+           log2Plus1Growth()(n); 
         == log2(n+1);
         <= { lem_log2nPlus1LEQn(n); }
            n;
@@ -394,7 +394,7 @@ module LemComplexityNat {
         == c*linGrowth()(n);
       }
     }
-    assert bigOfrom(c, n0, log2Growth2(), linGrowth());
+    assert bigOfrom(c, n0, log2Plus1Growth(), linGrowth());
   }
 
   // k >= 1 ==> log2(n) ∈ O(n^k) 

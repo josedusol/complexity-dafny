@@ -4,16 +4,20 @@ include "../theory/ComplexityNat.dfy"
 import opened ExpNat
 import opened ComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   3*exp(N,1)
 }
 
-method lin3(N:nat)
-  returns (ghost t:nat, ghost t':nat)
-  ensures t == f(N)
-  ensures tIsBigO(N, t, linGrowth())
+method lin3(x:Input) returns (ghost t:nat, ghost t':nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
 {
+  var N := x.size();
   var i, j;
   i, j, t, t' := 0, 0, 0, 0;
   while i != 3
@@ -37,7 +41,6 @@ method lin3(N:nat)
   assert t == T1(N, 0); 
   assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
   assert t <= f(N); 
- 
   assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 

@@ -24,7 +24,6 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
   requires bigO(f, n => exp(n as R0, k))
   ensures  bigO(T, polyGrowth(k))
 {
-  assert forall n:nat :: n > b ==> T(n) == c + f(n);  
   var d:R0, n0:nat :| bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
   assert forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
   
@@ -45,8 +44,34 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
   assert bigOfrom(c1, n1, T, polyGrowth(k));
 }
 
+lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
+  requires forall n:nat :: T(n) == if n <= b then c else c + f(n)
+  requires k >= 1.0
+  requires bigO(f, n => exp(n as R0, k))
+  ensures  bigO(T, polyGrowth(k))
+{  
+  var d:R0, n0:nat :| bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
+  assert forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
+  
+  var c1, n1 := c+d, n0+1;
+  forall n:nat | 0 <= n1 <= n
+    ensures T(n) <= c1*exp(n as R0, k)
+  {
+    calc {
+         T(n);
+      == if n <= b then c else c + f(n);
+      <= c + d*exp(n as R0, k);
+      <= { assert n > 0; lem_expGEQone(n as R0, k); }
+         c*exp(n as R0, k) + d*exp(n as R0, k);
+      == (c + d)*exp(n as R0, k);     
+      == c1*exp(n as R0, k);    
+    }
+  }    
+  assert bigOfrom(c1, n1, T, polyGrowth(k));
+}
+
 // A proof based on BigO properties
-lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
+lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   requires forall n:nat :: T(n) == if n <= b then c else c + f(n)
   requires k >= 1.0
   requires bigO(f, n => exp(n as R0, k))
@@ -86,7 +111,7 @@ lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
 } 
 
 // A variation of previous proof with a little shortcut
-lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
+lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   requires forall n:nat :: T(n) == if n <= b then c else c + f(n)
   requires k >= 1.0
   requires bigO(f, n => exp(n as R0, k))
@@ -122,7 +147,7 @@ lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
 } 
 
 // A more idiomatic version of previous proof trying to express it as a deduction chain
-lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
+lemma test_sumBigOmax5(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   requires forall n:nat :: T(n) == if n <= b then c else c + f(n)
   requires k >= 1.0
   requires bigO(f, n => exp(n as R0, k))
@@ -160,7 +185,7 @@ lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
 //     ⊆ O(c+f)
 //     ⊆ O(1+n^k)
 //     = O(n^k)
-lemma test_sumBigOmax5(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
+lemma test_sumBigOmax6(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   requires forall n:nat :: T(n) == if n <= b then c else c + f(n)
   requires k >= 1.0
   requires f in O(n => exp(n as R0, k))

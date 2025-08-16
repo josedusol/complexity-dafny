@@ -10,14 +10,18 @@ import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
 
-method quad(N:nat)
-  returns (ghost t:nat, ghost t':nat)
-  ensures t == T1(N, N)  
-  //ensures liftToR0((n:nat) => T1(N,n)) in O(polyGrowth(1.0))
-  ensures liftToR0((n:nat) => T1(N,n)) in O(polyGrowth(2.0))
-  //ensures liftToR0((n:nat) => if n<=N then T1(N,N,n) else 0) in O(polyGrowth(2.0))
-  //ensures liftToR0((n:nat) requires n<=N => T1(N,N,n)) in O(polyGrowth(2.0))
+type Input {
+  function size() : nat
+}
+
+method quad(x:Input) returns (ghost t:nat, ghost t':nat)
+  ensures t == T1(x.size(), x.size())  
+  //ensures liftToR0((n:nat) => T1(x.size(),n)) in O(polyGrowth(1.0))
+  ensures liftToR0((n:nat) => T1(x.size(),n)) in O(polyGrowth(2.0))
+  //ensures liftToR0((n:nat) => if n<=x.size() then T1(x.size(),x.size(),n) else 0) in O(polyGrowth(2.0))
+  //ensures liftToR0((n:nat) requires n<=x.size() => T1(x.size(),x.size(),n)) in O(polyGrowth(2.0))
 {
+  var N := x.size();
   var i, j; reveal T1(),T2(); //var M := N;
   i, j, t, t' := 0, 0, 0, 0;
   while i != N

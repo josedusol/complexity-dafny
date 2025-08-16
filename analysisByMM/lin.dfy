@@ -10,11 +10,15 @@ import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
 
-method lin(N:nat) 
-  returns (ghost t:nat)
-  ensures t == T(N)
+type Input {
+  function size() : nat
+}
+
+method lin(x:Input) returns (ghost t:nat)
+  ensures t == T(x.size())
   ensures liftToR0(T) in O(n => exp(n as R0, 1.0))
 {
+  var N := x.size();
   var i; reveal T();
   i, t := 0, 0;
   while i != N

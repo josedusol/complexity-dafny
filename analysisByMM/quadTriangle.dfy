@@ -10,11 +10,15 @@ import opened TypeR0
 import opened ComplexityR0
 import opened MasterLR
 
-method quadTriangle(N:nat)
-  returns (ghost t:nat, ghost t':nat)
-  ensures t == T1(N)
+type Input {
+  function size() : nat
+}
+
+method quadTriangle(x:Input) returns (ghost t:nat, ghost t':nat)
+  ensures t == T1(x.size())
   ensures liftToR0(T1) in O(n => exp(n as R0, 2.0))
 {
+  var N := x.size();
   var i, j; reveal T1(),T2();
   i, j, t, t' := 0, 0, 0, 0;
   while i != N

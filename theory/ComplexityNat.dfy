@@ -35,6 +35,12 @@ module ComplexityNat {
     forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)  
   }
 
+  // bigO(f,g) <=> f ∈ O(g) 
+  ghost function O(g:nat->nat): iset<nat->nat>
+  {
+    iset f:nat->nat | bigO(f, g)
+  }    
+
   ghost predicate tIsBigO(n:nat, t:nat, g:nat->nat)
   { 
     exists f:nat->nat :: t <= f(n) && f in O(g)
@@ -44,12 +50,6 @@ module ComplexityNat {
   { 
     exists k:nat :: bigO(f, n => exp(n,k))
   }
-
-  // bigO(f,g) <=> f ∈ O(g) 
-  ghost function O(g:nat->nat): iset<nat->nat>
-  {
-    iset f:nat->nat | bigO(f, g)
-  }  
 
   /******************************************************************************
     Big Ω
@@ -65,16 +65,16 @@ module ComplexityNat {
     forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n)
   }
 
-  ghost predicate tIsBigOm(n:nat, t:nat, g:nat->nat)
-  { 
-    exists f:nat->nat :: f(n) <= t && f in Om(g)
-  }
-
   // bigOm(f,g) <=> f ∈ Ω(g)
   ghost function Om(g:nat->nat): iset<nat->nat>
   {
     iset f:nat->nat | bigOm(f, g)
-  }    
+  }   
+
+  ghost predicate tIsBigOm(n:nat, t:nat, g:nat->nat)
+  { 
+    exists f:nat->nat :: f(n) <= t && f in Om(g)
+  } 
 
   /******************************************************************************
     Big Θ
@@ -86,6 +86,12 @@ module ComplexityNat {
     f in Om(g) && f in O(g) 
   }
 
+  // bigTh(f,g) <=> f ∈ Θ(g)
+  ghost function Th(g:nat->nat): iset<nat->nat>
+  {
+    iset f:nat->nat | bigTh(f, g)
+  }
+
   // 2nd def. of Big Θ
   ghost predicate bigTh2(f:nat->nat, g:nat->nat)
   { 
@@ -95,13 +101,12 @@ module ComplexityNat {
   ghost predicate bigThFrom(c1:nat, c2:nat, n0:nat, f:nat->nat, g:nat->nat)
   {
     forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
-  }
+  }     
 
-  // bigTh(f,g) <=> f ∈ Θ(g)
-  ghost function Th(g:nat->nat): iset<nat->nat>
-  {
-    iset f:nat->nat | bigTh(f, g)
-  }      
+  ghost predicate tIsBigTh(n:nat, t:nat, g:nat->nat)
+  { 
+    tIsBigOm(n, t, g) && tIsBigO(n, t, g)
+  }   
   
   /******************************************************************************
     Common growth rates
@@ -117,7 +122,7 @@ module ComplexityNat {
     n => if n>0 then log2(n) else 0
   }
 
-  ghost function log2Growth2() : nat->nat
+  ghost function log2Plus1Growth() : nat->nat
   {   
     n => log2(n+1)
   }

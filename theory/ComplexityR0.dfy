@@ -31,6 +31,12 @@ module ComplexityR0 {
     forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)
   }
 
+  // bigO(f,g) <=> f ∈ O(g) 
+  ghost function O(g:nat->R0): iset<nat->R0>
+  {
+    iset f:nat->R0 | bigO(f, g)
+  }
+
   ghost predicate tIsBigO(n:nat, t:R0, g:nat->R0)
   { 
     exists f:nat->R0 :: t <= f(n) && f in O(g)
@@ -39,12 +45,6 @@ module ComplexityR0 {
   ghost predicate isBigOPoly(f:nat->R0)
   { 
     exists k:R0 :: bigO(f, n => exp(n as R0, k))
-  }
-
-  // bigO(f,g) <=> f ∈ O(g) 
-  ghost function O(g:nat->R0): iset<nat->R0>
-  {
-    iset f:nat->R0 | bigO(f, g)
   }
 
   /******************************************************************************
@@ -61,15 +61,15 @@ module ComplexityR0 {
     forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n)
   }
 
-  ghost predicate tIsBigOm(n:nat, t:R0, g:nat->R0)
-  { 
-    exists f:nat->R0 :: f(n) <= t && f in Om(g)
-  }
-
   // bigOm(f,g) <=> f ∈ Ω(g) 
   ghost function Om(g:nat->R0): iset<nat->R0>
   {
     iset f:nat->R0 | bigOm(f, g)
+  }
+
+  ghost predicate tIsBigOm(n:nat, t:R0, g:nat->R0)
+  { 
+    exists f:nat->R0 :: f(n) <= t && f in Om(g)
   }
 
   /******************************************************************************
@@ -82,6 +82,12 @@ module ComplexityR0 {
     f in Om(g) && f in O(g) 
   }
 
+  // bigTh(f,g) <=> f ∈ Θ(g) 
+  ghost function Th(g:nat->R0): iset<nat->R0>
+  {
+    iset f:nat->R0 | bigTh(f, g)
+  }  
+
   // 2nd def. of Big Θ
   ghost predicate bigTh2(f:nat->R0, g:nat->R0)
   { 
@@ -93,10 +99,9 @@ module ComplexityR0 {
     forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
   }
 
-  // bigTh(f,g) <=> f ∈ Θ(g) 
-  ghost function Th(g:nat->R0): iset<nat->R0>
-  {
-    iset f:nat->R0 | bigTh(f, g)
+  ghost predicate tIsBigTh(n:nat, t:R0, g:nat->R0)
+  { 
+    tIsBigOm(n, t, g) && tIsBigO(n, t, g)
   }  
 
   /******************************************************************************
@@ -125,7 +130,7 @@ module ComplexityR0 {
     n => if n>0 then log2(n as R0) else 0.0
   }
 
-  ghost function log2Growth2() : nat->R0
+  ghost function log2Plus1Growth() : nat->R0
   {   
     n => log2((n+1) as R0) 
   }

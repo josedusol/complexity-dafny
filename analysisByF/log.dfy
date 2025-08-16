@@ -4,16 +4,20 @@ include "../theory/ComplexityNat.dfy"
 import opened Log2Nat
 import opened ComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   if N>0 then log2(N) else 0
 }
 
-method log(N:nat)
-  returns (ghost t:nat)
-  ensures t <= f(N)
-  ensures tIsBigO(N, t, log2Growth())
+method log(x:Input) returns (ghost t:nat)
+  ensures t <= f(x.size())
+  ensures tIsBigO(x.size(), t, log2Growth())
 {
+  var N := x.size();
   var i;
   i, t := N, 0;
   while i > 1

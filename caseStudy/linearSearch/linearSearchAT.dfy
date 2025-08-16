@@ -50,7 +50,7 @@ ghost method expectationLoop<A>(N:nat)
   returns (tE:real)
   requires N > 0
   ensures  tE == Tavg(N)
-  ensures  tIsBigO(N, tE, linGrowth())
+  ensures  tIsBigTh(N, tE, linGrowth())
 {
   tE := 0.0; 
   var p := 0; reveal sum();  
@@ -73,7 +73,8 @@ ghost method expectationLoop<A>(N:nat)
   assert tE == sum(0, N-1, i => (i+1) as real * (1.0 / N as real)); 
   assert tE == Tavg(N) by { lem_solveSum(N); }
 
-  assert Tavg in O(linGrowth()) by { var c, n0 := lem_TavgBigOlin(); }
+  assert Tavg in O(linGrowth())  by { var c, n0 := lem_TavgBigOlin(); }
+  assert Tavg in Om(linGrowth()) by { var c, n0 := lem_TavgBigOmlin(); }
 }
 
 ghost method inputScenario<A>(N:nat, p:nat) returns (s0:seq<A>, x0:A)
@@ -140,6 +141,26 @@ lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
       <= n as real;
       == { lem_expOne(n as R0); }
          exp(n as R0, 1.0);
+      == linGrowth()(n);
+    }
+  }
+}
+
+lemma lem_TavgBigOmlin() returns (c:R0, n0:nat)
+  ensures bigOmFrom(c, n0, Tavg, linGrowth())
+{
+  // we show that c=0.5 and n0=1
+  c, n0 := 0.5, 1;
+  forall n:nat | 0 <= n0 <= n
+    ensures c*linGrowth()(n) <= Tavg(n)
+  {
+    calc {
+         c*linGrowth()(n);
+      == 0.5*exp(n as R0, 1.0);
+      == { lem_expOne(n as R0); }
+         0.5 * n as real;
+      <= (n + 1) as real / 2.0;
+         Tavg(n);
     }
   }
 }

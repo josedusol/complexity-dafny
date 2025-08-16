@@ -460,15 +460,15 @@ module LemComplexityR0 {
 
   // log2(n+1) ∈ O(n) 
   lemma lem_bigO_logBigOlinV2()
-    ensures log2Growth2() in O(linGrowth())
+    ensures log2Plus1Growth() in O(linGrowth())
   {
     // we show that c=2 and n0=1
     var c:R0, n0:nat := 2.0, 1;
     forall n:nat | 0 <= n0 <= n
-      ensures log2Growth2()(n) <= c*linGrowth()(n)
+      ensures log2Plus1Growth()(n) <= c*linGrowth()(n)
     {
       calc {      
-           log2Growth2()(n); 
+           log2Plus1Growth()(n); 
         == log2((n+1) as real);
         <  { lem_log2NatUpBound(n+1);  }
            (LN.log2(n+1) + 1) as R0;
@@ -480,7 +480,7 @@ module LemComplexityR0 {
         == c*linGrowth()(n);
       }
     }
-    assert bigOfrom(c, n0, log2Growth2(), linGrowth());    
+    assert bigOfrom(c, n0, log2Plus1Growth(), linGrowth());    
   }
 
   // k >= 1 ==> log2(n) ∈ O(n^k) 

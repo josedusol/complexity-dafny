@@ -8,16 +8,20 @@ import opened LemFunction
 import opened ComplexityNat
 import opened LemComplexityNat
 
+type Input {
+  function size() : nat
+}
+
 ghost function f(N:nat) : nat
 {
   N
 }
 
-method quadCallV2(N:nat)
-  returns (ghost t:nat)
-  ensures t == f(N)*f(N)
-  ensures tIsBigO(N, t, quadGrowth())
+method quadCallV2(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())*f(x.size())
+  ensures tIsBigO(x.size(), t, quadGrowth())
 {
+  var N := x.size();
   var i;
   i, t := 0, 0;
   while i != N
@@ -25,7 +29,7 @@ method quadCallV2(N:nat)
     invariant t == f(i)*f(N)  // = T1(N, N-i)
     decreases N - i
   {
-    var t' := quadCallSub(N);
+    var t' := quadCallSub(x);
     i := i+1;
     t := t + t'; 
   }
@@ -39,10 +43,10 @@ method quadCallV2(N:nat)
   }
 } 
 
-method quadCallSub(N:nat)
-  returns (ghost t:nat)
-  ensures t == f(N)
+method quadCallSub(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
 {
+  var N := x.size();
   var i;
   i, t := 0, 0;
   while i != N

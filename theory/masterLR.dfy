@@ -9,6 +9,10 @@ include "./math/TypeR0.dfy"
 include "./ComplexityR0.dfy"
 include "./LemComplexityR0.dfy"
 
+/******************************************************************************
+  Master Theorem for linear recurrences
+******************************************************************************/
+
 module MasterLR {  
   import opened ExpReal 
   import opened FloorCeil   
@@ -479,7 +483,7 @@ module MasterLR {
 
   // n0 > b ==> ∀ n >= n0 : S(n) = S1(n) + S1(n) 
   lemma lem_mmLR_splitS(a:nat, b:nat, s:nat, w:nat->R0, n0:nat)  
-    requires a > 0 && s > 0 && b >= s-1 && n0 > b+s
+    requires a > 0 && s > 0 && b >= s-1 // && n0 > b+s
     ensures  forall n:nat :: n >= n0 ==> S(a, b, s, w, n) == S1(a, b, s, w, n0, n) + S2(a, b, s, w, n0, n)
   {
     forall n:nat | n >= n0 // n >= n0
@@ -487,8 +491,8 @@ module MasterLR {
     {
       reveal S, S1, S2;
       var mv  := m(b,s,n); 
-      var i0v := i0(s,n0,n);
-      //var jv  := j(b,s,n0,n);
+      //var i0v := i0(s,n0,n);
+      var jv  := j(b,s,n0,n);
 
       lem_mmLR_mValue(b, s, n);
       assert mv == ceil(((n-b) as real)/(s as real));
@@ -500,35 +504,35 @@ module MasterLR {
       // assert floor(((n-n0) as real)/(s as real)) < ceil(((n-b) as real)/(s as real));
       // assert floor(((n-n0) as real)/(s as real)) +1 <= ceil(((n-b) as real)/(s as real))-1;
 
-      var x:nat, y:nat :| true;
-      assume x <= y;
-      assert floor(x as real) <= ceil(y as real);
-      lem_floorCeilMonoDiv(x as real, y as real, s as real);
-      assert floor(x as real / s as real) <= ceil(y as real / s as real);
-      //assert floor(x as real / s as real) <= ceil(y as real / s as real) - 1;
+      // var x:nat, y:nat :| true;
+      // assume x <= y;
+      // assert floor(x as real) <= ceil(y as real);
+      // lem_floorCeilMonoDiv(x as real, y as real, s as real);
+      // assert floor(x as real / s as real) <= ceil(y as real / s as real);
+      // //assert floor(x as real / s as real) <= ceil(y as real / s as real) - 1;
 
-      assert ((n-n0) as real)/(s as real) + 2 as real <= ((n-b) as real)/(s as real) + 1 as real;
-      assert floor(((n-n0) as real)/(s as real)) + 2 <= ceil(((n-b) as real)/(s as real));
+      // assert ((n-n0) as real)/(s as real) + 2 as real <= ((n-b) as real)/(s as real) + 1 as real;
+      // assert floor(((n-n0) as real)/(s as real)) + 2 <= ceil(((n-b) as real)/(s as real));
 
-        calc {
-               n - n0 < n - (b + 1);
-          <==> n - n0 < (n - b) - 1;
-          <==> n - n0 + 1 <= n - b - 1;
-          <==> n - n0 + 1 <= n - b - 1;
-          <==> { assert n-n0  <= n-b;
-                 lem_floorCeilMonoDiv((n-n0) as real, (n-b) as real, s as real);
-                 assert floor(((n-n0) as real)) <= ceil(((n-b) as real));
-                 assert floor(((n-n0) as real)/(s as real)) <= ceil(((n-b) as real)/(s as real)); }
-               floor(((n-n0) as real)/(s as real)) + 1 <= ceil(((n-b) as real)/(s as real)) - 1;
-        }
+      //   calc {
+      //          n - n0 < n - (b + 1);
+      //     <==> n - n0 < (n - b) - 1;
+      //     <==> n - n0 + 1 <= n - b - 1;
+      //     <==> n - n0 + 1 <= n - b - 1;
+      //     <==> { assert n-n0  <= n-b;
+      //            lem_floorCeilMonoDiv((n-n0) as real, (n-b) as real, s as real);
+      //            assert floor(((n-n0) as real)) <= ceil(((n-b) as real));
+      //            assert floor(((n-n0) as real)/(s as real)) <= ceil(((n-b) as real)/(s as real)); }
+      //          floor(((n-n0) as real)/(s as real)) + 1 <= ceil(((n-b) as real)/(s as real)) - 1;
+      //   }
 
-      // assert i0v <= mv-1 by {
+      // // assert i0v <= mv-1 by {
 
 
-      // }
+      // // }
 
-      assert 0 <= i0v <= mv-1 by { reveal m, j, i0; }
-      lem_sum_split2(0, mv-1, i0v, i => Sa(a,i)*Sw(s,w,n,i));
+      assert 0 <= jv <= mv-1 by { reveal m, j, i0; }
+      lem_sum_split2(0, mv-1, jv, i => Sa(a,i)*Sw(s,w,n,i));
     }
   }
 

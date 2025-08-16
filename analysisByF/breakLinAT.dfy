@@ -6,18 +6,23 @@ import opened SumReal
 import opened TypeR0
 import opened ComplexityR0
 
+type Input {
+  function size() : nat
+}
+
 ghost function T(N:nat, i:nat) : nat
   requires 0 <= i < N
 {
   i+1
 }
 
-ghost method breakLinAT(N:nat, P:nat->bool)
+ghost method breakLinAT(x:Input, P:nat->bool)
   returns (t:nat)
-  requires N > 0
-  requires exists i :: 0 <= i < N && P(i)
-  ensures  exists k :: 0 <= k < N && P(k) && t == T(N,k)
+  requires x.size() > 0
+  requires exists i :: 0 <= i < x.size() && P(i)
+  ensures  exists k :: 0 <= k < x.size() && P(k) && t == T(x.size(),k)
 {
+  var N := x.size();
   var i;
   i, t := 0, 1;
   while i != N && !P(i) 
@@ -52,8 +57,8 @@ ghost method expectationLoop(N:nat)
     decreases N - p
   {
     // Run the algorithm in scenario where P(p) holds
-    var pred := inputScenario(N, p); 
-    ghost var t := breakLinAT(N, pred); 
+    var x, pred := inputScenario(N, p); 
+    ghost var t := breakLinAT(x, pred); 
     assert exists k :: 0 <= k < N && pred(k) && t == k+1;
     assert t == T(N,p);
     
@@ -74,12 +79,15 @@ ghost function probability(N:nat, pred:nat->bool, p:nat) : R0
   1.0 / N as R0
 }
 
-ghost method inputScenario(N:nat, p:nat) returns (pred0:nat->bool)
+ghost method inputScenario(N:nat, p:nat) returns (x:Input, pred0:nat->bool)
   requires N > 0
   requires 0 <= p < N
   ensures pred0(p)
+  ensures x.size() == N
   ensures forall k :: 0 <= k < N && pred0(k) ==> k == p
 {
+  assume {:axiom} exists x:Input :: x.size() == N;
+  x :| x.size() == N;
   assume {:axiom} exists pred:nat->bool :: pred(p) && forall k :: 0 <= k < N && pred(k) ==> k == p;
   pred0 :| pred0(p) && forall k :: 0 <= k < N && pred0(k) ==> k == p;
 }
