@@ -24,70 +24,6 @@ module LemComplexityR0 {
   import opened ComplexityR0
 
   /******************************************************************************
-    bigTh and bigTh2 are equivalent definitions of Big Θ 
-  ******************************************************************************/
-  
-  lemma lem_bigTheta_def1EQLdef2(f:nat->R0, g:nat->R0)  
-    ensures bigTh(f, g) <==> bigTh2(f, g)
-  {
-    assert bigTh(f, g) ==> bigTh2(f, g) by {
-      assume {:axiom} bigTh(f, g);
-      lem_bigTheta_def1IMPLdef2(f, g);
-    }
-    assert bigTh2(f, g) ==> bigTh(f, g) by {
-      assume {:axiom} bigTh2(f, g);
-      lem_bigTh_def2IMPLdef1(f, g);
-    }
-  }
-
-  lemma lem_bigTheta_def1IMPLdef2(f:nat->R0, g:nat->R0)  
-    requires bigTh(f, g) 
-    ensures  bigTh2(f, g)
-  {
-    var c1:R0, n0_1:nat :| bigOmFrom(c1, n0_1, f, g) ; 
-    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
-
-    var c2:R0, n0_2:nat :| bigOfrom(c2, n0_2, f, g) ; 
-    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
-
-    var n0 := n0_1 + n0_2;
-    forall n:nat | 0 <= n0 <= n
-      ensures c1*g(n) <= f(n) <= c2*g(n)
-    {
-      assert c1*g(n) <= f(n) by { reveal H1; }
-      assert f(n) <= c2*g(n) by { reveal H2; }
-    }
-    assert bigThFrom(c1, c2, n0, f, g);
-  }
-
-  lemma lem_bigTh_def2IMPLdef1(f:nat->R0, g:nat->R0)  
-    requires bigTh2(f, g) 
-    ensures  bigTh(f, g)
-  {
-    var c1:R0, c2:R0, n0:nat :| bigThFrom(c1, c2, n0, f, g); 
-    assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
-
-    assert A: f in O(g) by {
-      forall n:nat | 0 <= n0 <= n
-        ensures f(n) <= c2*g(n)
-      {
-        assert f(n) <= c2*g(n) by { reveal H; }
-      }
-      assert bigOfrom(c2, n0, f, g);
-    }
-    assert B: f in Om(g) by {
-      forall n:nat | 0 <= n0 <= n
-        ensures c1*g(n) <= f(n)
-      {
-        assert c1*g(n) <= f(n) by { reveal H; }
-      }
-      assert bigOmFrom(c1, n0, f, g);
-    }
-    
-    assert f in O(g) && f in Om(g) by { reveal A, B; }
-  }      
-
-  /******************************************************************************
     Big O basic properties
   ******************************************************************************/
 
@@ -365,6 +301,81 @@ module LemComplexityR0 {
   lemma {:axiom} lem_bigTh_sim(f:nat->R0, g:nat->R0)  
     requires f in Th(g) 
     ensures  g in Th(f)
+
+  /******************************************************************************
+    bigTh and bigTh2 are equivalent definitions of Big Θ 
+  ******************************************************************************/
+
+  lemma lem_bigTh_def1EQLdef2(f:nat->R0, g:nat->R0)  
+    ensures bigTh(f, g) <==> bigTh2(f, g)
+  {
+    assert bigTh(f, g) ==> bigTh2(f, g) by {
+      if bigTh(f, g) {
+        lem_bigTh_def1IMPLdef2(f, g);
+      }      
+    }
+    assert bigTh2(f, g) ==> bigTh(f, g) by {
+      if bigTh2(f, g) {
+        lem_bigTh_def2IMPLdef1(f, g);
+      }      
+    }
+  }
+
+  lemma lem_bigTh_def1IMPLdef2(f:nat->R0, g:nat->R0)  
+    requires bigTh(f, g) 
+    ensures  bigTh2(f, g)
+  {
+    var c1:R0, n0_1:nat :| bigOmFrom(c1, n0_1, f, g) ; 
+    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
+
+    var c2:R0, n0_2:nat :| bigOfrom(c2, n0_2, f, g) ; 
+    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
+
+    var n0 := n0_1 + n0_2;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*g(n) <= f(n) <= c2*g(n)
+    {
+      assert c1*g(n) <= f(n) by { reveal H1; }
+      assert f(n) <= c2*g(n) by { reveal H2; }
+    }
+    assert bigThFrom(c1, c2, n0, f, g);
+  }
+
+  lemma lem_bigTh_def2IMPLdef1(f:nat->R0, g:nat->R0)  
+    requires bigTh2(f, g) 
+    ensures  bigTh(f, g)
+  {
+    var c1:R0, c2:R0, n0:nat :| bigThFrom(c1, c2, n0, f, g); 
+    assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
+
+    assert A: f in O(g) by {
+      forall n:nat | 0 <= n0 <= n
+        ensures f(n) <= c2*g(n)
+      {
+        assert f(n) <= c2*g(n) by { reveal H; }
+      }
+      assert bigOfrom(c2, n0, f, g);
+    }
+    assert B: f in Om(g) by {
+      forall n:nat | 0 <= n0 <= n
+        ensures c1*g(n) <= f(n)
+      {
+        assert c1*g(n) <= f(n) by { reveal H; }
+      }
+      assert bigOmFrom(c1, n0, f, g);
+    }
+    
+    assert f in O(g) && f in Om(g) by { reveal A, B; }
+  }      
+
+  // An alternative way to conclude a program counter t is Θ(g) for input size n
+  lemma lem_bigTh_tIsBigTh2(n:nat, t:R0, g:nat->R0)  
+    requires exists f:nat->R0 :: f(n) == t && bigTh2(f, g)
+    ensures  tIsBigTh(n, t, g)
+  {
+    var f:nat->R0 :| f(n) == t && bigTh2(f, g);
+    lem_bigTh_def2IMPLdef1(f, g);
+  }
 
   /******************************************************************************
     Common growth rates comparison

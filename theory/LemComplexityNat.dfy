@@ -26,39 +26,6 @@ module LemComplexityNat {
   import LCR0 = LemComplexityR0
 
   /******************************************************************************
-    bigTh and bigTh2 are equivalent definitions of Big Θ
-  ******************************************************************************/
- 
-  lemma lem_bigTheta_def1EQLdef2(f:nat->nat, g:nat->nat)  
-    ensures bigTh(f, g) <==> bigTh2(f, g)
-  {
-    var f':nat->R0 := liftToR0(f);
-    var g':nat->R0 := liftToR0(g); 
-    
-    assert bigTh(f, g) ==> bigTh2(f, g) by {
-      assume {:axiom} bigTh(f, g);
-      assert CR0.bigTh(f', g')
-        by { lem_bigThtoBigThR0(f, g); }
-      assert CR0.bigTh(f', g') ==> CR0.bigTh2(f', g')
-        by { LCR0.lem_bigTheta_def1IMPLdef2(f', g'); }
-      assert CR0.bigTh2(f', g');
-      assert bigTh2(f, g)
-        by { lem_bigTh2R0toBigTh2(f, g); }  
-    }
-
-    assert bigTh2(f, g) ==> bigTh(f, g) by {
-      assume {:axiom} bigTh2(f, g);
-      assert CR0.bigTh2(f', g')
-        by { lem_bigTh2toBigTh2R0(f, g); }
-      assert CR0.bigTh2(f', g') ==> CR0.bigTh(f', g')
-        by { LCR0.lem_bigTh_def2IMPLdef1(f', g'); }
-      assert CR0.bigTh(f', g');
-      assert bigTh(f, g)
-        by { lem_bigThR0toBigTh(f, g); }  
-    }
-  }
-
-  /******************************************************************************
     Big O basic properties
   ******************************************************************************/
   // Each result is proved in the lifted domain nat->R0
@@ -146,12 +113,14 @@ module LemComplexityNat {
     var g2':nat->R0 := liftToR0(g2);  
     assert A: CR0.bigO(f1', g1') 
       by { lem_bigOtoBigOR0(f1, g1); }
-    assert B: CR0.bigO(f2', g2') 
-      by { lem_bigOtoBigOR0(f2, g2); } 
+    assert B: CR0.bigO(f2', g2')
+      by { lem_bigOtoBigOR0(f2, g2); }
     assert CR0.bigO(n => f1'(n)*f2'(n), n => g1'(n)*g2'(n))  
       by { reveal A, B; LCR0.lem_bigO_prod(f1', g1', f2', g2'); }
-    lem_funExt(liftToR0(n => f1(n)*f2(n)), n => f1'(n)*f2'(n));
-    lem_funExt(liftToR0(n => g1(n)*g2(n)), n => g1'(n)*g2'(n));
+    lem_funExt(liftToR0(n => f1(n)*f2(n)), n => f1'(n)*f2'(n)) 
+      by { lem_etaApp(n => f1'(n)*f2'(n)); } 
+    lem_funExt(liftToR0(n => g1(n)*g2(n)), n => g1'(n)*g2'(n)) 
+      by { lem_etaApp(n => g1'(n)*g2'(n)); }
     lem_bigOR0toBigO(n => f1(n)*f2(n), n => g1(n)*g2(n));
   }   
 
@@ -294,6 +263,39 @@ module LemComplexityNat {
   lemma {:axiom} lem_bigTh_sim(f:nat->nat, g:nat->nat)  
     requires f in Th(g) 
     ensures  g in Th(f)
+
+  /******************************************************************************
+    bigTh and bigTh2 are equivalent definitions of Big Θ
+  ******************************************************************************/
+ 
+  lemma lem_bigTheta_def1EQLdef2(f:nat->nat, g:nat->nat)  
+    ensures bigTh(f, g) <==> bigTh2(f, g)
+  {
+    var f':nat->R0 := liftToR0(f);
+    var g':nat->R0 := liftToR0(g); 
+    
+    assert bigTh(f, g) ==> bigTh2(f, g) by {
+      assume {:axiom} bigTh(f, g);
+      assert CR0.bigTh(f', g')
+        by { lem_bigThtoBigThR0(f, g); }
+      assert CR0.bigTh(f', g') ==> CR0.bigTh2(f', g')
+        by { LCR0.lem_bigTh_def1IMPLdef2(f', g'); }
+      assert CR0.bigTh2(f', g');
+      assert bigTh2(f, g)
+        by { lem_bigTh2R0toBigTh2(f, g); }  
+    }
+
+    assert bigTh2(f, g) ==> bigTh(f, g) by {
+      assume {:axiom} bigTh2(f, g);
+      assert CR0.bigTh2(f', g')
+        by { lem_bigTh2toBigTh2R0(f, g); }
+      assert CR0.bigTh2(f', g') ==> CR0.bigTh(f', g')
+        by { LCR0.lem_bigTh_def2IMPLdef1(f', g'); }
+      assert CR0.bigTh(f', g');
+      assert bigTh(f, g)
+        by { lem_bigThR0toBigTh(f, g); }  
+    }
+  }
 
   /******************************************************************************
     Common growth rates comparison

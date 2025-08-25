@@ -27,4 +27,22 @@ module LemFunction {
     requires forall x:A :: f1(x) == f2(x)
     ensures f1 == f2
 
+  lemma lem_etaApp<A,B>(f:A->B)
+    ensures forall x:A :: f == (x => f(x))
+  { 
+    lem_funExt(f, x => f(x)); 
+  }
+
+  lemma lem_funExtProd<A,B>(f1:A->real, g1:A->real, f2:A->real, g2:A->real)
+    requires forall x:A :: f1(x) == f2(x)
+    requires forall x:A :: g1(x) == g2(x)
+    ensures (x => f1(x)*g1(x)) == (x => f2(x)*g2(x))
+  { 
+    lem_funExt(x => f1(x)*g1(x), x => f2(x)*g2(x)) by { 
+      forall x:A
+         ensures (x => f1(x)*g1(x))(x) == (x => f2(x)*g2(x))(x)
+      {
+      }
+    }
+  }
 }

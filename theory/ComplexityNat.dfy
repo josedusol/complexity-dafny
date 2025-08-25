@@ -22,9 +22,10 @@ module ComplexityNat {
   import CR0 = ComplexityR0
 
   /******************************************************************************
-    Big O
+    Big Oh Notation - O
   ******************************************************************************/
 
+  // Def. of O relation 
   ghost predicate bigO(f:nat->nat, g:nat->nat)
   { 
     exists c:nat, n0:nat :: bigOfrom(c, n0, f, g) 
@@ -35,12 +36,14 @@ module ComplexityNat {
     forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)  
   }
 
+  // Def. of O class
   // bigO(f,g) <=> f ∈ O(g) 
   ghost function O(g:nat->nat): iset<nat->nat>
   {
     iset f:nat->nat | bigO(f, g)
   }    
-
+  
+  // A program counter t is O(g) for input size n
   ghost predicate tIsBigO(n:nat, t:nat, g:nat->nat)
   { 
     exists f:nat->nat :: t <= f(n) && f in O(g)
@@ -52,9 +55,10 @@ module ComplexityNat {
   }
 
   /******************************************************************************
-    Big Ω
+    Big Omega Notation - Ω
   ******************************************************************************/
 
+  // Def. of Ω relation 
   ghost predicate bigOm(f:nat->nat, g:nat->nat)
   { 
     exists c:nat, n0:nat :: bigOmFrom(c, n0, f, g) 
@@ -65,34 +69,37 @@ module ComplexityNat {
     forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n)
   }
 
+  // Def. of Ω class
   // bigOm(f,g) <=> f ∈ Ω(g)
   ghost function Om(g:nat->nat): iset<nat->nat>
   {
     iset f:nat->nat | bigOm(f, g)
   }   
 
+  // A program counter t is Ω(g) for input size n
   ghost predicate tIsBigOm(n:nat, t:nat, g:nat->nat)
   { 
     exists f:nat->nat :: f(n) <= t && f in Om(g)
   } 
 
   /******************************************************************************
-    Big Θ
+    Big Theta Notation - Θ
   ******************************************************************************/
 
-  // 1st def. of Big Θ as the intersection of Big O and Big Ω
+  // 1st def. of Θ relation as the intersection of O and Ω
   ghost predicate bigTh(f:nat->nat, g:nat->nat)
   { 
     f in Om(g) && f in O(g) 
   }
 
+  // Def. of Θ class
   // bigTh(f,g) <=> f ∈ Θ(g)
   ghost function Th(g:nat->nat): iset<nat->nat>
   {
     iset f:nat->nat | bigTh(f, g)
   }
 
-  // 2nd def. of Big Θ
+  // 2nd def. of Θ relation
   ghost predicate bigTh2(f:nat->nat, g:nat->nat)
   { 
     exists c1:nat, c2:nat, n0:nat :: bigThFrom(c1, c2, n0, f, g) 
@@ -103,6 +110,7 @@ module ComplexityNat {
     forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
   }     
 
+  // A program counter t is Θ(g) for input size n
   ghost predicate tIsBigTh(n:nat, t:nat, g:nat->nat)
   { 
     tIsBigOm(n, t, g) && tIsBigO(n, t, g)
