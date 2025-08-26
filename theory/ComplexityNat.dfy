@@ -86,11 +86,16 @@ module ComplexityNat {
     Big Theta Notation - Θ
   ******************************************************************************/
 
-  // 1st def. of Θ relation as the intersection of O and Ω
+  // 1st def. of Θ relation
   ghost predicate bigTh(f:nat->nat, g:nat->nat)
   { 
-    f in Om(g) && f in O(g) 
+    exists c1:nat, c2:nat, n0:nat :: bigThFrom(c1, c2, n0, f, g) 
   }
+
+  ghost predicate bigThFrom(c1:nat, c2:nat, n0:nat, f:nat->nat, g:nat->nat)
+  {
+    forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
+  }   
 
   // Def. of Θ class
   // bigTh(f,g) <=> f ∈ Θ(g)
@@ -99,16 +104,11 @@ module ComplexityNat {
     iset f:nat->nat | bigTh(f, g)
   }
 
-  // 2nd def. of Θ relation
+  // 2nd def. of Θ relation as the intersection of O and Ω
   ghost predicate bigTh2(f:nat->nat, g:nat->nat)
   { 
-    exists c1:nat, c2:nat, n0:nat :: bigThFrom(c1, c2, n0, f, g) 
-  }
-
-  ghost predicate bigThFrom(c1:nat, c2:nat, n0:nat, f:nat->nat, g:nat->nat)
-  {
-    forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
-  }     
+    f in Om(g) && f in O(g) 
+  } 
 
   // A program counter t is Θ(g) for input size n
   ghost predicate tIsBigTh(n:nat, t:nat, g:nat->nat)

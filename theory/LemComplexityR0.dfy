@@ -170,6 +170,8 @@ module LemComplexityR0 {
       }
     }  
     assert bigOmFrom(c2, n2, n => f(n)+g(n), g);
+
+    lem_bigTh_def2IMPdef(n => f(n)+g(n), g);
   }  
 
   // If f ∈ O(g+h) and g ∈ O(h) then f ∈ O(h)
@@ -179,6 +181,7 @@ module LemComplexityR0 {
     ensures  f in O(h) 
   {
     lem_bigO_sumSimp(g, h);
+    lem_bigTh_defIMPdef2(n => g(n)+h(n), h);
     assert bigO(n => g(n)+h(n), h);
     lem_bigO_trans(f, n => g(n)+h(n), h);
   }
@@ -205,11 +208,11 @@ module LemComplexityR0 {
   /******************************************************************************
     Big O basic properties lifted to sets
   ******************************************************************************/
-  // Each result easily follows from it's corresponding non-set lifted property
+  // Each result follows from it's corresponding non-set lifted property
 
   // This is lem_bigO_sum lifted to sets
   // If f1 ∈ O(g1) and f2 ∈ O(g2) then O(f1+f2) ⊆ O(g1+g2)
-  lemma lem_bigOset_sum(f1:nat->R0, g1:nat->R0, f2:nat->R0, g2:nat->R0)  
+  lemma lem_bigOset_sum(f1:nat->R0, g1:nat->R0, f2:nat->R0, g2:nat->R0) 
     requires f1 in O(g1) 
     requires f2 in O(g2) 
     ensures  O(n => f1(n)+f2(n)) <= O(n => g1(n)+g2(n)) 
@@ -253,7 +256,8 @@ module LemComplexityR0 {
     {
       assert h in O(n => f(n)+g(n));  
       assert (n => f(n)+g(n)) in O(g) 
-        by { lem_bigO_sumSimp(f, g); }
+        by { lem_bigO_sumSimp(f, g); 
+             lem_bigTh_defIMPdef2(n => f(n)+g(n), g); }
       lem_bigO_trans(h, n => f(n)+g(n), g);  
     }    
 
@@ -262,8 +266,15 @@ module LemComplexityR0 {
       ensures h in O(n => f(n)+g(n)) 
     {
       assert h in O(g);  
+
+      assert g in Th(n => f(n)+g(n)) 
+        by { lem_bigO_sumSimp(f, g); 
+             lem_bigTh_defIMPdef2(n => f(n)+g(n), g);
+             lem_bigTh_sim(n => f(n)+g(n), g); }
+      
       assert g in O(n => f(n)+g(n)) 
-        by { lem_bigO_sumSimp(f, g); lem_bigTh_sim(n => f(n)+g(n), g); }
+        by { lem_bigTh_defIMPdef2(g, n => f(n)+g(n)); }
+
       lem_bigO_trans(h, g, n => f(n)+g(n));  
     }     
   }
@@ -288,12 +299,13 @@ module LemComplexityR0 {
   ******************************************************************************/
 
   // Reflexivity
-  // f ∈ O(f)
+  // f ∈ Θ(f)
   lemma lem_bigTh_refl(f:nat->R0)  
     ensures f in Th(f) 
   {  
     lem_bigO_refl(f); 
     lem_bigOm_refl(f);
+    lem_bigTh_def2IMPdef(f, f);
   }  
 
   // Simmetry
@@ -306,44 +318,24 @@ module LemComplexityR0 {
     bigTh and bigTh2 are equivalent definitions of Big Θ 
   ******************************************************************************/
 
-  lemma lem_bigTh_def1EQLdef2(f:nat->R0, g:nat->R0)  
+  lemma lem_bigTh_defEQdef2(f:nat->R0, g:nat->R0)  
     ensures bigTh(f, g) <==> bigTh2(f, g)
   {
     assert bigTh(f, g) ==> bigTh2(f, g) by {
       if bigTh(f, g) {
-        lem_bigTh_def1IMPLdef2(f, g);
+        lem_bigTh_defIMPdef2(f, g);
       }      
     }
     assert bigTh2(f, g) ==> bigTh(f, g) by {
       if bigTh2(f, g) {
-        lem_bigTh_def2IMPLdef1(f, g);
+        lem_bigTh_def2IMPdef(f, g);
       }      
     }
   }
 
-  lemma lem_bigTh_def1IMPLdef2(f:nat->R0, g:nat->R0)  
+  lemma lem_bigTh_defIMPdef2(f:nat->R0, g:nat->R0)  
     requires bigTh(f, g) 
     ensures  bigTh2(f, g)
-  {
-    var c1:R0, n0_1:nat :| bigOmFrom(c1, n0_1, f, g) ; 
-    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
-
-    var c2:R0, n0_2:nat :| bigOfrom(c2, n0_2, f, g) ; 
-    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
-
-    var n0 := n0_1 + n0_2;
-    forall n:nat | 0 <= n0 <= n
-      ensures c1*g(n) <= f(n) <= c2*g(n)
-    {
-      assert c1*g(n) <= f(n) by { reveal H1; }
-      assert f(n) <= c2*g(n) by { reveal H2; }
-    }
-    assert bigThFrom(c1, c2, n0, f, g);
-  }
-
-  lemma lem_bigTh_def2IMPLdef1(f:nat->R0, g:nat->R0)  
-    requires bigTh2(f, g) 
-    ensures  bigTh(f, g)
   {
     var c1:R0, c2:R0, n0:nat :| bigThFrom(c1, c2, n0, f, g); 
     assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
@@ -368,13 +360,33 @@ module LemComplexityR0 {
     assert f in O(g) && f in Om(g) by { reveal A, B; }
   }      
 
-  // An alternative way to conclude a program counter t is Θ(g) for input size n
-  lemma lem_bigTh_tIsBigTh2(n:nat, t:R0, g:nat->R0)  
-    requires exists f:nat->R0 :: f(n) == t && bigTh2(f, g)
-    ensures  tIsBigTh(n, t, g)
+  lemma lem_bigTh_def2IMPdef(f:nat->R0, g:nat->R0)  
+    requires bigTh2(f, g) 
+    ensures  bigTh(f, g)
   {
-    var f:nat->R0 :| f(n) == t && bigTh2(f, g);
-    lem_bigTh_def2IMPLdef1(f, g);
+    var c1:R0, n0_1:nat :| bigOmFrom(c1, n0_1, f, g) ; 
+    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
+
+    var c2:R0, n0_2:nat :| bigOfrom(c2, n0_2, f, g) ; 
+    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
+
+    var n0 := n0_1 + n0_2;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*g(n) <= f(n) <= c2*g(n)
+    {
+      assert c1*g(n) <= f(n) by { reveal H1; }
+      assert f(n) <= c2*g(n) by { reveal H2; }
+    }
+    assert bigThFrom(c1, c2, n0, f, g);
+  }
+
+  // A stronger way to conclude a program counter t is Θ(g) for input size n
+  lemma lem_bigTh_tIsBigTh2(n:nat, t:R0, g:nat->R0)  
+    requires exists f:nat->R0 :: f(n) == t && bigTh(f, g)
+    ensures  tIsBigTh(n, t, g) 
+  {
+    var f:nat->R0 :| f(n) == t && bigTh(f, g);
+    lem_bigTh_defIMPdef2(f, g);
   }
 
   /******************************************************************************
@@ -392,7 +404,7 @@ module LemComplexityR0 {
       ensures constGrowth()(n) <= c*logGrowth(b)(n)
     {
       calc {
-           constGrowth()(n); 
+           constGrowth()(n);
         == 1.0;
         <= { lem_logGEQone(b, n as R0); }
            1.0*logGrowth(b)(n);      

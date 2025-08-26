@@ -147,6 +147,7 @@ module LemComplexityNat {
     ensures  f in O(h)
   {
     lem_bigO_sumSimp(g, h);
+    lem_bigTh_defEQdef2(n => g(n)+h(n), h);
     assert bigO(n => g(n)+h(n), h);
     lem_bigO_trans(f, n => g(n)+h(n), h);
   }
@@ -167,7 +168,7 @@ module LemComplexityNat {
   /******************************************************************************
     Big O basic properties lifted to sets
   ******************************************************************************/
-  // Each result easily follows from it's corresponding non-set lifted property
+  // Each result follows from it's corresponding non-set lifted property
 
   // This is lem_bigO_sum lifted to sets
   // If f1 ∈ O(g1) and f2 ∈ O(g2) then O(f1+f2) ⊆ O(g1+g2)
@@ -215,7 +216,8 @@ module LemComplexityNat {
     {
       assert h in O(n => f(n)+g(n));  
       assert (n => f(n)+g(n)) in O(g) 
-        by { lem_bigO_sumSimp(f, g); }
+        by { lem_bigO_sumSimp(f, g);
+             lem_bigTh_defEQdef2(n => f(n)+g(n), g); }
       lem_bigO_trans(h, n => f(n)+g(n), g);  
     }    
 
@@ -224,8 +226,15 @@ module LemComplexityNat {
       ensures h in O(n => f(n)+g(n)) 
     {
       assert h in O(g);  
+
+      assert g in Th(n => f(n)+g(n)) 
+        by { lem_bigO_sumSimp(f, g); 
+             lem_bigTh_defEQdef2(n => f(n)+g(n), g);
+             lem_bigTh_sim(n => f(n)+g(n), g); }
+      
       assert g in O(n => f(n)+g(n)) 
-        by { lem_bigO_sumSimp(f, g); lem_bigTh_sim(n => f(n)+g(n), g); }
+        by { lem_bigTh_defEQdef2(g, n => f(n)+g(n)); }
+
       lem_bigO_trans(h, g, n => f(n)+g(n));  
     }     
   }
@@ -256,6 +265,7 @@ module LemComplexityNat {
   {  
     lem_bigO_refl(f); 
     lem_bigOm_refl(f);
+    lem_bigTh_defEQdef2(f, f);
   }  
 
   // Simmetry
@@ -268,32 +278,34 @@ module LemComplexityNat {
     bigTh and bigTh2 are equivalent definitions of Big Θ
   ******************************************************************************/
  
-  lemma lem_bigTheta_def1EQLdef2(f:nat->nat, g:nat->nat)  
+  lemma lem_bigTh_defEQdef2(f:nat->nat, g:nat->nat)  
     ensures bigTh(f, g) <==> bigTh2(f, g)
   {
     var f':nat->R0 := liftToR0(f);
-    var g':nat->R0 := liftToR0(g); 
+    var g':nat->R0 := liftToR0(g);
     
     assert bigTh(f, g) ==> bigTh2(f, g) by {
-      assume {:axiom} bigTh(f, g);
-      assert CR0.bigTh(f', g')
-        by { lem_bigThtoBigThR0(f, g); }
-      assert CR0.bigTh(f', g') ==> CR0.bigTh2(f', g')
-        by { LCR0.lem_bigTh_def1IMPLdef2(f', g'); }
-      assert CR0.bigTh2(f', g');
-      assert bigTh2(f, g)
-        by { lem_bigTh2R0toBigTh2(f, g); }  
+      if bigTh(f, g) {
+        assert CR0.bigTh(f', g')
+          by { lem_bigThtoBigThR0(f, g); }
+        assert CR0.bigTh(f', g') ==> CR0.bigTh2(f', g')
+          by { LCR0.lem_bigTh_defIMPdef2(f', g'); }
+        assert CR0.bigTh2(f', g');
+        assert bigTh2(f, g)
+          by { lem_bigTh2R0toBigTh2(f, g); }  
+      }
     }
 
     assert bigTh2(f, g) ==> bigTh(f, g) by {
-      assume {:axiom} bigTh2(f, g);
-      assert CR0.bigTh2(f', g')
-        by { lem_bigTh2toBigTh2R0(f, g); }
-      assert CR0.bigTh2(f', g') ==> CR0.bigTh(f', g')
-        by { LCR0.lem_bigTh_def2IMPLdef1(f', g'); }
-      assert CR0.bigTh(f', g');
-      assert bigTh(f, g)
-        by { lem_bigThR0toBigTh(f, g); }  
+      if bigTh2(f, g) {
+        assert CR0.bigTh2(f', g')
+          by { lem_bigTh2toBigTh2R0(f, g); }
+        assert CR0.bigTh2(f', g') ==> CR0.bigTh(f', g')
+          by { LCR0.lem_bigTh_def2IMPdef(f', g'); }
+        assert CR0.bigTh(f', g');
+        assert bigTh(f, g)
+          by { lem_bigThR0toBigTh(f, g); }  
+      }
     }
   }
 
