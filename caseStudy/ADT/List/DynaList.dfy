@@ -2,22 +2,26 @@ include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
 
 /******************************************************************************
-  DynamicList ADT
+  DynaList ADT
   An indexed collection of elements without size constraints
 ******************************************************************************/
 
-module DynamicList {
+module DynaList {
 
   import opened TypeR0
   import opened Container
 
-  trait DynamicList<T> extends Container<T> {
+  trait DynaList<T> extends Container<T> {
 
     /******************************************************************************
       Query operations
     ******************************************************************************/
 
-    // Same as Container
+    // Returns true iff the list is full
+    predicate IsFull()
+      reads this, Repr()
+      // Pre:
+      requires Valid() 
 
     /******************************************************************************
       Update operations
@@ -32,8 +36,8 @@ module DynamicList {
       // Post:
       ensures  Valid()
       ensures  Size() == old(Size()) + 1
-      ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k) is unchanged  
-      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, n] is right shifted 
+      ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
+      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
 
     // Deletes element at position k in the list

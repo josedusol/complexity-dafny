@@ -25,7 +25,7 @@ module Container {
       reads this, Repr()
       // Pre:
       requires Valid()
-      requires i < Size()
+      requires 0 <= i < Size()
 
     // Returns the set of heap objects that are part of this data structure's representation
     function Repr(): set<object>
