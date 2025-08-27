@@ -79,7 +79,6 @@ lemma lem_TclosedBound(N:nat)
 lemma lem_fBigOlog() returns (c:nat, n0:nat)
   ensures bigOLogfrom(c, n0, f)
 {
-  // Probar que c=2 y n0=2
   c, n0 := 2, 2;
   forall n:nat | 1 <= n0 <= n
     ensures f(n) <= c*log2(n)

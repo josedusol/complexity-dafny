@@ -86,7 +86,6 @@ lemma lem_T1closed(N:nat, i:nat)
 lemma lem_fBigOlin() returns (c:nat, n0:nat)
   ensures bigOfrom(c, n0, f, linGrowth())
 {
-  // we show that c=3 and n0=0
   c, n0 := 3, 0;
   forall n:nat | 0 <= n0 <= n
     ensures f(n) <= c*linGrowth()(n)

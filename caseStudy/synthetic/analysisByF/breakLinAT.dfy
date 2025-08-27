@@ -123,7 +123,6 @@ lemma lem_solveSum(N:nat)
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
   ensures bigOfrom(c, n0, Tavg, n => n as R0)
 {
-  // we show that c=1 and n0=1
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
     ensures Tavg(n) <= c*(n => n as R0)(n)

@@ -56,7 +56,6 @@ method quadCallSub(x:Input) returns (ghost t:nat)
 lemma lem_fmfBigOquad() returns (c:nat, n0:nat)
   ensures bigOfrom(c, n0, n => f(n)*f(n), quadGrowth())
 {
-  // we show that c=1 and n0=0
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n
     ensures f(n)*f(n) <= c*quadGrowth()(n)

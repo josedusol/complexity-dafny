@@ -130,7 +130,6 @@ lemma lem_solveSum(N:nat)
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
   ensures bigOfrom(c, n0, Tavg, linGrowth())
 {
-  // we show that c=1 and n0=1
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
     ensures Tavg(n) <= c*linGrowth()(n)
@@ -149,7 +148,6 @@ lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
 lemma lem_TavgBigOmlin() returns (c:R0, n0:nat)
   ensures bigOmFrom(c, n0, Tavg, linGrowth())
 {
-  // we show that c=0.5 and n0=1
   c, n0 := 0.5, 1;
   forall n:nat | 0 <= n0 <= n
     ensures c*linGrowth()(n) <= Tavg(n)

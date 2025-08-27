@@ -47,7 +47,6 @@ method linAfter2(x:Input) returns (ghost t:nat)
 lemma lem_fBigOlin() returns (c:nat, n0:nat)
   ensures bigOfrom(c, n0, f, linGrowth())
 {
-  // we show that c=1 and n0=10
   c, n0 := 1, 10;
   forall n:nat | 0 <= n0 <= n
     ensures f(n) <= c*linGrowth()(n) 

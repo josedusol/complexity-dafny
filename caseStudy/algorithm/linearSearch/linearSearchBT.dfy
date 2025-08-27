@@ -102,7 +102,6 @@ ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
 lemma lem_f2BigOconst() returns (c:nat, n0:nat)
   ensures bigOfrom(c, n0, f2, constGrowth())
 {
-  // we show that c=1 and n0=0
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n
     ensures f2(n) <= c*constGrowth()(n)
@@ -115,7 +114,6 @@ lemma lem_f2BigOconst() returns (c:nat, n0:nat)
 lemma lem_f2BigOmconst() returns (c:nat, n0:nat)
   ensures bigOmFrom(c, n0, f2, constGrowth())
 {
-  // we show that c=1 and n0=0
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n
     ensures c*constGrowth()(n) <= f2(n) 
