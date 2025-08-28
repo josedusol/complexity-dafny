@@ -120,6 +120,11 @@ module ComplexityNat {
     Common growth rates
   ******************************************************************************/
 
+  ghost function zeroGrowth() : nat->nat
+  {   
+    n => 0
+  }
+
   ghost function constGrowth() : nat->nat
   {   
     n => 1

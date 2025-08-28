@@ -314,6 +314,28 @@ module LemComplexityR0 {
     requires f in Th(g) 
     ensures  g in Th(f)
 
+  // Zero function has zero growth
+  lemma lem_bigTh_zeroGrowth(f:nat->R0)  
+    requires forall n:nat :: f(n) == 0.0
+    ensures  f in Th(zeroGrowth())
+  {  
+    var c1:R0, c2:R0, n0:nat := 1.0, 1.0, 0;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*zeroGrowth()(n) <= f(n) <= c2*zeroGrowth()(n)
+    {
+      calc {
+           c1*zeroGrowth()(n);
+        == c1*0.0;  
+        == 0.0;  
+        <= f(n); 
+        == 0.0;
+        <= c1*0.0;      
+        == c2*zeroGrowth()(n);         
+      }
+    }
+    assert bigThFrom(c1, c2, n0, f, zeroGrowth());
+  }
+
   /******************************************************************************
     bigTh and bigTh2 are equivalent definitions of Big Θ 
   ******************************************************************************/
@@ -392,6 +414,23 @@ module LemComplexityR0 {
   /******************************************************************************
     Common growth rates comparison
   ******************************************************************************/
+
+  // 0 ∈ O(f(n)) 
+  lemma lem_bigO_zeroBigOany(f:nat->R0)
+    ensures zeroGrowth() in O(f) 
+  {
+    var c:R0, n0:nat := 1.0, 0;
+    forall n:nat | 0 <= n0 <= n 
+      ensures zeroGrowth()(n) <= c*f(n)
+    {
+      calc {
+           zeroGrowth()(n);
+        == 0.0;
+        <= 1.0*f(n);             
+      }
+    }
+    assert bigOfrom(c, n0, zeroGrowth(), f);
+  } 
 
   // 1 ∈ O(log_b(n)) 
   lemma lem_bigO_constBigOlog(b:R0)

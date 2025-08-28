@@ -2,14 +2,15 @@ include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/LemComplexityNat.dfy"
 include "./linearSearch.dfy"
 
 import opened LemFunction
 import opened SumReal
 import opened TypeR0
 import opened ComplexityNat
+import opened LemComplexityNat
 
-// Postcondition for a correct linear search algorithm
 ghost function f1(N:nat) : nat
 {
   0
@@ -18,7 +19,7 @@ ghost function f1(N:nat) : nat
 ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
   ensures t == f1(|s|) 
-  ensures tIsBigTh(|s|, t, constGrowth())
+  ensures tIsBigTh(|s|, t, zeroGrowth())
 {
   assume {:axiom} |s| == 0;  // best case
   var n:nat;
@@ -36,33 +37,31 @@ ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f1(|s|);
-  assert f1 in O(constGrowth())  by { var c, n0 := lem_f1BigOconst(); }
-  assert f1 in Om(constGrowth()) by { var c, n0 := lem_f1BigOmconst(); }
+  assert f1 in Th(zeroGrowth()) by { lem_bigTh_zeroGrowth(f1); }
+  lem_bigTh_tIsBigTh2(|s|, t, zeroGrowth()); 
 } 
 
-lemma lem_f1BigOconst() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f1, constGrowth())
+lemma lem_f1BigOzero() returns (c:nat, n0:nat)
+  ensures bigOfrom(c, n0, f1, zeroGrowth())
 {
-  // we show that c=1 and n0=0
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f1(n) <= c*constGrowth()(n)
+    ensures f1(n) <= c*zeroGrowth()(n)
   {
     assert f1(n) == 0;
-    assert f1(n) <= c*constGrowth()(n); 
+    assert f1(n) <= c*zeroGrowth()(n); 
   }
 }
 
-lemma lem_f1BigOmconst() returns (c:nat, n0:nat)
-  ensures bigOmFrom(c, n0, f1, constGrowth())
+lemma lem_f1BigOmzero() returns (c:nat, n0:nat)
+  ensures bigOmFrom(c, n0, f1, zeroGrowth())
 {
-  // we show that c=1 and n0=0
   c, n0 := 0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures c*constGrowth()(n) <= f1(n)
+    ensures c*zeroGrowth()(n) <= f1(n)
   {
     assert f1(n) == 0;
-    assert c*constGrowth()(n) <= f1(n); 
+    assert c*zeroGrowth()(n) <= f1(n); 
   }
 }
 

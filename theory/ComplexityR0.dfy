@@ -115,7 +115,12 @@ module ComplexityR0 {
   /******************************************************************************
     Common growth rates
   ******************************************************************************/
-  
+
+  ghost function zeroGrowth() : nat->R0
+  {   
+    n => 0.0
+  }
+
   ghost function constGrowth() : nat->R0
   {   
     n => 1.0

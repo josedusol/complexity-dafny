@@ -274,6 +274,19 @@ module LemComplexityNat {
     requires f in Th(g) 
     ensures  g in Th(f)
 
+  // Zero function has zero growth
+  lemma lem_bigTh_zeroGrowth(f:nat->nat)  
+    requires forall n:nat :: f(n) == 0
+    ensures  f in Th(zeroGrowth())
+  {  
+    var fr:nat->R0 := liftToR0(f);
+    var cr:nat->R0 := liftToR0(zeroGrowth());
+    assert CR0.bigTh(fr, CR0.zeroGrowth()) 
+      by { LCR0.lem_bigTh_zeroGrowth(fr); }  
+    lem_funExt(liftToR0(zeroGrowth()), CR0.zeroGrowth());
+    lem_bigThR0toBigTh(f, zeroGrowth());  
+  }    
+
   /******************************************************************************
     bigTh and bigTh2 are equivalent definitions of Big Θ
   ******************************************************************************/
@@ -309,15 +322,40 @@ module LemComplexityNat {
     }
   }
 
+  // A stronger way to conclude a program counter t is Θ(g) for input size n
+  lemma lem_bigTh_tIsBigTh2(n:nat, t:nat, g:nat->nat)  
+    requires exists f:nat->nat :: f(n) == t && bigTh(f, g)
+    ensures  tIsBigTh(n, t, g) 
+  {
+    var f:nat->nat :| f(n) == t && bigTh(f, g);
+    lem_bigTh_defEQdef2(f, g);
+  }
+
   /******************************************************************************
     Common growth rates comparison
   ******************************************************************************/
-  
+
+  // 0 ∈ O(f(n)) 
+  lemma lem_bigO_zeroBigOany(f:nat->nat)
+    ensures zeroGrowth() in O(f) 
+  {
+    var c:nat, n0:nat := 1, 0;
+    forall n:nat | 0 <= n0 <= n 
+      ensures zeroGrowth()(n) <= c*f(n)
+    {
+      calc {
+           zeroGrowth()(n);
+        == 0;
+        <= 1*f(n);             
+      }
+    }
+    assert bigOfrom(c, n0, zeroGrowth(), f);
+  }   
+
   // 1 ∈ O(log2(n)) 
   lemma lem_bigO_constBigOlog2()
     ensures constGrowth() in O(log2Growth()) 
   {
-    // we show that c=1 and n0=2
     var c:nat, n0:nat := 1, 2;
     forall n:nat | 0 <= n0 <= n 
       ensures constGrowth()(n) <= c*log2Growth()(n)
@@ -369,7 +407,6 @@ module LemComplexityNat {
   lemma lem_bigO_log2BigOlin()
     ensures log2Growth() in O(linGrowth())
   { 
-    // we show that c=1 and n0=1
     var c:nat, n0:nat := 1, 1;
     forall n:nat | 0 <= n0 <= n
       ensures log2Growth()(n) <= c*linGrowth()(n)
