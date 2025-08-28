@@ -107,9 +107,9 @@ module ArrayList refines List {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tinsert(N,k) 
+      ensures  var N := old(Size()); && t == Tinsert(N,k) 
                                      && t <= Tinsert2(N) 
-                                     && tIsBigO(N, t as R0, linGrowth())
+                                     && tIsBigO(N, t as R0, linGrowth())                             
     {
       var N := Size();
       t := 0.0;
@@ -138,14 +138,36 @@ module ArrayList refines List {
       // 2. Insert x at position k
       assert i == k;
       arr[k] := x;
+      t := t + 1.0;
       assert arr[..k] == old(arr[..k]);  // [0, k) is unchanged
 
       // Update number of elements
       nElems := nElems + 1;
 
-      assert t == (N - k) as R0 == Tinsert(N, k) 
-               <= N as R0       == Tinsert2(N);
+      assert t == (N - k + 1) as R0 == Tinsert(N, k) 
+               <= (N + 1) as R0     == Tinsert2(N);
       assert Tinsert2 in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }      
+    }
+
+    // Appends element x in the list
+    method Append(x:T) returns (ghost t:R0)
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires !IsFull()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures  Get(old(Size())).0 == x  
+      // Complexity:
+      ensures  var N := old(Size()); && t == Tappend(N) 
+                                     && tIsBigO(N, t as R0, constGrowth())      
+    {
+      var N := Size();
+      t := Insert(N, x);
+      assert t == Tinsert(N, N) == 1 as R0; 
+      assert Tappend in O(constGrowth()) by { var c, n0 := lem_Append_TappendBigOconst(); }      
     }
 
     // Deletes element at position k in the list

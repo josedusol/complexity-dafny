@@ -1,6 +1,7 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/TypeR0.dfy"
 include "../../../../theory/ComplexityR0.dfy"
+include "../../../../theory/LemComplexityR0.dfy"
 
 /******************************************************************************
   Auxiliary module for DynaArrayList verification
@@ -11,6 +12,7 @@ module LemDynaArrayList {
   import opened ExpReal
   import opened TypeR0
   import opened ComplexityR0
+  import opened LemComplexityR0
 
   // Complexity analysis for Get operation  
 
@@ -68,32 +70,101 @@ module LemDynaArrayList {
   ghost function Tinsert(N:nat, k:nat) : R0
     requires N >= k
   {
-    (4*N - k) as R0
+    (4*N - k + 1) as R0
   }
 
-  ghost function Tinsert2(N:nat) : R0
+  ghost function TinsertUp(N:nat) : R0
   {
-    (4*N) as R0
+    (4*N + 1) as R0
   }  
 
-  lemma lem_Insert_Tinsert2BigOlin(k:nat) returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tinsert2, linGrowth())
+  ghost function Tinsert2(N:nat, k:nat) : R0
+    requires N >= k
   {
-    c, n0 := 4.0, 1;
+    (N - k + 1) as R0
+  }    
+
+  ghost function Tinsert2Up(N:nat) : R0
+  {
+    (N + 1) as R0
+  }    
+
+  lemma lem_Insert_TinsertBigOlin() returns (c:R0, n0:nat) 
+    ensures bigOfrom(c, n0, TinsertUp, linGrowth())
+  {
+    c, n0 := 2.0*4.0, 1;
     forall n:nat | 0 <= n0 <= n
-      ensures Tinsert2(n) <= c*linGrowth()(n)
+      ensures TinsertUp(n) <= c*linGrowth()(n)
     {
       calc {
-           Tinsert2(n);
-        == (4*n) as R0;
+           TinsertUp(n);
+        == (4*n + 1) as R0;
         <= c*n as R0;
         == { lem_expOne(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
-    assert bigOfrom(c, n0, Tinsert2, linGrowth());
+    assert bigOfrom(c, n0, TinsertUp, linGrowth());
   }
+
+  lemma lem_Insert_Tinsert2BigOlin() returns (c:R0, n0:nat) 
+    ensures bigOfrom(c, n0, Tinsert2Up, linGrowth())
+  {
+    c, n0 := 2.0, 1;
+    forall n:nat | 0 <= n0 <= n
+      ensures Tinsert2Up(n) <= c*linGrowth()(n)
+    {
+      calc {
+           Tinsert2Up(n);
+        == (n + 1) as R0;
+        <= c*n as R0;
+        == { lem_expOne(n as R0); }
+           c*exp(n as R0, 1.0);
+        == c*linGrowth()(n);   
+      }
+    }
+    assert bigOfrom(c, n0, Tinsert2Up, linGrowth());
+  }
+
+  // Complexity analysis for Append operation 
+
+  ghost function Tappend(N:nat) : R0
+  {
+    (3*N + 1) as R0
+  }
+
+  ghost function Tappend2(N:nat) : R0
+  {
+    1.0
+  }  
+
+  lemma lem_Append_TappendBigOlin() returns (c:R0, n0:nat) 
+    ensures bigOfrom(c, n0, Tappend, linGrowth())
+  {
+    c, n0 := 2.0*3.0, 1;
+    forall n:nat | 0 <= n0 <= n
+      ensures Tappend(n) <= c*linGrowth()(n)
+    {
+      calc {
+           Tappend(n);
+        == (3*n + 1) as R0;
+        <= c*n as R0;
+        == { lem_expOne(n as R0); }
+           c*exp(n as R0, 1.0);
+        == c*linGrowth()(n);   
+      }
+    }
+    assert bigOfrom(c, n0, Tappend, linGrowth());
+  }
+
+  lemma lem_Append_Tappend2BigOconst() returns (c:R0, n0:nat) 
+    ensures bigOfrom(c, n0, Tappend2, constGrowth())
+  {
+    lem_bigO_constGrowth(Tappend2, 1.0);
+    var c':R0, n0':nat :| bigOfrom(c', n0', Tappend2, constGrowth());
+    c, n0 := c', n0';
+  }  
 
   // Complexity analysis for Delete operation  
 

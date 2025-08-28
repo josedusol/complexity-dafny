@@ -41,6 +41,18 @@ module List {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted  
       ensures  Get(k).0 == x                                                     // xs[k] == x
 
+    // Appends element x in the list
+    method Append(x:T) returns (ghost t:R0)
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires !IsFull()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures  Get(old(Size())).0 == x                                    
+
     // Deletes element at position k in the list
     method Delete(k:nat) returns (ghost t:R0)
       modifies this, Repr()    

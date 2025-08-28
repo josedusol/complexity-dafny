@@ -1,4 +1,5 @@
 include "../../../../theory/math/ExpReal.dfy"
+include "../../../../theory/math/LemFunction.dfy"
 include "../../../../theory/math/TypeR0.dfy"
 include "../../../../theory/ComplexityR0.dfy"
 include "../DynaList.dfy"
@@ -11,6 +12,7 @@ include "./LemDynaArrayList.dfy"
 module DynaArrayList refines DynaList {
 
   import opened ExpReal
+  import opened LemFunction
   import opened ComplexityR0
   import opened LemDynaArrayList
 
@@ -105,9 +107,9 @@ module DynaArrayList refines DynaList {
       ensures arr.Length == m*old(arr.Length) > old(arr.Length)
       ensures arr[..nElems] == old(arr[..nElems])
       // Complexity:
-      ensures  var N := old(arr.Length); && t == Tgrow(m,N,Size())
-                                         && t <= Tgrow(m,N,N)
-                                         && tIsBigO(N, t as R0, linGrowth())      
+      ensures var N := old(arr.Length); && t == Tgrow(m,N,Size())
+                                        && t <= Tgrow(m,N,N)
+                                        && tIsBigO(N, t as R0, linGrowth())      
     {   
       var N := arr.Length;
 
@@ -142,9 +144,9 @@ module DynaArrayList refines DynaList {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tinsert(N,k) 
-                                     && t <= Tinsert2(N) 
+      ensures  var N := old(Size()); && t <= Tinsert(N,k)
                                      && tIsBigO(N, t as R0, linGrowth())
+      ensures  var N := old(Size()); !old(IsFull()) ==> t == Tinsert2(N,k)                            
     {
       var N := Size();
       t := 0.0;
@@ -154,10 +156,10 @@ module DynaArrayList refines DynaList {
         assert nElems == N == arr.Length;
         t := Grow(2); 
         assert t == Tgrow(2,N,N) == (3*N) as R0; 
+        assert t == (3*N) as R0;
+        assert !IsFull();
+        assert N < arr.Length;   
       }
-      assert !IsFull();
-      assert N < arr.Length;
-      assert t <= (3*N) as R0; 
       assert arr[..N] == elems;
 
       // Update model
@@ -171,7 +173,7 @@ module DynaArrayList refines DynaList {
         invariant k <= i <= N < arr.Length    
         invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
         invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N] is right shifted      
-        invariant t <= (3*N + N - i) as R0
+        invariant t == if old(IsFull()) then (3*N + N - i) as R0 else (N - i) as R0
         decreases i
       {
         arr[i] := arr[i-1]; // shift right
@@ -184,15 +186,48 @@ module DynaArrayList refines DynaList {
       // 2. Insert x at position k
       assert i == k;
       arr[k] := x;
+      t := t + 1.0;
       assert arr[..k] == old(arr[..k]);  // [0, k) is unchanged
     
       // Update number of elements
       nElems := nElems + 1;
 
-      assert t <= (4*N - k) as R0 == Tinsert(N, k)
-               <= (4*N) as R0     == Tinsert2(N);
-      assert Tinsert2 in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(k); }            
+      if old(IsFull()) { 
+        assert t == (4*N - k + 1) as R0 == Tinsert(N, k) <= TinsertUp(N);
+        assert TinsertUp in O(linGrowth()) by { var c, n0 := lem_Insert_TinsertBigOlin(); }  
+      } else {
+        assert t == (N - k + 1) as R0 == Tinsert2(N, k) <= Tinsert2Up(N);
+        assert Tinsert2Up in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }
+      }
     }
+
+    // Appends element x in the list
+    method Append(x:T) returns (ghost t:R0)
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures  Get(old(Size())).0 == x   
+      // Complexity:
+      ensures  var N := old(Size()); && t <= Tappend(N)
+                                     && tIsBigO(N, t as R0, linGrowth())  
+      ensures  var N := old(Size()); !old(IsFull()) ==> && t == Tappend2(N)    
+                                                        && tIsBigO(N, t as R0, constGrowth())                                   
+    {
+      var N := Size();
+      t := Insert(N, x);
+
+      if old(IsFull()) { 
+        assert t <= Tinsert(N,N) == (4*N - N + 1) as R0 == (3*N + 1) as R0; 
+        assert Tappend in O(linGrowth()) by { var c, n0 := lem_Append_TappendBigOlin(); }    
+      } else {
+        assert t == Tinsert2(N,N) == (N - N + 1) as R0 == 1.0; 
+        assert Tappend2 in O(constGrowth()) by { var c, n0 := lem_Append_Tappend2BigOconst(); }    
+      }
+    } 
 
     // Deletes element at position k in the list
     method {:axiom} Delete(k:nat) returns (ghost t:R0)

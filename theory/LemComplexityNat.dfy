@@ -367,7 +367,7 @@ module LemComplexityNat {
 
   // log2(n) ∈ O(n) 
   lemma lem_bigO_log2BigOlin()
-    ensures log2Growth() in O(linGrowth()) 
+    ensures log2Growth() in O(linGrowth())
   { 
     // we show that c=1 and n0=1
     var c:nat, n0:nat := 1, 1;
