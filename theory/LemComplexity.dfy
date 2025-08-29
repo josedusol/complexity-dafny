@@ -25,7 +25,7 @@ module LemComplexity {
     requires f in O(g)
     ensures  liftToR0(f) in CR0.O(liftToR0(g))
   {    
-    var c:nat, n0:nat :| bigOfrom(c, n0, f, g);  
+    var c:nat, n0:nat :| c > 0 && bigOfrom(c, n0, f, g);  
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
 
     assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
@@ -42,7 +42,7 @@ module LemComplexity {
     requires liftToR0(f) in CR0.O(liftToR0(g))
     ensures  f in O(g)
   { 
-    var c:R0, n0:nat :| CR0.bigOfrom(c, n0, liftToR0(f), liftToR0(g));
+    var c:R0, n0:nat :| c > 0.0 && CR0.bigOfrom(c, n0, liftToR0(f), liftToR0(g));
     assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(f)(n) <= c*liftToR0(g)(n);
     
     assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
@@ -63,7 +63,7 @@ module LemComplexity {
     requires f in Om(g) 
     ensures  liftToR0(f) in CR0.Om(liftToR0(g))
   {    
-    var c:nat, n0:nat :| bigOmFrom(c, n0, f, g);  
+    var c:nat, n0:nat :| c > 0 && bigOmFrom(c, n0, f, g);  
     assert forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n);
 
     assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
@@ -74,22 +74,10 @@ module LemComplexity {
     assert CR0.bigOmFrom(c', n0, liftToR0(f), liftToR0(g));
   }
 
-  lemma lem_bigOmR0toBigOm(f:nat->nat, g:nat->nat)  
-    requires liftToR0(f) in CR0.Om(liftToR0(g))
-    ensures  f in Om(g)
-  { 
-    var c:R0, n0:nat :| CR0.bigOmFrom(c, n0, liftToR0(f), liftToR0(g));
-    assert forall n:nat :: 0 <= n0 <= n ==> c*liftToR0(g)(n) <= liftToR0(f)(n);
-    
-    assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
-    assert forall n:nat :: liftToR0(g)(n) == g(n) as R0;
-
-    var c':nat := floor(c);  // c may be non-integer, so we bound below with it's floor
-    assert c' as R0 <= c;
-    assert forall n:nat :: (c' as R0)*liftToR0(g)(n) <= c*liftToR0(g)(n);
-    assert forall n:nat :: 0 <= n0 <= n ==> c'*g(n) <= f(n); 
-    assert bigOmFrom(c', n0, f, g);
-  }  
+  // This cant be proved anymore with the new O definition
+  // lemma lem_bigOmR0toBigOm(f:nat->nat, g:nat->nat)  
+  //   requires liftToR0(f) in CR0.Om(liftToR0(g))
+  //   ensures  f in Om(g)
 
   /******************************************************************************
     Mapping of Θ asymptotic results between unlifted and lifted functions
@@ -104,20 +92,16 @@ module LemComplexity {
     lem_bigOtoBigOR0(f, g); 
   }
   
-  lemma lem_bigTh2R0toBigTh2(f:nat->nat, g:nat->nat)  
-    requires CR0.bigTh2(liftToR0(f), liftToR0(g))
-    ensures  bigTh2(f, g)
-  {
-    assert CR0.bigOm(liftToR0(f), liftToR0(g)) && CR0.bigO(liftToR0(f), liftToR0(g));
-    lem_bigOmR0toBigOm(f, g);
-    lem_bigOR0toBigO(f, g);
-  }
+  // This cant be proved anymore with the new Θ definition
+  // lemma lem_bigTh2R0toBigTh2(f:nat->nat, g:nat->nat)  
+  //   requires CR0.bigTh2(liftToR0(f), liftToR0(g))
+  //   ensures  bigTh2(f, g)
 
   lemma lem_bigThtoBigThR0(f:nat->nat, g:nat->nat)  
     requires f in Th(g) 
     ensures  liftToR0(f) in CR0.Th(liftToR0(g)) 
   {
-    var c1:nat, c2:nat, n0:nat :| bigThFrom(c1, c2, n0, f, g);  
+    var c1:nat, c2:nat, n0:nat :| c1 > 0 && c2 > 0 && bigThFrom(c1, c2, n0, f, g);  
     assert forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
 
     assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
@@ -129,28 +113,9 @@ module LemComplexity {
     assert CR0.bigThFrom(c1', c2', n0, liftToR0(f), liftToR0(g));
   } 
   
-  lemma lem_bigThR0toBigTh(f:nat->nat, g:nat->nat)  
-    requires liftToR0(f) in CR0.Th(liftToR0(g))
-    ensures  f in Th(g) 
-  {
-    var c1:R0, c2:R0, n0:nat :| CR0.bigThFrom(c1, c2, n0, liftToR0(f), liftToR0(g));
-    assert forall n:nat :: 0 <= n0 <= n ==> c1*liftToR0(g)(n) <= liftToR0(f)(n) <= c2*liftToR0(g)(n);
-    
-    assert forall n:nat :: liftToR0(f)(n) == f(n) as R0;
-    assert forall n:nat :: liftToR0(g)(n) == g(n) as R0;
-
-    var c1':nat := floor(c1);  // c1 may be non-integer, so we bound below with it's floor
-    assert c1' as R0 <= c1;
-    var c2':nat := ceil(c2);   // c2 may be non-integer, so we bound above with it's ceil
-    assert c2 <= c2' as R0;
-    assert forall n:nat :: (c1' as R0)*liftToR0(g)(n) <= c1*liftToR0(g)(n);
-    assert forall n:nat :: c2*liftToR0(g)(n) <= (c2' as R0)*liftToR0(g)(n);
- 
-    assert forall n:nat :: 0 <= n0 <= n ==> c1'*g(n) <= f(n) <= c2'*g(n)
-      by { assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c2'*g(n); 
-           assert forall n:nat :: 0 <= n0 <= n ==> c1'*g(n) <= f(n); 
-      }
-    assert bigThFrom(c1', c2', n0, f, g);    
-  }
+  // This cant be proved anymore with the new Θ definition
+  // lemma lem_bigThR0toBigTh(f:nat->nat, g:nat->nat)  
+  //   requires liftToR0(f) in CR0.Th(liftToR0(g))
+  //   ensures  f in Th(g) 
 
 }

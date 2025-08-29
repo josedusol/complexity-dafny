@@ -38,32 +38,8 @@ ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   }
   assert t == f1(|s|);
   assert f1 in Th(zeroGrowth()) by { lem_bigTh_zeroGrowth(f1); }
-  lem_bigTh_tIsBigTh2(|s|, t, zeroGrowth()); 
+  lem_bigTh_tIsBigTh2(|s|, t, zeroGrowth());
 } 
-
-lemma lem_f1BigOzero() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f1, zeroGrowth())
-{
-  c, n0 := 1, 0;
-  forall n:nat | 0 <= n0 <= n
-    ensures f1(n) <= c*zeroGrowth()(n)
-  {
-    assert f1(n) == 0;
-    assert f1(n) <= c*zeroGrowth()(n); 
-  }
-}
-
-lemma lem_f1BigOmzero() returns (c:nat, n0:nat)
-  ensures bigOmFrom(c, n0, f1, zeroGrowth())
-{
-  c, n0 := 0, 0;
-  forall n:nat | 0 <= n0 <= n
-    ensures c*zeroGrowth()(n) <= f1(n)
-  {
-    assert f1(n) == 0;
-    assert c*zeroGrowth()(n) <= f1(n); 
-  }
-}
 
 //**************************************************************************//
 
@@ -94,30 +70,6 @@ ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f2(|s|);
-  assert f2 in O(constGrowth())  by { var c, n0 := lem_f2BigOconst(); }
-  assert f2 in Om(constGrowth()) by { var c, n0 := lem_f2BigOmconst(); }
-} 
-
-lemma lem_f2BigOconst() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f2, constGrowth())
-{
-  c, n0 := 1, 0;
-  forall n:nat | 0 <= n0 <= n
-    ensures f2(n) <= c*constGrowth()(n)
-  {
-    assert f2(n) == 1;
-    assert f2(n) <= c*constGrowth()(n); 
-  }
-}
-
-lemma lem_f2BigOmconst() returns (c:nat, n0:nat)
-  ensures bigOmFrom(c, n0, f2, constGrowth())
-{
-  c, n0 := 1, 0;
-  forall n:nat | 0 <= n0 <= n
-    ensures c*constGrowth()(n) <= f2(n) 
-  {
-    assert f2(n) == 1;
-    assert c*constGrowth()(n) <= f2(n); 
-  }
+  assert f2 in Th(constGrowth()) by { lem_bigTh_constGrowth(f2, 1); }
+  lem_bigTh_tIsBigTh2(|s|, t, constGrowth());
 }

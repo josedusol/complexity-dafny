@@ -12,7 +12,7 @@ include "./ComplexityR0.dfy"
   Lemmas about complexity of lifted functions
 ******************************************************************************/
 
-module LemComplexityR0 { 
+module LemComplexityR0 {
   import EN = ExpNat
   import opened ExpReal
   import opened FloorCeil   
@@ -32,7 +32,6 @@ module LemComplexityR0 {
   lemma lem_bigO_refl(f:nat->R0)  
     ensures f in O(f) 
   {  
-    // we show that c=1 and n0=0
     var c:R0, n0:nat := 1.0, 0;
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*f(n);
     assert bigOfrom(c, n0, f, f);
@@ -45,12 +44,11 @@ module LemComplexityR0 {
     requires g in O(h)  
     ensures  f in O(h)  
   {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f, g);  
+    var c1:R0, n1:nat :| c1 > 0.0 && bigOfrom(c1, n1, f, g);  
     assert forall n:nat :: 0 <= n1 <= n ==> f(n) <= c1*g(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, g, h);  
+    var c2:R0, n2:nat :| c2 > 0.0 && bigOfrom(c2, n2, g, h);  
     assert forall n:nat :: 0 <= n2 <= n ==> g(n) <= c2*h(n);   
     
-    // we show that c=c1*c2 and n0=n1+n2
     var c:R0, n0:nat := c1*c2, n1+n2;
     forall n:nat | 0 <= n0 <= n
       ensures f(n) <= c*h(n)
@@ -72,7 +70,7 @@ module LemComplexityR0 {
     requires a > 0.0 
     ensures  (n => a*f(n)) in O(g) 
   {  
-    var c:R0, n0:nat :| bigOfrom(c, n0, f, g);  
+    var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, f, g);  
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
     
     // we show that c'=a*c and n0'=n0
@@ -86,9 +84,9 @@ module LemComplexityR0 {
     requires f2 in O(g2) 
     ensures  (n => f1(n)+f2(n)) in O(n => g1(n)+g2(n)) 
   {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f1, g1);  
+    var c1:R0, n1:nat :| c1 > 0.0 && bigOfrom(c1, n1, f1, g1);  
     assert H1: forall n:nat :: 0 <= n1 <= n ==> f1(n) <= c1*g1(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, f2, g2);  
+    var c2:R0, n2:nat :| c2 > 0.0 && bigOfrom(c2, n2, f2, g2);  
     assert H2: forall n:nat :: 0 <= n2 <= n ==> f2(n) <= c2*g2(n);   
     
     // we show that c=c1+c2 and n0=n1+n2 (not tight but works)
@@ -115,9 +113,9 @@ module LemComplexityR0 {
     requires f2 in O(g2) 
     ensures  (n => f1(n)*f2(n)) in O(n => g1(n)*g2(n))  
   {  
-    var c1:R0, n1:nat :| bigOfrom(c1, n1, f1, g1);  
+    var c1:R0, n1:nat :| c1 > 0.0 && bigOfrom(c1, n1, f1, g1);  
     assert H1: forall n:nat :: 0 <= n1 <= n ==> f1(n) <= c1*g1(n);
-    var c2:R0, n2:nat :| bigOfrom(c2, n2, f2, g2);  
+    var c2:R0, n2:nat :| c2 > 0.0 && bigOfrom(c2, n2, f2, g2);  
     assert H2: forall n:nat :: 0 <= n2 <= n ==> f2(n) <= c2*g2(n);   
     
     // we show that c=c1*c2 and n0=n1+n2 (not tight but works)
@@ -141,7 +139,7 @@ module LemComplexityR0 {
     requires f in O(g) 
     ensures  (n => f(n)+g(n)) in Th(g)    
   {
-    var c:R0, n0:nat :| bigOfrom(c, n0, f, g);  
+    var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, f, g);  
     assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
 
     // prove f+g ∈ O(g)
@@ -186,19 +184,19 @@ module LemComplexityR0 {
     lem_bigO_trans(f, n => g(n)+h(n), h);
   }
 
-  // Any constant function have constant growth
+  // Any constant function is O(1)
   lemma lem_bigO_constGrowth(f:nat->R0, a:R0)  
     requires forall n:nat :: f(n) == a
     ensures  f in O(constGrowth())
   {  
-    var c:R0, n0:nat := a, 0;
+    var c:R0, n0:nat := a+1.0, 0;
     forall n:nat | 0 <= n0 <= n
       ensures f(n) <= c*constGrowth()(n)
     {
       calc {
            f(n); 
         == a;
-        <= a*1.0;      
+        <= (a+1.0)*1.0;      
         == c*constGrowth()(n);         
       }
     }
@@ -288,7 +286,6 @@ module LemComplexityR0 {
   lemma lem_bigOm_refl(f:nat->R0)  
     ensures f in Om(f) 
   {  
-    // we show that c=1 and n0=0
     var c:R0, n0:nat := 1.0, 0;
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) >= c*f(n);
     assert bigOmFrom(c, n0, f, f);
@@ -314,7 +311,7 @@ module LemComplexityR0 {
     requires f in Th(g) 
     ensures  g in Th(f)
 
-  // Zero function has zero growth
+  // Zero function is Θ(0)
   lemma lem_bigTh_zeroGrowth(f:nat->R0)  
     requires forall n:nat :: f(n) == 0.0
     ensures  f in Th(zeroGrowth())
@@ -329,12 +326,35 @@ module LemComplexityR0 {
         == 0.0;  
         <= f(n); 
         == 0.0;
-        <= c1*0.0;      
+        <= c2*0.0;      
         == c2*zeroGrowth()(n);         
       }
     }
-    assert bigThFrom(c1, c2, n0, f, zeroGrowth());
+    assert c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, zeroGrowth());
   }
+
+  // Any non-zero constant function is Θ(1)
+  lemma lem_bigTh_constGrowth(f:nat->R0, a:R0)  
+    requires a > 0.0
+    requires forall n:nat :: f(n) == a
+    ensures  f in Th(constGrowth())
+  {
+    var c1:R0, c2:R0, n0:nat := a/2.0, a, 0;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*constGrowth()(n) <= f(n) <= c2*constGrowth()(n)
+    {
+      calc {
+           c1*constGrowth()(n);
+        == c1*1.0; 
+        == a/2.0; 
+        <= f(n); 
+        == a;
+        <= c2*1.0;      
+        == c2*constGrowth()(n);         
+      }
+    }
+    assert c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, constGrowth());
+  }  
 
   /******************************************************************************
     bigTh and bigTh2 are equivalent definitions of Big Θ 
@@ -359,7 +379,7 @@ module LemComplexityR0 {
     requires bigTh(f, g) 
     ensures  bigTh2(f, g)
   {
-    var c1:R0, c2:R0, n0:nat :| bigThFrom(c1, c2, n0, f, g); 
+    var c1:R0, c2:R0, n0:nat :| c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, g); 
     assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
 
     assert A: f in O(g) by {
@@ -386,10 +406,10 @@ module LemComplexityR0 {
     requires bigTh2(f, g) 
     ensures  bigTh(f, g)
   {
-    var c1:R0, n0_1:nat :| bigOmFrom(c1, n0_1, f, g) ; 
+    var c1:R0, n0_1:nat :| c1 > 0.0 && bigOmFrom(c1, n0_1, f, g) ; 
     assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
 
-    var c2:R0, n0_2:nat :| bigOfrom(c2, n0_2, f, g) ; 
+    var c2:R0, n0_2:nat :| c2 > 0.0 && bigOfrom(c2, n0_2, f, g) ; 
     assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
 
     var n0 := n0_1 + n0_2;

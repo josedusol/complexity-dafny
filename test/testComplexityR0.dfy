@@ -24,8 +24,8 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
   requires bigO(f, n => exp(n as R0, k))
   ensures  bigO(T, polyGrowth(k))
 {
-  var d:R0, n0:nat :| bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
-  assert forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
+  var d:R0, n0:nat :| d > 0.0 && bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
+  assert H1: forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
   
   var c1, n1 := c+d, max(b+1, n0);
   forall n:nat | 0 <= n1 <= n
@@ -34,7 +34,8 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
     calc {
          T(n);
       == c + f(n);
-      <= c + d*exp(n as R0, k);
+      <= { reveal H1; }
+         c + d*exp(n as R0, k);
       <= { assert n > 0; lem_expGEQone(n as R0, k); }
          c*exp(n as R0, k) + d*exp(n as R0, k);
       == (c + d)*exp(n as R0, k);     
@@ -50,8 +51,8 @@ lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
   requires bigO(f, n => exp(n as R0, k))
   ensures  bigO(T, polyGrowth(k))
 {  
-  var d:R0, n0:nat :| bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
-  assert forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
+  var d:R0, n0:nat :| d > 0.0 && bigOfrom(d, n0, f, n => exp(n as R0, k)); // H
+  assert H1: forall n:nat :: n > n0 ==> f(n) <= d*exp(n as R0, k);
   
   var c1, n1 := c+d, n0+1;
   forall n:nat | 0 <= n1 <= n
@@ -60,7 +61,9 @@ lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
     calc {
          T(n);
       == if n <= b then c else c + f(n);
-      <= c + d*exp(n as R0, k);
+      <= c + f(n);
+      <= { reveal H1; }   
+         c + d*exp(n as R0, k);
       <= { assert n > 0; lem_expGEQone(n as R0, k); }
          c*exp(n as R0, k) + d*exp(n as R0, k);
       == (c + d)*exp(n as R0, k);     
@@ -93,7 +96,7 @@ lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
     lem_bigO_trans(cf, constGrowth(), polyGrowth(k));
   }
   assert bigO(f, polyGrowth(k)) by {
-    var d:R0, n0f:nat :| bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
+    var d:R0, n0f:nat :| d > 0.0 && bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
     assert bigOfrom(d, n0f, n => f(n), polyGrowth(k));
   }    
 
@@ -104,6 +107,7 @@ lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   assert bigO(n => polyGrowth(k)(n) + polyGrowth(k)(n), polyGrowth(k)) by {
     lem_bigO_refl(polyGrowth(k));  
     lem_bigO_sumSimp(polyGrowth(k), polyGrowth(k));  
+    lem_bigTh_defEQdef2(n => polyGrowth(k)(n) + polyGrowth(k)(n), polyGrowth(k));
   }
 
   lem_bigO_trans(T, n => cf(n) + f(n), n => polyGrowth(k)(n) + polyGrowth(k)(n));
@@ -129,7 +133,7 @@ lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
     lem_bigO_constGrowth(cf, c);
   }
   assert bigO(f, polyGrowth(k)) by {
-    var d:R0, n0f:nat :| bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
+    var d:R0, n0f:nat :| d > 0.0 && bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
     assert bigOfrom(d, n0f, n => f(n), polyGrowth(k));
   }    
 
@@ -140,6 +144,7 @@ lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
   assert bigO(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k)) by {
     lem_bigO_constBigOpoly(k);
     lem_bigO_sumSimp(constGrowth(), polyGrowth(k));
+    lem_bigTh_defEQdef2(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));
   }
 
   lem_bigO_trans(T, n => cf(n) + f(n), n => constGrowth()(n) + polyGrowth(k)(n));
@@ -164,7 +169,7 @@ lemma test_sumBigOmax5(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
     lem_bigO_constGrowth(cf, c);
   }
   assert bigO(f, polyGrowth(k)) by {
-    var d:R0, n0f:nat :| bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
+    var d:R0, n0f:nat :| d > 0.0 && bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
     assert bigOfrom(d, n0f, n => f(n), polyGrowth(k));
   }    
 
@@ -175,6 +180,7 @@ lemma test_sumBigOmax5(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
         bigO(T, n => constGrowth()(n) + polyGrowth(k)(n));
     ==> { lem_bigO_constBigOpoly(k); 
           lem_bigO_sumSimp(constGrowth(), polyGrowth(k)); 
+          lem_bigTh_defEQdef2(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));
           lem_bigO_trans(T, n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));}
         bigO(T, polyGrowth(k));    
   }
@@ -198,7 +204,7 @@ lemma test_sumBigOmax6(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
     lem_bigO_constGrowth(cf, c);
   }
   assert f in O(polyGrowth(k)) by {
-    var d:R0, n0f:nat :| bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
+    var d:R0, n0f:nat :| d > 0.0 && bigOfrom(d, n0f, f, n => exp(n as R0, k)); // H
     assert bigOfrom(d, n0f, n => f(n), polyGrowth(k));
   }    
 

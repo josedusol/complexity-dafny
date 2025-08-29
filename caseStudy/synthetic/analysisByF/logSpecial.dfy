@@ -77,7 +77,7 @@ lemma lem_TclosedBound(N:nat)
 }
 
 lemma lem_fBigOlog() returns (c:nat, n0:nat)
-  ensures bigOLogfrom(c, n0, f)
+  ensures c > 0 && bigOLogfrom(c, n0, f)
 {
   c, n0 := 2, 2;
   forall n:nat | 1 <= n0 <= n

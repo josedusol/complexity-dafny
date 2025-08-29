@@ -125,17 +125,17 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat, M:nat)
 
   assert w in O(n => exp(n as R0, k)) by {
     lem_T2BigOlin(N, N);
-    var c:R0, n0:nat :| bigOfrom(c, n0, liftToR0(n => T2(N,N,n)), n => exp(n as R0, 1.0));
-    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c*exp(n as R0, 1.0);
+    var c1:R0, n0:nat :| c1 > 0.0 && bigOfrom(c1, n0, liftToR0(n => T2(N,N,n)), n => exp(n as R0, 1.0));
+    assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,N,n))(n) <= c1*exp(n as R0, 1.0);
  
     forall n:nat | 0 <= n0 <= n
-      ensures w(n) <= c*exp(n as R0, k)
+      ensures w(n) <= c1*exp(n as R0, k)
     {
        if n <= N {
          assert T2(N,N,n) <= T2(N,N,N);
-         assert liftToR0(n => T2(N,N,n))(n) <= c*exp(n as R0, 1.0);
-         assert liftToR0(n => T2(N,N,N))(n) <= c*exp(n as R0, 1.0);
-         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c*exp(n as R0, k);
+         assert liftToR0(n => T2(N,N,n))(n) <= c1*exp(n as R0, 1.0);
+         assert liftToR0(n => T2(N,N,N))(n) <= c1*exp(n as R0, 1.0);
+         assert liftToR0((n:nat) => if n<=N then T2(n,N,N) else 0)(n) <= c1*exp(n as R0, k);
        }
     }
   }

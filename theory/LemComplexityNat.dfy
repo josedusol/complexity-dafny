@@ -129,15 +129,46 @@ module LemComplexityNat {
     requires f in O(g) 
     ensures  (n => f(n)+g(n)) in Th(g) 
   {
-    var f':nat->R0 := liftToR0(f);
-    var g':nat->R0 := liftToR0(g);
-    assert CR0.bigO(f', g') 
-      by { lem_bigOtoBigOR0(f, g); } 
-    assert CR0.bigTh(n => f'(n)+g'(n), g')  
-      by { LCR0.lem_bigO_sumSimp(f', g'); }   
-    lem_funExt(liftToR0(n => f(n)+g(n)), n => f'(n)+g'(n));  
-    lem_funExt(liftToR0(g), g');  
-    lem_bigThR0toBigTh(n => f(n)+g(n), g);           
+    // var f':nat->R0 := liftToR0(f);
+    // var g':nat->R0 := liftToR0(g);
+    // assert CR0.bigO(f', g') 
+    //   by { lem_bigOtoBigOR0(f, g); } 
+    // assert CR0.bigTh(n => f'(n)+g'(n), g')  
+    //   by { LCR0.lem_bigO_sumSimp(f', g'); }   
+    // lem_funExt(liftToR0(n => f(n)+g(n)), n => f'(n)+g'(n));  
+    // lem_funExt(liftToR0(g), g');  
+    // lem_bigThR0toBigTh(n => f(n)+g(n), g);        
+    var c:nat, n0:nat :| c > 0 && bigOfrom(c, n0, f, g);  
+    assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
+
+    // prove f+g ∈ O(g)
+    var c1:nat, n1:nat := c+1, n0;
+    forall n:nat | 0 <= n1 <= n
+      ensures f(n) + g(n) <= c1*g(n)
+    {
+      calc {
+           f(n) + g(n); 
+        <= { reveal H1; }
+           c*g(n) + g(n); 
+        == (c + 1)*g(n);
+        == c1*g(n);         
+      }
+    }  
+    assert bigOfrom(c1, n1, n => f(n)+g(n), g);
+
+    // prove f+g ∈ Ω(g)
+    var c2:nat, n2:nat := 1, 0;
+    forall n:nat | 0 <= n2 <= n
+      ensures c2*g(n) <= f(n) + g(n)
+    {
+      calc {
+           c2*g(n); 
+        <= f(n) + g(n);        
+      }
+    }  
+    assert bigOmFrom(c2, n2, n => f(n)+g(n), g);
+
+    lem_bigTh_def2IMPdef(n => f(n)+g(n), g);    
   }
 
   // If f ∈ O(g+h) and g ∈ O(h) then f ∈ O(h)
@@ -152,8 +183,8 @@ module LemComplexityNat {
     lem_bigO_trans(f, n => g(n)+h(n), h);
   }
 
-  // Any constant function have constant growth
-  lemma lem_bigO_constGrowth(f:nat->nat, a:nat)  
+  // Any constant function is O(1)
+  lemma lem_bigO_constGrowth(f:nat->nat, a:nat)
     requires forall n:nat :: f(n) == a
     ensures  f in O(constGrowth())
   {  
@@ -163,7 +194,7 @@ module LemComplexityNat {
       by { LCR0.lem_bigO_constGrowth(fr, a as R0); }  
     lem_funExt(liftToR0(constGrowth()), CR0.constGrowth());
     lem_bigOR0toBigO(f, constGrowth());  
-  }
+  }  
 
   /******************************************************************************
     Big O basic properties lifted to sets
@@ -248,7 +279,6 @@ module LemComplexityNat {
   lemma lem_bigOm_refl(f:nat->nat)  
     ensures f in Om(f) 
   {  
-    // we show that c=1 and n0=0
     var c:nat, n0:nat := 1, 0;
     assert forall n:nat :: 0 <= n0 <= n ==> f(n) >= c*f(n);
     assert bigOmFrom(c, n0, f, f);
@@ -274,18 +304,50 @@ module LemComplexityNat {
     requires f in Th(g) 
     ensures  g in Th(f)
 
-  // Zero function has zero growth
+  // Zero function is Θ(0)
   lemma lem_bigTh_zeroGrowth(f:nat->nat)  
     requires forall n:nat :: f(n) == 0
     ensures  f in Th(zeroGrowth())
   {  
-    var fr:nat->R0 := liftToR0(f);
-    var cr:nat->R0 := liftToR0(zeroGrowth());
-    assert CR0.bigTh(fr, CR0.zeroGrowth()) 
-      by { LCR0.lem_bigTh_zeroGrowth(fr); }  
-    lem_funExt(liftToR0(zeroGrowth()), CR0.zeroGrowth());
-    lem_bigThR0toBigTh(f, zeroGrowth());  
+    var c1:nat, c2:nat, n0:nat := 1, 1, 0;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*zeroGrowth()(n) <= f(n) <= c2*zeroGrowth()(n)
+    {
+      calc {
+           c1*zeroGrowth()(n);
+        == c1*0;  
+        == 0;  
+        <= f(n); 
+        == 0;
+        <= c2*0;      
+        == c2*zeroGrowth()(n);         
+      }
+    }
+    assert bigThFrom(c1, c2, n0, f, zeroGrowth());    
   }    
+
+  // Any non-zero constant function is Θ(1)
+  lemma lem_bigTh_constGrowth(f:nat->nat, a:nat)  
+    requires a > 0
+    requires forall n:nat :: f(n) == a
+    ensures  f in Th(constGrowth())
+  {  
+    var c1:nat, c2:nat, n0:nat := a/2+1, a, 0;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*constGrowth()(n) <= f(n) <= c2*constGrowth()(n)
+    {
+      calc {
+           c1*constGrowth()(n);
+        == c1*1; 
+        == a/2+1; 
+        <= f(n); 
+        == a;
+        <= c2*1;      
+        == c2*constGrowth()(n);         
+      }
+    }
+    assert c1 > 0 && c2 > 0 && bigThFrom(c1, c2, n0, f, constGrowth());
+  }  
 
   /******************************************************************************
     bigTh and bigTh2 are equivalent definitions of Big Θ
@@ -294,32 +356,63 @@ module LemComplexityNat {
   lemma lem_bigTh_defEQdef2(f:nat->nat, g:nat->nat)  
     ensures bigTh(f, g) <==> bigTh2(f, g)
   {
-    var f':nat->R0 := liftToR0(f);
-    var g':nat->R0 := liftToR0(g);
-    
     assert bigTh(f, g) ==> bigTh2(f, g) by {
       if bigTh(f, g) {
-        assert CR0.bigTh(f', g')
-          by { lem_bigThtoBigThR0(f, g); }
-        assert CR0.bigTh(f', g') ==> CR0.bigTh2(f', g')
-          by { LCR0.lem_bigTh_defIMPdef2(f', g'); }
-        assert CR0.bigTh2(f', g');
-        assert bigTh2(f, g)
-          by { lem_bigTh2R0toBigTh2(f, g); }  
-      }
+        lem_bigTh_defIMPdef2(f, g);
+      }      
     }
-
     assert bigTh2(f, g) ==> bigTh(f, g) by {
       if bigTh2(f, g) {
-        assert CR0.bigTh2(f', g')
-          by { lem_bigTh2toBigTh2R0(f, g); }
-        assert CR0.bigTh2(f', g') ==> CR0.bigTh(f', g')
-          by { LCR0.lem_bigTh_def2IMPdef(f', g'); }
-        assert CR0.bigTh(f', g');
-        assert bigTh(f, g)
-          by { lem_bigThR0toBigTh(f, g); }  
-      }
+        lem_bigTh_def2IMPdef(f, g);
+      }      
     }
+  }
+
+  lemma lem_bigTh_defIMPdef2(f:nat->nat, g:nat->nat)  
+    requires bigTh(f, g) 
+    ensures  bigTh2(f, g)
+  {
+    var c1:nat, c2:nat, n0:nat :| c1 > 0 && c2 > 0 && bigThFrom(c1, c2, n0, f, g); 
+    assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
+
+    assert A: f in O(g) by {
+      forall n:nat | 0 <= n0 <= n
+        ensures f(n) <= c2*g(n)
+      {
+        assert f(n) <= c2*g(n) by { reveal H; }
+      }
+      assert bigOfrom(c2, n0, f, g);
+    }
+    assert B: f in Om(g) by {
+      forall n:nat | 0 <= n0 <= n
+        ensures c1*g(n) <= f(n)
+      {
+        assert c1*g(n) <= f(n) by { reveal H; }
+      }
+      assert bigOmFrom(c1, n0, f, g);
+    }
+    
+    assert f in O(g) && f in Om(g) by { reveal A, B; }
+  }      
+
+  lemma lem_bigTh_def2IMPdef(f:nat->nat, g:nat->nat)  
+    requires bigTh2(f, g) 
+    ensures  bigTh(f, g)
+  {
+    var c1:nat, n0_1:nat :| c1 > 0 && bigOmFrom(c1, n0_1, f, g) ; 
+    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
+
+    var c2:nat, n0_2:nat :| c2 > 0 && bigOfrom(c2, n0_2, f, g) ; 
+    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
+
+    var n0 := n0_1 + n0_2;
+    forall n:nat | 0 <= n0 <= n
+      ensures c1*g(n) <= f(n) <= c2*g(n)
+    {
+      assert c1*g(n) <= f(n) by { reveal H1; }
+      assert f(n) <= c2*g(n) by { reveal H2; }
+    }
+    assert bigThFrom(c1, c2, n0, f, g);
   }
 
   // A stronger way to conclude a program counter t is Θ(g) for input size n
@@ -335,7 +428,7 @@ module LemComplexityNat {
     Common growth rates comparison
   ******************************************************************************/
 
-  // 0 ∈ O(f(n)) 
+  // 0 ∈ O(f(n))
   lemma lem_bigO_zeroBigOany(f:nat->nat)
     ensures zeroGrowth() in O(f) 
   {

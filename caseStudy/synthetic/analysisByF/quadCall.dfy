@@ -103,7 +103,7 @@ lemma lem_T1closed(N:nat, i:nat)
 }
 
 lemma lem_subBigOlin() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f', linGrowth())
+  ensures c > 0 && bigOfrom(c, n0, f', linGrowth())
 {
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n
@@ -120,7 +120,7 @@ lemma lem_subBigOlin() returns (c:nat, n0:nat)
 }
 
 lemma lem_fBigOquad() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f, quadGrowth())
+  ensures c > 0 && bigOfrom(c, n0, f, quadGrowth())
 {
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n

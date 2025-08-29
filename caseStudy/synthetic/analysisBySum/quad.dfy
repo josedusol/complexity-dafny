@@ -49,7 +49,7 @@ method quad(x:Input) returns (ghost t:nat, ghost t':nat)
 } 
 
 lemma lem_fBigOquad() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f, quadGrowth())
+  ensures c > 0 && bigOfrom(c, n0, f, quadGrowth())
 {
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n

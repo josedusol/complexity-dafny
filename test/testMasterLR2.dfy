@@ -292,7 +292,7 @@ lemma test_masterMethodForT5lifted_simplify()
   ensures  liftToR0(T5) in O((n:nat) => (n as R0)*exp(2.0, n as R0))
 {
   var T5':nat->R0 := liftToR0(T5);
-  var c:R0, n0:nat :| bigOfrom(c, n0, T5', (n:nat) => exp(n as R0, 1.0)*exp(2.0, (n/1) as R0));
+  var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, T5', (n:nat) => exp(n as R0, 1.0)*exp(2.0, (n/1) as R0));
   assert forall n:nat :: 0 <= n0 <= n   ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
   assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
   lem_expOneAll();
@@ -364,7 +364,7 @@ lemma lem_simplifyPowrTwo()
 {  
   var T6':nat->R0 := liftToR0(T6);
 
-  var c:R0, n0:nat :| bigOfrom(c, n0, T6', n => exp(n as R0, 2.0)*exp(2.0, (n/2) as R0));
+  var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, T6', n => exp(n as R0, 2.0)*exp(2.0, (n/2) as R0));
   assert forall n:nat :: 0 <= n0 <= n ==> T6'(n) <= c*exp(n as R0, 2.0)*exp(2.0, (n/2) as R0);   
   forall n:nat | 0 <= n0+1 <= n
     ensures T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0)
@@ -409,7 +409,7 @@ lemma test_masterMethodForT7lifted()
   var a:nat       := 1;
   var b:nat       := 1;
   var c:R0        := 0.0;
-  var k:R0        := 1.0; 
+  var k:R0        := 1.0;
   var T7':nat->R0 := liftToR0(T7);
   var w:nat->R0   := liftToR0(n => log2(n+1));
 

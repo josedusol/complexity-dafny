@@ -102,7 +102,7 @@ lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
   var k:R0 := 1.0;
   var w:nat->R0 := liftToR0(n => T2(N)); 
 
-  var c:R0 := T2(N) as R0;
+  var c:R0 := T2(N) as R0 + 1.0;
   var n0:nat := 1; 
   forall n:nat | 0 <= 1 <= n
     ensures w(n) <= c * exp(n as R0, k) as R0
@@ -115,7 +115,7 @@ lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
     assert w(n) <= c * exp(n as R0, k)
       by { assert w(n) == T2(N) as R0; }
   }
-  assert bigOfrom(c, n0, w, n => exp(n as R0, k));  
+  assert c > 0.0 && bigOfrom(c, n0, w, n => exp(n as R0, k));  
 }
 
 lemma lem_T2BigOlin()

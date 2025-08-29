@@ -22,7 +22,7 @@ module LemArrayList {
   }
 
   lemma lem_Get_TgetBigOconst()
-    ensures exists c:R0, n0:nat :: bigOfrom(c, n0, Tget, constGrowth())
+    ensures exists c:R0, n0:nat :: c > 0.0 && bigOfrom(c, n0, Tget, constGrowth())
   {
     var c, n0 := 1.0, 0;
     forall n:nat | 0 <= n0 <= n
@@ -52,7 +52,7 @@ module LemArrayList {
   }  
 
   lemma lem_Insert_Tinsert2BigOlin() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tinsert2, linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, Tinsert2, linGrowth())
   {
     c, n0 := 2.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -78,10 +78,10 @@ module LemArrayList {
   }
 
   lemma lem_Append_TappendBigOconst() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tappend, constGrowth())
+    ensures c > 0.0 &&bigOfrom(c, n0, Tappend, constGrowth())
   {
     lem_bigO_constGrowth(Tappend, 1.0);
-    var c':R0, n0':nat :| bigOfrom(c', n0', Tappend, constGrowth());
+    var c':R0, n0':nat :| c' > 0.0 && bigOfrom(c', n0', Tappend, constGrowth());
     c, n0 := c', n0';
   }
 

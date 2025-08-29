@@ -57,7 +57,7 @@ lemma lem_Tclosed(N:nat, i:nat)
 }
 
 lemma lem_fBigOconst() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f, constGrowth())
+  ensures c > 0 && bigOfrom(c, n0, f, constGrowth())
 {
   c, n0 := 20, 10; 
   forall n:nat | 0 <= n0 <= n

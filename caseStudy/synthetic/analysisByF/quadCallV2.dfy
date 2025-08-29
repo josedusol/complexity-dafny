@@ -54,7 +54,7 @@ method quadCallSub(x:Input) returns (ghost t:nat)
 } 
 
 lemma lem_fmfBigOquad() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, n => f(n)*f(n), quadGrowth())
+  ensures c > 0 && bigOfrom(c, n0, n => f(n)*f(n), quadGrowth())
 {
   c, n0 := 1, 0;
   forall n:nat | 0 <= n0 <= n

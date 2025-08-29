@@ -69,7 +69,7 @@ opaque ghost function T(N:nat): nat
 {
   if N <= 0
   then 0
-  else T(N-1) + 1 
+  else T(N-1) + 1
 }
 
 lemma lem_Tdef(n:nat)

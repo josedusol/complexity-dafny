@@ -22,7 +22,7 @@ module LemDynaArrayList {
   }
 
   lemma lem_Get_TgetBigOconst()
-    ensures exists c:R0, n0:nat :: bigOfrom(c, n0, Tget, constGrowth())
+    ensures exists c:R0, n0:nat :: c > 0.0 && bigOfrom(c, n0, Tget, constGrowth())
   {
     var c, n0 := 1.0, 0;
     forall n:nat | 0 <= n0 <= n
@@ -40,14 +40,13 @@ module LemDynaArrayList {
 
   // Complexity analysis for Grow operation 
 
-
   ghost function Tgrow(m:nat, N:nat, n:nat) : R0
   {
     (m*N + n) as R0
   }
 
   lemma lem_Grow_TgrowBigOlin(m:nat) returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, (N => Tgrow(m,N,N)), linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, (N => Tgrow(m,N,N)), linGrowth())
   {
       c, n0 := (m+1) as R0, 1;
       forall n:nat | 0 <= n0 <= n
@@ -90,7 +89,7 @@ module LemDynaArrayList {
   }    
 
   lemma lem_Insert_TinsertBigOlin() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, TinsertUp, linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, TinsertUp, linGrowth())
   {
     c, n0 := 2.0*4.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -109,7 +108,7 @@ module LemDynaArrayList {
   }
 
   lemma lem_Insert_Tinsert2BigOlin() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tinsert2Up, linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, Tinsert2Up, linGrowth())
   {
     c, n0 := 2.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -140,7 +139,7 @@ module LemDynaArrayList {
   }  
 
   lemma lem_Append_TappendBigOlin() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tappend, linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, Tappend, linGrowth())
   {
     c, n0 := 2.0*3.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -159,10 +158,10 @@ module LemDynaArrayList {
   }
 
   lemma lem_Append_Tappend2BigOconst() returns (c:R0, n0:nat) 
-    ensures bigOfrom(c, n0, Tappend2, constGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, Tappend2, constGrowth())
   {
     lem_bigO_constGrowth(Tappend2, 1.0);
-    var c':R0, n0':nat :| bigOfrom(c', n0', Tappend2, constGrowth());
+    var c':R0, n0':nat :| c' > 0.0 && bigOfrom(c', n0', Tappend2, constGrowth());
     c, n0 := c', n0';
   }  
 

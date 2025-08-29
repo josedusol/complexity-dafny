@@ -1,6 +1,8 @@
 include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/LemComplexityNat.dfy"
 
 import opened ComplexityNat
+import opened LemComplexityNat
 
 type Input {
   function size() : nat
@@ -32,17 +34,5 @@ method breakConstBT(x:Input, P:nat->bool) returns (ghost t:nat)
     t := t+1 ;
   }
   assert t <= f(N);
-  assert f in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
+  assert f in O(constGrowth()) by { lem_bigO_constGrowth(f, 1); }
 } 
-
-lemma lem_fBigOconst() returns (c:nat, n0:nat)
-  ensures bigOfrom(c, n0, f, constGrowth())
-{
-  c, n0 := 1, 0;
-  forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*constGrowth()(n)
-  {
-    assert f(n) == 1;
-    assert f(n) <= c*constGrowth()(n); 
-  }
-}

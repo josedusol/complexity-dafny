@@ -209,7 +209,7 @@ lemma {:isolate_assertions} lem_T1BigOquad(N:nat)
   assert w in O(n => exp(n as R0, k)) by {
     lem_T2BigOlin(N);
     assert liftToR0(n => T2(N,n)) in O(n => exp(n as R0, 1.0));
-    var c2:R0, n0:nat :| bigOfrom(c2, n0, liftToR0(n => T2(N,n)), n => exp(n as R0, 1.0));
+    var c2:R0, n0:nat :| c2 > 0.0 && bigOfrom(c2, n0, liftToR0(n => T2(N,n)), n => exp(n as R0, 1.0));
     assert forall n:nat :: 0 <= n0 <= n ==> liftToR0(n => T2(N,n))(n) <= c2*exp(n as R0, 1.0);
     
   }

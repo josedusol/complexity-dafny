@@ -46,8 +46,7 @@ ghost function Tavg(N:nat) : R0
   (N + 1) as real / 2.0
 }
 
-ghost method expectationLoop<A>(N:nat)
-  returns (tE:real)
+ghost method expectationLoop<A>(N:nat) returns (tE:real)
   requires N > 0
   ensures  tE == Tavg(N)
   ensures  tIsBigTh(N, tE, linGrowth())
@@ -128,7 +127,7 @@ lemma lem_solveSum(N:nat)
 } 
 
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
-  ensures bigOfrom(c, n0, Tavg, linGrowth())
+  ensures c > 0.0 && bigOfrom(c, n0, Tavg, linGrowth())
 {
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
@@ -146,7 +145,7 @@ lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
 }
 
 lemma lem_TavgBigOmlin() returns (c:R0, n0:nat)
-  ensures bigOmFrom(c, n0, Tavg, linGrowth())
+  ensures c > 0.0 && bigOmFrom(c, n0, Tavg, linGrowth())
 {
   c, n0 := 0.5, 1;
   forall n:nat | 0 <= n0 <= n

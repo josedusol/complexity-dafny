@@ -37,7 +37,6 @@ lemma test_polyBigO() returns (c:nat, n0:nat)
 {
   var poly := n => 3*exp(n,2) + 100*exp(n,1) + 10;
 
-  // we show that c=113 y n0=1
   c, n0 := 113, 1;
   forall n:nat | 0 <= n0 <= n
     ensures poly(n) <= c*quadGrowth()(n)
@@ -56,7 +55,6 @@ lemma test_polyBigO() returns (c:nat, n0:nat)
 lemma test_log2BigOn() returns (c:nat, n0:nat)
   ensures ((n:nat) => log2(n+1)) in O(linGrowth())
 {
-  // we show that c=1 y n0=1
   c, n0 := 1, 1;
   forall n:nat | 0 <= n0 <= n
     ensures log2(n+1) <= c*linGrowth()(n)

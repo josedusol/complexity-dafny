@@ -24,7 +24,7 @@ module ComplexityR0 {
   // Def. of O relation 
   ghost predicate bigO(f:nat->R0, g:nat->R0)
   { 
-    exists c:R0, n0:nat :: bigOfrom(c, n0, f, g) 
+    exists c:R0, n0:nat :: c > 0.0 && bigOfrom(c, n0, f, g) 
   }
 
   ghost predicate bigOfrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)
@@ -57,7 +57,7 @@ module ComplexityR0 {
   // Def. of Ω relation 
   ghost predicate bigOm(f:nat->R0, g:nat->R0)
   { 
-    exists c:R0, n0:nat :: bigOmFrom(c, n0, f, g) 
+    exists c:R0, n0:nat :: c > 0.0 && bigOmFrom(c, n0, f, g) 
   }
 
   ghost predicate bigOmFrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)
@@ -85,7 +85,7 @@ module ComplexityR0 {
   // 1st def. of Θ relation
   ghost predicate bigTh(f:nat->R0, g:nat->R0)
   { 
-    exists c1:R0, c2:R0, n0:nat :: bigThFrom(c1, c2, n0, f, g) 
+    exists c1:R0, c2:R0, n0:nat :: c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, g) 
   }
 
   ghost predicate bigThFrom(c1:R0, c2:R0, n0:nat, f:nat->R0, g:nat->R0)
