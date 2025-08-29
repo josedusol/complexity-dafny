@@ -60,10 +60,8 @@ lemma test_masterMethodForT1lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      if 0 <= 1 <= n {
-        assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
-        assert w(n) <= 1.0*polyGrowth(k)(n); 
-      }
+      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
+      assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
   } 
