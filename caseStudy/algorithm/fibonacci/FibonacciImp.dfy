@@ -90,10 +90,10 @@ ghost function T(n:nat): R0
 }
 
 ghost function T2(N:nat, i:nat): R0
-  requires 0 <= i <= N
+  //requires 0 <= i <= N
   decreases N - i
 {
-  if i != N
+  if i < N
   then T2(N, i+1) + 1.0
   else 0.0
 }

@@ -127,7 +127,7 @@ opaque ghost function Tup(n:nat): R0
     case 1 => T(n)
     case _ => 2.0*Tup(n-1) + 2.0
 }
-
+  
 opaque ghost function Tlow(n:nat): R0
   decreases n
 {
