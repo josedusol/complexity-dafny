@@ -17,11 +17,20 @@ module List {
       Query operations
     ******************************************************************************/
 
+    // Returns the capacity of the list
+    function Capacity(): nat
+      reads this, Repr()
+      // Pre:
+      requires Valid()    
+
     // Returns true iff the list is full
     predicate IsFull()
       reads this, Repr()
       // Pre:
-      requires Valid() 
+      requires Valid()  
+    {
+      Size() == Capacity()
+    }       
 
     /******************************************************************************
       Update operations

@@ -57,7 +57,7 @@ module LemDynaArrayList {
           == (m*n + n) as R0;
           == ((m+1)*n) as R0;
           == { lem_expOne(n as R0); }
-            c*exp(n as R0, 1.0);
+             c*exp(n as R0, 1.0);
           == c*linGrowth()(n);   
         }
       }
@@ -66,15 +66,15 @@ module LemDynaArrayList {
 
   // Complexity analysis for Insert operation 
 
-  ghost function Tinsert(N:nat, k:nat) : R0
+  ghost function Tinsert(m:nat, N:nat, k:nat) : R0
     requires N >= k
   {
-    (4*N - k + 1) as R0
+    ((m+2)*N - k + 1) as R0
   }
 
-  ghost function TinsertUp(N:nat) : R0
+  ghost function TinsertUp(m:nat, N:nat) : R0
   {
-    (4*N + 1) as R0
+    ((m+2)*N + 1) as R0
   }  
 
   ghost function Tinsert2(N:nat, k:nat) : R0
@@ -88,23 +88,23 @@ module LemDynaArrayList {
     (N + 1) as R0
   }    
 
-  lemma lem_Insert_TinsertBigOlin() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, TinsertUp, linGrowth())
+  lemma lem_Insert_TinsertBigOlin(m:nat) returns (c:R0, n0:nat) 
+    ensures c > 0.0 && bigOfrom(c, n0, (N => TinsertUp(m,N)), linGrowth())
   {
-    c, n0 := 2.0*4.0, 1;
+    c, n0 := 2.0 * (m+2) as R0, 1;
     forall n:nat | 0 <= n0 <= n
-      ensures TinsertUp(n) <= c*linGrowth()(n)
+      ensures (N => TinsertUp(m,N))(n) <= c*linGrowth()(n)
     {
       calc {
-           TinsertUp(n);
-        == (4*n + 1) as R0;
+           (N => TinsertUp(m,N))(n);
+        == ((m+2)*n + 1) as R0;
         <= c*n as R0;
         == { lem_expOne(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
-    assert bigOfrom(c, n0, TinsertUp, linGrowth());
+    assert bigOfrom(c, n0, (N => TinsertUp(m,N)), linGrowth());
   }
 
   lemma lem_Insert_Tinsert2BigOlin() returns (c:R0, n0:nat) 
@@ -128,9 +128,9 @@ module LemDynaArrayList {
 
   // Complexity analysis for Append operation 
 
-  ghost function Tappend(N:nat) : R0
+  ghost function Tappend(m:nat, N:nat) : R0
   {
-    (3*N + 1) as R0
+    ((m+1)*N + 1) as R0
   }
 
   ghost function Tappend2(N:nat) : R0
@@ -138,23 +138,23 @@ module LemDynaArrayList {
     1.0
   }  
 
-  lemma lem_Append_TappendBigOlin() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, Tappend, linGrowth())
+  lemma lem_Append_TappendBigOlin(m:nat) returns (c:R0, n0:nat) 
+    ensures c > 0.0 && bigOfrom(c, n0, (N => Tappend(m,N)), linGrowth())
   {
-    c, n0 := 2.0*3.0, 1;
+    c, n0 := 2.0 * (m+1) as R0, 1;
     forall n:nat | 0 <= n0 <= n
-      ensures Tappend(n) <= c*linGrowth()(n)
+      ensures (N => Tappend(m,N))(n) <= c*linGrowth()(n)
     {
       calc {
-           Tappend(n);
-        == (3*n + 1) as R0;
+           (N => Tappend(m,N))(n);
+        == ((m+1)*n + 1) as R0;
         <= c*n as R0;
         == { lem_expOne(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
-    assert bigOfrom(c, n0, Tappend, linGrowth());
+    assert bigOfrom(c, n0, (N => Tappend(m,N)), linGrowth());
   }
 
   lemma lem_Append_Tappend2BigOconst() returns (c:R0, n0:nat) 

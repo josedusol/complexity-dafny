@@ -13,19 +13,20 @@ ghost function f(N:nat) : nat
   3*exp(N,1)
 }
 
-method lin3(x:Input) returns (ghost t:nat, ghost t':nat)
+method lin3(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
   ensures tIsBigO(x.size(), t, linGrowth())
 {
   var N := x.size();
+
   var i, j;
-  i, j, t, t' := 0, 0, 0, 0;
+  i, j, t := 0, 0, 0;
   while i != 3
     invariant 0 <= i <= 3
     invariant t == T1(N,0) - T1(N,i)  // = T1(N, N-i)
     decreases 3 - i
   {
-    j := 0; t' := 0; 
+    j := 0; ghost var t' := 0; 
     while j != N
       invariant 0 <= j <= N
       invariant t' == T2(N,0) - T2(N,j)  // = T2(N, N - j)
@@ -43,6 +44,32 @@ method lin3(x:Input) returns (ghost t:nat, ghost t':nat)
   assert t <= f(N); 
   assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
+
+method lin3For(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
+{
+  var N := x.size();
+  t := 0;
+
+  for i := 0 to 3
+    invariant t == T1(N,0) - T1(N,i)   // = T(N, N-i)
+  {
+    ghost var t' := 0;
+    for j := 0 to N
+      invariant t' == T2(N,0) - T2(N,j)   // = T2(N, N - j)
+    {
+      // Op. interesante
+      t' := t'+1;
+    }
+    t := t+t';
+  }
+  
+  assert t == T1(N, 0); 
+  assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
+  assert t <= f(N); 
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+}
 
 ghost function T1(N:nat, i:nat): nat
   requires  0 <= i <= 3

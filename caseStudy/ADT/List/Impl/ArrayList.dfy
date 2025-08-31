@@ -33,6 +33,13 @@ module ArrayList refines List {
       elems := [];
     }   
 
+    // default constructor
+    static method Create<T(0)>() returns (obj:ArrayList)
+      ensures obj.arr.Length == 1
+    {
+      obj := new ArrayList<T>(1);
+    }
+
     /******************************************************************************
       Query operations
     ******************************************************************************/
@@ -45,6 +52,15 @@ module ArrayList refines List {
     {
       nElems
     }
+
+    // Returns the capacity of the list
+    function Capacity(): nat
+      reads this, Repr()
+      // Pre:
+      requires Valid()  
+    {
+      arr.Length
+    }         
 
     // Returns the element at position i in the list
     function Get(i:nat): (ret: (T, ghost R0))    
@@ -80,15 +96,6 @@ module ArrayList refines List {
       && (forall i :: 0 <= i < nElems ==> arr[i] == elems[i])
     }    
 
-    // Returns true iff the array is full
-    predicate IsFull()
-      reads this, Repr()
-      // Pre:
-      requires Valid()
-    {
-      nElems == arr.Length
-    }    
-
     /******************************************************************************
       Update operations
     ******************************************************************************/
@@ -107,8 +114,7 @@ module ArrayList refines List {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
-      ensures  var N := old(Size()); && t == Tinsert(N,k) 
-                                     && t <= Tinsert2(N) 
+      ensures  var N := old(Size()); && t == Tinsert(N,k)
                                      && tIsBigO(N, t as R0, linGrowth())                             
     {
       var N := Size();
@@ -129,20 +135,21 @@ module ArrayList refines List {
         decreases i
       {
         arr[i] := arr[i-1]; // shift right
+        assert arr[i] == old(arr[i-1]);
         i := i - 1;
         t := t + 1.0;
       }
-      assert arr[k+1..N+1] == old(arr[k..N]);  // (k, N] is right shifted 
-      assert old(arr[k..N]) == elems[k+1..];
+      assert i == k;
+      assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N] is right shifted 
 
       // 2. Insert x at position k
-      assert i == k;
       arr[k] := x;
       t := t + 1.0;
-      assert arr[..k] == old(arr[..k]);  // [0, k) is unchanged
 
       // Update number of elements
       nElems := nElems + 1;
+      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
 
       assert t == (N - k + 1) as R0 == Tinsert(N, k) 
                <= (N + 1) as R0     == Tinsert2(N);

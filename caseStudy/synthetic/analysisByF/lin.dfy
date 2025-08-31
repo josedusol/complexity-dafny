@@ -18,6 +18,7 @@ method lin(x:Input) returns (ghost t:nat)
   ensures tIsBigO(x.size(), t, linGrowth())
 {
   var N := x.size();
+
   var i;
   i, t := 0, 0;
   while i != N
@@ -29,6 +30,27 @@ method lin(x:Input) returns (ghost t:nat)
     i := i+1 ;
     t := t+1 ;
   }
+
+  assert t == T(N, 0); 
+  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
+  assert t <= f(N);
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+}
+
+method linFor(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
+{
+  var N := x.size();
+  t := 0;
+  
+  for i := 0 to N
+    invariant t == T(N,0) - T(N,i)   // = T(N, N-i)
+  {
+    // Op. interesante
+    t := t+1 ;
+  }
+
   assert t == T(N, 0); 
   assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
