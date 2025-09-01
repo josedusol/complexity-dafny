@@ -14,19 +14,21 @@ type Input {
   function size() : nat
 }
 
-method quad(x:Input) returns (ghost t:nat, ghost t':nat)
+method quad(x:Input) returns (ghost t:nat)
   ensures t == T1(x.size(), x.size())
   ensures liftToR0(n => T1(n, x.size())) in O(polyGrowth(2.0))
 {
   var N := x.size();
+  t := 0;
+
   var i, j; reveal T1(),T2();
-  i, j, t, t' := 0, 0, 0, 0;
+  i, j := 0, 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == T1(N, N) - T1(N-i, N) // = T1'(i, N) 
     decreases N - i 
   {
-    j := 0; t' := 0; 
+    j := 0; ghost var t' := 0; 
     while j != N
       invariant 0 <= j <= N && i != N
       invariant t' == T2(N) - T2(N-j) // = T2'(j)
@@ -39,9 +41,34 @@ method quad(x:Input) returns (ghost t:nat, ghost t':nat)
     i := i+1;
     t := t+t';
   }
+
   assert t == T1(N, N); 
   lem_T1BigOquad(N);
 } 
+
+method quadFor(x:Input) returns (ghost t:nat)
+  ensures t == T1(x.size(), x.size())
+  ensures liftToR0(n => T1(n, x.size())) in O(polyGrowth(2.0))
+{
+  var N := x.size();
+  t := 0; reveal T1(),T2();
+
+  for i := 0 to N
+    invariant t == T1(N, N) - T1(N-i, N) // = T1'(i, N) 
+  {
+    ghost var t' := 0;
+    for j := 0 to N
+      invariant t' == T2(N) - T2(N-j) // = T2'(j)
+    {
+      // Op. interesante
+      t' := t'+1;
+    }
+    t := t+t';
+  }
+  
+  assert t == T1(N, N); 
+  lem_T1BigOquad(N);
+}
 
 opaque ghost function T1(i:nat, N:nat): nat
   decreases i
@@ -96,6 +123,7 @@ lemma lem_T1BigOquad(N:nat)
   thm_masterMethodLR(a, b, c, s, T1', w, k); 
 }
 
+// TODO: we are cheating here 
 lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
   ensures liftToR0(n => T2(N)) in O(n => exp(n as R0, 1.0))
 {

@@ -13,19 +13,21 @@ ghost function f(N:nat) : nat
   (N*(N+1))/2
 }
 
-method quadTriangle(x:Input) returns (ghost t:nat, ghost t':nat)
+method quadTriangle(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
   ensures tIsBigO(x.size(), t, quadGrowth())
 {
   var N := x.size();
+  t := 0;
+
   var i, j;
-  i, j, t, t' := 0, 0, 0, 0;
+  i, j := 0, 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == T1(N,0) - T1(N,i) // = T1(N, N-i)
     decreases N - i
   {
-    j := i; t' := 0; 
+    j := i; ghost var t' := 0; 
     while j != N
       invariant i <= j <= N && i != N
       invariant t' == T2(N,i) - T2(N,j)  // = T2(N, (N-j)+i)
@@ -39,11 +41,38 @@ method quadTriangle(x:Input) returns (ghost t:nat, ghost t':nat)
     i := i+1;
     t := t+t';
   }
+
   assert t == T1(N, 0); 
   assert t == f(N) by { lem_T1closed(N, 0); }
   assert t <= f(N); 
   assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }  
 } 
+
+method quadTriangleFor(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, quadGrowth())
+{
+  var N := x.size();
+  t := 0;
+
+  for i := 0 to N
+    invariant t == T1(N,0) - T1(N,i) // = T1(N, N-i)
+  {
+    ghost var t' := 0;
+    for j := i to N
+      invariant t' == T2(N,i) - T2(N,j)  // = T2(N, (N-j)+i)
+    {
+      // Op. interesante
+      t' := t'+1;
+    }
+    t := t+t';
+  }
+  
+  assert t == T1(N, 0); 
+  assert t == f(N) by { lem_T1closed(N, 0); }
+  assert t <= f(N); 
+  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); } 
+}
 
 ghost function T1(N:nat, i:int): nat
   requires  0 <= i <= N

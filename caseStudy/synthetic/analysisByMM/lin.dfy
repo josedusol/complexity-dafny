@@ -19,6 +19,7 @@ method lin(x:Input) returns (ghost t:nat)
   ensures liftToR0(T) in O(n => exp(n as R0, 1.0))
 {
   var N := x.size();
+  
   var i; reveal T();
   i, t := 0, 0;
   while i != N
@@ -30,9 +31,28 @@ method lin(x:Input) returns (ghost t:nat)
     i := i+1 ; 
     t := t+1 ;
   }
+
   assert t == T(N); 
   lem_TbigOlin();
 } 
+
+method linFor(x:Input) returns (ghost t:nat)
+  ensures t == T(x.size())
+  ensures liftToR0(T) in O(n => exp(n as R0, 1.0))
+{
+  var N := x.size();
+  t := 0; reveal T();
+  
+  for i := 0 to N
+    invariant t == T(N) - T(N-i)  // = T2(i) 
+  {
+    // Op. interesante
+    t := t+1 ;
+  }
+
+  assert t == T(N); 
+  lem_TbigOlin();
+}
 
 opaque ghost function T(N:nat): nat
   decreases N

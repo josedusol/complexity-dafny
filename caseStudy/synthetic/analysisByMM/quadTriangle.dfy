@@ -39,9 +39,34 @@ method quadTriangle(x:Input) returns (ghost t:nat, ghost t':nat)
     i := i+1;
     t := t+t';
   }
+
   assert t == T1(N); 
   lem_T1BigOquad();
 } 
+
+method quadTriangleFor(x:Input) returns (ghost t:nat)
+  ensures t == T1(x.size())
+  ensures liftToR0(T1) in O(n => exp(n as R0, 2.0))
+{
+  var N := x.size();
+  t := 0; reveal T1(),T2();
+
+  for i := 0 to N
+    invariant t == T1(N) - T1(N-i)
+  {
+    ghost var t' := 0;
+    for j := i to N
+      invariant t' == T2(N-i) - T2(N-j)
+    {
+      // Op. interesante
+      t' := t'+1;
+    }
+    t := t+t';
+  }
+  
+  assert t == T1(N); 
+  lem_T1BigOquad();
+}
 
 opaque ghost function T1(i:nat): nat
   decreases i

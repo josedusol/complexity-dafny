@@ -20,8 +20,10 @@ method lin(x:Input) returns (ghost t:nat)
   ensures tIsBigO(x.size(), t, linGrowth())
 {
   var N := x.size();
-  var i; reveal sum(); 
-  i, t := 0, 0;
+  t := 0; reveal sum(); 
+
+  var i;
+  i := 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == sum(1, i, k => 1)
@@ -32,11 +34,33 @@ method lin(x:Input) returns (ghost t:nat)
     i := i+1 ;
     t := t+1 ;
   }
+
   assert t == sum(1, N, k => 1); 
   assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
   assert t <= f(N);
   assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
+
+method linFor(x:Input) returns (ghost t:nat)
+  ensures t == f(x.size())
+  ensures tIsBigO(x.size(), t, linGrowth())
+{
+  var N := x.size();
+  t := 0; reveal sum(); 
+  
+  for i := 0 to N
+    invariant t == sum(1, i, k => 1)
+  {
+    // Op. interesante
+    lem_sum_dropLastAll(1, i);
+    t := t+1 ;
+  }
+
+  assert t == sum(1, N, k => 1); 
+  assert t == f(N) by { reveal exp(); lem_sum_constAll(1, N); }
+  assert t <= f(N);
+  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+}
 
 lemma lem_fBigOlin() returns (c:nat, n0:nat)
   ensures c > 0 && bigOfrom(c, n0, f, linGrowth())
