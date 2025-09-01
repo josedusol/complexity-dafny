@@ -204,7 +204,7 @@ module DynaArrayList refines DynaList {
         t := t + 1.0;
       }
       assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
-      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N] is right shifted 
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N] is right shifted 
       assert t == if old(IsFull()) then ((m+1)*N + N - k) as R0 else (N - k) as R0;
 
       // 2. Insert x at position k

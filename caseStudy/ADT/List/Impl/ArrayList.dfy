@@ -124,7 +124,7 @@ module ArrayList refines List {
       elems := elems[..k] + [x] + elems[k..];
       
       // Update array:
-      // 1. Shift (k, N] to the right
+      // 1. Shift [k, N) to the right
       for i := N downto k
         modifies arr
         invariant N < arr.Length
@@ -137,7 +137,7 @@ module ArrayList refines List {
         t := t + 1.0;
       }
       assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
-      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N) is right shifted 
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N) is right shifted 
 
       // 2. Insert x at position k
       arr[k] := x;
@@ -151,21 +151,6 @@ module ArrayList refines List {
                <= (N + 1) as R0     == Tinsert2(N);
       assert Tinsert2 in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }      
     }
-
-      // var i := N;
-      // while i > k
-      //   modifies arr
-      //   invariant k <= i <= N < arr.Length
-      //   invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
-      //   invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N] is right shifted        
-      //   invariant t == (N - i) as R0
-      //   decreases i
-      // {
-      //   arr[i] := arr[i-1]; // shift right
-      //   assert arr[i] == old(arr[i-1]);
-      //   i := i - 1;
-      //   t := t + 1.0;
-      // }
 
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)

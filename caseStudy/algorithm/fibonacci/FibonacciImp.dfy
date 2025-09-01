@@ -23,16 +23,14 @@ method Fib(n:nat) returns (r:nat)
   requires n >= 0
   ensures  r == fib(n)
 {
-  var i, f1, f2 := 0, 0, 1;
-  while (i < n)
-    invariant 0 <= i <= n
+  var f1, f2 := 0, 1;
+  for i := 0 to n
     invariant f1 == fib(i)
     invariant f2 == fib(i+1)
   {
     var tmp := f1 + f2;
     f1 := f2;
     f2 := tmp;
-    i := i + 1;
   }
   r := f1;
 }
@@ -62,20 +60,17 @@ method FibT(n:nat) returns (r:nat, ghost t:R0)
   ensures  tIsBigO(n, t, linGrowth())
 {
   t := 0.0; reveal T();
-  var i, f1, f2 := 0, 0, 1;
-  while i < n
-    invariant 0 <= i <= n
+  var f1, f2 := 0, 1;
+  for i := 0 to n
     invariant f1 == fib(i)
     invariant f2 == fib(i+1)
     invariant t == T(i)              // = T(n)- T(i)
     invariant t == T2(n,0) - T2(n,i) // = T2(i)
     invariant t == i as R0
-    decreases n - i
   {
     var tmp := f1 + f2;
     f1 := f2;
     f2 := tmp;
-    i := i + 1;
     t := t + 1.0;
   }
   r := f1;
