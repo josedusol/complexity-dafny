@@ -163,16 +163,16 @@ module DynaArrayList refines DynaList {
       requires Valid()
       requires 0 <= k <= Size()
       // Post:      
-      ensures  Valid() && fresh(Repr() - old(Repr()))
-      ensures  Size() == old(Size()) + 1
-      ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
-      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
-      ensures  Get(k).0 == x                                                     // xs[k] == x
+      ensures Valid() && fresh(Repr() - old(Repr()))
+      ensures Size() == old(Size()) + 1
+      ensures forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
+      ensures forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted 
+      ensures Get(k).0 == x                                                     // xs[k] == x
       ensures m == old(m)
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tinsert(m,N,k)
-                                     && tIsBigO(N, t as R0, linGrowth())
-      ensures  var N := old(Size()); !old(IsFull()) ==> t == Tinsert2(N,k)                            
+      ensures var N := old(Size()); && t <= Tinsert(m,N,k)
+                                    && tIsBigO(N, t as R0, linGrowth())
+      ensures var N := old(Size()); !old(IsFull()) ==> t == Tinsert2(N,k)                            
     {
       var N, m := Size(), m;
       t := 0.0;
@@ -191,22 +191,18 @@ module DynaArrayList refines DynaList {
       elems := elems[..k] + [x] + elems[k..];
 
       // Update array:
-      // 1. Shift (k, N] to the right
-      var i := N;
-      while i > k
+      // 1. Shift [k, N) to the right
+      for i := N downto k
         modifies arr
-        invariant k <= i <= N < arr.Length    
+        invariant N < arr.Length
         invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
-        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N] is right shifted      
+        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N) is right shifted        
         invariant t == if old(IsFull()) then ((m+1)*N + N - i) as R0 else (N - i) as R0
-        decreases i
       {
-        arr[i] := arr[i-1]; // shift right
-        assert arr[i] == old(arr[i-1]);
-        i := i - 1;
+        arr[i+1] := arr[i]; // shift right
+        assert arr[i+1] == old(arr[i]);
         t := t + 1.0;
       }
-      assert i == k;
       assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
       assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N] is right shifted 
       assert t == if old(IsFull()) then ((m+1)*N + N - k) as R0 else (N - k) as R0;
@@ -245,16 +241,16 @@ module DynaArrayList refines DynaList {
       // Pre:
       requires Valid()
       // Post:
-      ensures  Valid()
-      ensures  Size() == old(Size()) + 1
-      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
-      ensures  Get(old(Size())).0 == x   
+      ensures Valid()
+      ensures Size() == old(Size()) + 1
+      ensures forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures Get(old(Size())).0 == x   
       ensures m == old(m)
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tappend(m, N)
-                                     && tIsBigO(N, t as R0, linGrowth())  
-      ensures  var N := old(Size()); !old(IsFull()) ==> && t == Tappend2(N)    
-                                                        && tIsBigO(N, t as R0, constGrowth())                                   
+      ensures var N := old(Size()); && t <= Tappend(m, N)
+                                    && tIsBigO(N, t as R0, linGrowth())  
+      ensures var N := old(Size()); !old(IsFull()) ==> && t == Tappend2(N)    
+                                                       && tIsBigO(N, t as R0, constGrowth())                                   
     {
       var N, m := Size(), m;
       t := Insert(N, x);
@@ -275,13 +271,14 @@ module DynaArrayList refines DynaList {
       requires Valid()
       requires 0 <= k < Size()
       // Post:
-      ensures  Valid() && fresh(Repr() - old(Repr()))
-      ensures  Size() == old(Size()) - 1
-      ensures  forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)
-      ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)   
+      ensures Valid() && fresh(Repr() - old(Repr()))
+      ensures Size() == old(Size()) - 1
+      ensures forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)
+      ensures forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)   
+      ensures m == old(m)
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tdelete(N)
-                                     && tIsBigO(N, t as R0, linGrowth())       
+      ensures var N := old(Size()); && t <= Tdelete(N)
+                                    && tIsBigO(N, t as R0, linGrowth())       
       // TODO: implementation with array shift here
 
   }

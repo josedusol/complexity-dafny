@@ -14,7 +14,9 @@ module LemDynaArrayList {
   import opened ComplexityR0
   import opened LemComplexityR0
 
-  // Complexity analysis for Get operation  
+  /******************************************************************************
+    Complexity analysis for Get operation  
+  ******************************************************************************/
 
   ghost function Tget(N:nat) : R0
   {
@@ -38,7 +40,9 @@ module LemDynaArrayList {
     assert bigOfrom(c, n0, Tget, constGrowth());
   }
 
-  // Complexity analysis for Grow operation 
+  /******************************************************************************
+    Complexity analysis for Grow operation 
+  ******************************************************************************/
 
   ghost function Tgrow(m:nat, N:nat, n:nat) : R0
   {
@@ -64,7 +68,9 @@ module LemDynaArrayList {
       assert bigOfrom(c, n0, (N => Tgrow(m,N,N)), linGrowth());
   }
 
-  // Complexity analysis for Insert operation 
+  /******************************************************************************
+    Complexity analysis for Insert operation 
+  ******************************************************************************/
 
   ghost function Tinsert(m:nat, N:nat, k:nat) : R0
     requires N >= k
@@ -126,7 +132,9 @@ module LemDynaArrayList {
     assert bigOfrom(c, n0, Tinsert2Up, linGrowth());
   }
 
-  // Complexity analysis for Append operation 
+  /******************************************************************************
+    Complexity analysis for Append operation 
+  ******************************************************************************/
 
   ghost function Tappend(m:nat, N:nat) : R0
   {
@@ -165,8 +173,10 @@ module LemDynaArrayList {
     c, n0 := c', n0';
   }  
 
-  // Complexity analysis for Delete operation  
-
+  /******************************************************************************
+    Complexity analysis for Delete operation 
+  ******************************************************************************/
+  
   ghost function Tdelete(N:nat) : R0 
   // TODO
 

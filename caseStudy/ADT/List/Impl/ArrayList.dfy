@@ -111,7 +111,7 @@ module ArrayList refines List {
       ensures  Valid() && fresh(Repr() - old(Repr()))
       ensures  Size() == old(Size()) + 1
       ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
-      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // (k, old(Size())] is right shifted 
+      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
       ensures  var N := old(Size()); && t == Tinsert(N,k)
@@ -124,24 +124,20 @@ module ArrayList refines List {
       elems := elems[..k] + [x] + elems[k..];
       
       // Update array:
-      // 1. Shift (k, n] to the right
-      var i := N;
-      while i > k
+      // 1. Shift (k, N] to the right
+      for i := N downto k
         modifies arr
-        invariant k <= i <= N < arr.Length
+        invariant N < arr.Length
         invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
-        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N] is right shifted        
-        invariant t == (N - i) as R0
-        decreases i
+        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N) is right shifted        
+        invariant t == (N - i) as R0    
       {
-        arr[i] := arr[i-1]; // shift right
-        assert arr[i] == old(arr[i-1]);
-        i := i - 1;
+        arr[i+1] := arr[i]; // shift right
+        assert arr[i+1] == old(arr[i]);
         t := t + 1.0;
       }
-      assert i == k;
       assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
-      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N] is right shifted 
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // (k, N) is right shifted 
 
       // 2. Insert x at position k
       arr[k] := x;
@@ -155,6 +151,21 @@ module ArrayList refines List {
                <= (N + 1) as R0     == Tinsert2(N);
       assert Tinsert2 in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }      
     }
+
+      // var i := N;
+      // while i > k
+      //   modifies arr
+      //   invariant k <= i <= N < arr.Length
+      //   invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
+      //   invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N] is right shifted        
+      //   invariant t == (N - i) as R0
+      //   decreases i
+      // {
+      //   arr[i] := arr[i-1]; // shift right
+      //   assert arr[i] == old(arr[i-1]);
+      //   i := i - 1;
+      //   t := t + 1.0;
+      // }
 
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
