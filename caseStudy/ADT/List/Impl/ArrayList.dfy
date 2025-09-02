@@ -3,6 +3,7 @@ include "../../../../theory/math/TypeR0.dfy"
 include "../../../../theory/ComplexityR0.dfy"
 include "../List.dfy"
 include "./LemArrayList.dfy"
+//include "./CostArrayList.dfy"
 
 /******************************************************************************
   Array implementation of a List
@@ -13,6 +14,10 @@ module ArrayList refines List {
   import opened ExpReal
   import opened ComplexityR0
   import opened LemArrayList
+  
+  // Refine input type for each relevant operation
+  type InsertIn<T> = (array<T>, nat, nat, T)    
+  type AppendIn<T> = (array<T>, nat, T)   
 
   class ArrayList<T(0)> extends List<T> {
 
@@ -151,7 +156,7 @@ module ArrayList refines List {
                <= (N + 1) as R0     == Tinsert2(N);
       assert Tinsert2 in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }      
     }
-
+                                              
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
       modifies this, Repr()    
@@ -189,6 +194,130 @@ module ArrayList refines List {
                                      && tIsBigO(N, t as R0, linGrowth())       
       // TODO: implementation with array shift here
 
+    /******************************************************************************
+      Experiment with cost objects
+    ******************************************************************************/
+
+    // Inserts element x at position k in the list
+    method Insert_CostTest(k:nat, x:T) returns (ghost c:Cost<InsertIn<T>>)
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires 0 <= k <= Size()
+      requires !IsFull()
+      // Post:
+      ensures  Valid() && fresh(Repr() - old(Repr()))
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
+      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted 
+      ensures  Get(k).0 == x                                                     // xs[k] == x
+      // Complexity:
+      ensures  c.Count() == InsertCost<T>.Cost(old(Size()), k)
+    { 
+      c := new InsertCost(arr, nElems, k, x); 
+      var N := Size(); // == nElems
+
+      // Update model
+      elems := elems[..k] + [x] + elems[k..];
+      
+      //assert c.x == old(c.x);
+      // Update array:
+      // 1. Shift [k, N) to the right
+      for i := N downto k
+        modifies arr, c
+        invariant N < arr.Length
+        invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
+        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N) is right shifted        
+        invariant c.Count() == N - i
+      {
+        arr[i+1] := arr[i];              // shift right
+        assert arr[i+1] == old(arr[i]);
+        c.Inc(); //t := t + 1.0;
+      }
+      assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N) is right shifted 
+
+      // 2. Insert x at position k
+      arr[k] := x;
+      c.Inc();  //t := t + 1.0;
+     
+      // Update number of elements
+      nElems := nElems + 1;
+      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+
+      assert c.Count() == N - k + 1 == InsertCost<T>.Cost(c.Size(), k); 
+    }   
+
+    // Inserts element x at position k in the list
+    method Append_CostTest(x:T) returns (ghost c:Cost<AppendIn<T>>)  
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires !IsFull()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures  Get(old(Size())).0 == x  
+      // Complexity:
+      ensures  c.Count() == AppendCost<T>.Cost(old(Size()))    
+    { 
+      var N := Size(); 
+      c := new AppendCost(arr, N, x); 
+      var c':Cost<InsertIn<T>> := Insert_CostTest(N, x);
+      c.t := c'.t;
+      assert c.Count() == InsertCost<T>.Cost(N, N) == 1;      
+    }    
+
   }
+
+  class InsertCost<T> extends Cost<InsertIn<T>> {
+    ghost constructor(arr:array<T>, nElems:nat, k:nat, x_:T) 
+      requires k <= nElems
+      ensures Count() == 0
+      ensures Input() == (arr, nElems, k, x_) 
+    {
+      t, x := 0, (arr, nElems, k, x_);
+    }
+   
+    ghost function Size(): nat
+      reads this
+    { 
+      x.1 
+    }
+
+    ghost static function Cost(N:nat, k:nat) : nat
+      requires N >= k
+    {
+      N - k + 1
+    }
+
+  }
+
+  class AppendCost<T> extends Cost<AppendIn<T>> {
+    ghost constructor(arr:array<T>, nElems:nat, x_:T)
+      ensures Count() == 0
+      ensures Input() == (arr, nElems, x_) 
+    {
+      t, x := 0, (arr, nElems, x_);
+    }
+  
+    ghost function Size(): nat
+      reads this
+    { 
+      x.1 
+    }
+
+    ghost predicate CostWF() 
+      reads this
+    {
+      true
+    }
+
+    ghost static function Cost(N:nat) : nat
+    {
+      1
+    }
+  }  
 
 }

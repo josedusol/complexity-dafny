@@ -1,5 +1,6 @@
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
+include "../Cost.dfy"
 
 /******************************************************************************
   List ADT
@@ -10,6 +11,13 @@ module List {
 
   import opened TypeR0
   import opened Container
+  import opened Cost
+
+  // Abstract input type for each relevant operation
+  type InsertIn<T>
+  type AppendIn<T>
+
+  datatype InsertCost2<T> = MkInsertCost(t: nat, inp: (array<T>, nat, nat, T))
 
   trait List<T> extends Container<T> {
 
@@ -73,6 +81,34 @@ module List {
       ensures  Size() == old(Size()) - 1
       ensures  forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)
       ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)
+
+    /******************************************************************************
+      Experiment with cost objects
+    ******************************************************************************/
+
+    method Insert_CostTest(k:nat, x:T) returns (ghost c:Cost<InsertIn<T>>)  
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires 0 <= k <= Size()
+      requires !IsFull()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < k           ==> Get(j).0 == old(Get(j).0)    // [0, k)           is unchanged  
+      ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted  
+      ensures  Get(k).0 == x                                                     // xs[k] == x
+
+    method Append_CostTest(x:T) returns (ghost c:Cost<AppendIn<T>>)  
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      requires !IsFull()
+      // Post:
+      ensures  Valid()
+      ensures  Size() == old(Size()) + 1
+      ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
+      ensures  Get(old(Size())).0 == x       
 
   }  
 
