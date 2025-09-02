@@ -1,3 +1,6 @@
+include "../../../theory/math/ExpReal.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
 include "../Cost.dfy"
@@ -10,12 +13,15 @@ include "../Cost.dfy"
 module List {
 
   import opened TypeR0
+  import opened ExpReal
+  import opened ComplexityR0
   import opened Container
   import opened Cost
 
   // Abstract input type for each relevant operation
   type InsertIn<T>
   type AppendIn<T>
+  type OkIn<T>
 
   datatype InsertCost2<T> = MkInsertCost(t: nat, inp: (array<T>, nat, nat, T))
 
@@ -108,8 +114,15 @@ module List {
       ensures  Valid()
       ensures  Size() == old(Size()) + 1
       ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
-      ensures  Get(old(Size())).0 == x       
+      ensures  Get(old(Size())).0 == x     
 
+    method OK_CostTest() returns (ghost c:Cost<OkIn<T>>)  
+      modifies this, Repr()    
+      // Pre:
+      requires Valid()
+      // Post:
+      ensures  Valid()     
+      ensures  tIsBigO(c.Size(), c.Count() as R0, linGrowth())     
   }  
 
 }

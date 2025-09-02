@@ -11,13 +11,12 @@ include "./LemArrayList.dfy"
 
 module ArrayList refines List {
 
-  import opened ExpReal
-  import opened ComplexityR0
   import opened LemArrayList
   
   // Refine input type for each relevant operation
   type InsertIn<T> = (array<T>, nat, nat, T)    
   type AppendIn<T> = (array<T>, nat, T)   
+  type OkIn<T> = (array<T>, nat)   
 
   class ArrayList<T(0)> extends List<T> {
 
@@ -141,8 +140,8 @@ module ArrayList refines List {
         assert arr[i+1] == old(arr[i]);
         t := t + 1.0;
       }
-      assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
-      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N) is right shifted 
+      assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N] is right shifted 
 
       // 2. Insert x at position k
       arr[k] := x;
@@ -212,7 +211,7 @@ module ArrayList refines List {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted 
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
-      ensures  c.Count() == InsertCost<T>.Cost(old(Size()), k)
+      ensures  var N := old(Size()); c.Count() == InsertCost<T>.Cost(N, k)
     { 
       c := new InsertCost(arr, nElems, k, x); 
       var N := Size(); // == nElems
@@ -220,7 +219,6 @@ module ArrayList refines List {
       // Update model
       elems := elems[..k] + [x] + elems[k..];
       
-      //assert c.x == old(c.x);
       // Update array:
       // 1. Shift [k, N) to the right
       for i := N downto k
@@ -234,8 +232,8 @@ module ArrayList refines List {
         assert arr[i+1] == old(arr[i]);
         c.Inc(); //t := t + 1.0;
       }
-      assert arr[..k] == old(arr[..k]);                        // [0, k) is unchanged      
-      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N) is right shifted 
+      assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
+      assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N] is right shifted 
 
       // 2. Insert x at position k
       arr[k] := x;
@@ -248,7 +246,6 @@ module ArrayList refines List {
       assert c.Count() == N - k + 1 == InsertCost<T>.Cost(c.Size(), k); 
     }   
 
-    // Inserts element x at position k in the list
     method Append_CostTest(x:T) returns (ghost c:Cost<AppendIn<T>>)  
       modifies this, Repr()    
       // Pre:
@@ -260,14 +257,32 @@ module ArrayList refines List {
       ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
       ensures  Get(old(Size())).0 == x  
       // Complexity:
-      ensures  c.Count() == AppendCost<T>.Cost(old(Size()))    
+      ensures  var N := old(Size()); c.Count() == AppendCost<T>.Cost(N)    
     { 
       var N := Size(); 
       c := new AppendCost(arr, N, x); 
-      var c':Cost<InsertIn<T>> := Insert_CostTest(N, x);
+      var c' := Insert_CostTest(N, x);
       c.t := c'.t;
-      assert c.Count() == InsertCost<T>.Cost(N, N) == 1;      
+      assert c.Count() == InsertCost<T>.Cost(N, N) == 1;     
     }    
+
+    method OK_CostTest() returns (ghost c:Cost<OkIn<T>>)  
+      modifies this, Repr()     
+      // Pre:
+      requires Valid()
+      // Post:
+      ensures  Valid()     
+      ensures  tIsBigO(c.Size(), c.Count() as R0, linGrowth())   
+    {
+      var N := Size(); 
+      c := new OkCost(arr, N);
+      
+      c.t := 2*N;  
+
+      assert c.Count() == 2*N <= 2*arr.Length == OkCost<T>.Cost(arr.Length);
+      assert (n => OkCost<T>.Cost(n) as R0) in O(linGrowth()) 
+        by { var c, n0 := lem_OK_BigOlin<T>(); }      
+    }
 
   }
 
@@ -308,16 +323,49 @@ module ArrayList refines List {
       x.1 
     }
 
-    ghost predicate CostWF() 
-      reads this
-    {
-      true
-    }
-
     ghost static function Cost(N:nat) : nat
     {
       1
     }
-  }  
+  }
+
+  class OkCost<T> extends Cost<OkIn<T>> {
+    ghost constructor(arr:array<T>, nElems:nat)
+      ensures Count() == 0
+      ensures Input() == (arr, nElems) 
+    {
+      t, x := 0, (arr, nElems);
+    }
+  
+    ghost function Size(): nat
+      reads this
+    { 
+      x.0.Length 
+    }
+
+    ghost static function Cost(N:nat) : nat
+    {
+      2*N
+    }
+  }
+
+  lemma lem_OK_BigOlin<T>() returns (c:R0, n0:nat) 
+    ensures c > 0.0 && bigOfrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth())
+  {
+    c, n0 := 2.0, 1;
+    forall n:nat | 0 <= n0 <= n
+      ensures (n => OkCost<T>.Cost(n) as R0)(n) <= c*linGrowth()(n)
+    {
+      calc {
+           (n => OkCost<T>.Cost(n) as R0)(n);
+        == (2*n)  as R0;
+        <= c*n as R0;
+        == { lem_expOne(n as R0); }
+           c*exp(n as R0, 1.0);
+        == c*linGrowth()(n);   
+      }
+    }
+    assert bigOfrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth());
+  }    
 
 }
