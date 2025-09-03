@@ -3,20 +3,27 @@ include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/ComplexityR0.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
+include "./Cost.dfy"
 
 /******************************************************************************
   List ADT
   An indexed collection of elements
 ******************************************************************************/
 
-module List {
+module CostList {
 
   import opened TypeR0
   import opened ExpReal
   import opened ComplexityR0
   import opened Container
+  import opened Cost
 
-  trait List<T> extends Container<T> {
+  // Abstract input type for each relevant operation
+  type InsertIn<T>
+  type AppendIn<T>
+  type OkIn<T>
+
+  trait CostList<T> extends Container<T> {
 
     /******************************************************************************
       Query operations
@@ -40,9 +47,8 @@ module List {
     /******************************************************************************
       Update operations
     ******************************************************************************/
-
-    // Inserts element x at position k in the list
-    method Insert(k:nat, x:T) returns (ghost t:R0)
+                
+    method Insert_CostTest(k:nat, x:T) returns (ghost c:Cost<InsertIn<T>>)  
       modifies this, Repr()    
       // Pre:
       requires Valid()
@@ -55,8 +61,7 @@ module List {
       ensures  forall j :: k < j <= old(Size()) ==> Get(j).0 == old(Get(j-1).0)  // [k, old(Size())) is right shifted  
       ensures  Get(k).0 == x                                                     // xs[k] == x
 
-    // Appends element x in the list
-    method Append(x:T) returns (ghost t:R0)
+    method Append_CostTest(x:T) returns (ghost c:Cost<AppendIn<T>>)  
       modifies this, Repr()    
       // Pre:
       requires Valid()
@@ -65,20 +70,15 @@ module List {
       ensures  Valid()
       ensures  Size() == old(Size()) + 1
       ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
-      ensures  Get(old(Size())).0 == x                                    
+      ensures  Get(old(Size())).0 == x     
 
-    // Deletes element at position k in the list
-    method Delete(k:nat) returns (ghost t:R0)
+    method OK_CostTest() returns (ghost c:Cost<OkIn<T>>)  
       modifies this, Repr()    
       // Pre:
       requires Valid()
-      requires 0 <= k < Size()
       // Post:
-      ensures  Valid()
-      ensures  Size() == old(Size()) - 1
-      ensures  forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)
-      ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)
-
+      ensures  Valid()     
+      ensures  tIsBigO(c.Size(), c.Count() as R0, linGrowth())     
   }  
 
 }

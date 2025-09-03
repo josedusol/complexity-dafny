@@ -4,7 +4,7 @@
 
 module Cost {
 
-  trait {:termination false} Cost<Input> {
+  trait {:ghost} {:termination false} Cost<Input> {
     ghost var t:nat
     ghost const x:Input 
 
