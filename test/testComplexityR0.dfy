@@ -42,7 +42,7 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
       == c1*exp(n as R0, k);    
     }
   }    
-  assert bigOfrom(c1, n1, T, polyGrowth(k));
+  assert c1 > 0.0 && bigOfrom(c1, n1, T, polyGrowth(k));
 }
 
 lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
@@ -70,7 +70,7 @@ lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
       == c1*exp(n as R0, k);    
     }
   }    
-  assert bigOfrom(c1, n1, T, polyGrowth(k));
+  assert c1 > 0.0 && bigOfrom(c1, n1, T, polyGrowth(k));
 }
 
 // A proof based on BigO properties
@@ -106,7 +106,7 @@ lemma test_sumBigOmax3(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
 
   assert bigO(n => polyGrowth(k)(n) + polyGrowth(k)(n), polyGrowth(k)) by {
     lem_bigO_refl(polyGrowth(k));  
-    lem_bigO_sumSimp(polyGrowth(k), polyGrowth(k));  
+    lem_asymp_sumSimp(polyGrowth(k), polyGrowth(k));  
     lem_bigTh_defEQdef2(n => polyGrowth(k)(n) + polyGrowth(k)(n), polyGrowth(k));
   }
 
@@ -143,7 +143,7 @@ lemma test_sumBigOmax4(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
 
   assert bigO(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k)) by {
     lem_bigO_constBigOpoly(k);
-    lem_bigO_sumSimp(constGrowth(), polyGrowth(k));
+    lem_asymp_sumSimp(constGrowth(), polyGrowth(k));
     lem_bigTh_defEQdef2(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));
   }
 
@@ -179,7 +179,7 @@ lemma test_sumBigOmax5(T:nat->R0, f:nat->R0, b:nat, c:R0 , k:R0)
           lem_bigO_trans(T, n => cf(n) + f(n), n => constGrowth()(n) + polyGrowth(k)(n)); }
         bigO(T, n => constGrowth()(n) + polyGrowth(k)(n));
     ==> { lem_bigO_constBigOpoly(k); 
-          lem_bigO_sumSimp(constGrowth(), polyGrowth(k)); 
+          lem_asymp_sumSimp(constGrowth(), polyGrowth(k)); 
           lem_bigTh_defEQdef2(n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));
           lem_bigO_trans(T, n => constGrowth()(n) + polyGrowth(k)(n), polyGrowth(k));}
         bigO(T, polyGrowth(k));    

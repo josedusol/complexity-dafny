@@ -1,4 +1,3 @@
-
 /******************************************************************************
   Maximum and minimum
 ******************************************************************************/
@@ -16,9 +15,15 @@ module MaxMin {
   }
 
   // n >= 0 ==> max(0,n) = n
-  lemma lem_max0n(n:int)
+  lemma lem_max_leftId(n:int)
     requires n >= 0
-    ensures max(0, n) == n
+    ensures max(0, n) == n 
+  {}
+
+  // n >= 0 ==> max(0,n) = n
+  lemma lem_max_rightId(n:int) 
+    requires n >= 0
+    ensures max(n, 0) == n
   {}
 
 }

@@ -3,7 +3,7 @@
   Square root over non-negative integers
 ******************************************************************************/
 
-module SqrtNat {
+module Root2Nat {
   
   // sqrt(n)
   opaque ghost function sqrt(n:nat) : nat

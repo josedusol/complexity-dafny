@@ -26,7 +26,7 @@ module LemComplexityNat {
   import LCR0 = LemComplexityR0
 
   /******************************************************************************
-    Big O basic properties
+    O basic properties
   ******************************************************************************/
   // Each result is proved in the lifted domain nat->R0
   // and then casted back to nat->nat 
@@ -43,7 +43,7 @@ module LemComplexityNat {
   }
 
   // Transitivity
-  // If f ∈ O(g) and g ∈ O(h) then f ∈ O(h)
+  // f ∈ O(g) ∧ g ∈ O(h) ==> f ∈ O(h)
   lemma lem_bigO_trans(f:nat->nat, g:nat->nat, h:nat->nat)  
     requires f in O(g) 
     requires g in O(h) 
@@ -61,7 +61,7 @@ module LemComplexityNat {
     lem_bigOR0toBigO(f, h);
   }
 
-  // If f ∈ O(g) and a>0 then a*f ∈ O(g)
+  // f ∈ O(g) ∧ a > 0 ==> a*f ∈ O(g)
   lemma lem_bigO_constFactor(f:nat->nat, g:nat->nat, a:nat)  
     requires f in O(g) 
     requires a > 0
@@ -75,12 +75,12 @@ module LemComplexityNat {
     assert CR0.bigO(n => a'*f'(n), g')  
       by { LCR0.lem_bigO_constFactor(f', g', a'); }
     lem_bigOR0toBigO(n => a*f(n), g)
-      by { lem_funExt(liftToR0(n => a*f(n)), n => a'*f'(n)) 
+      by { lem_fun_Ext(liftToR0(n => a*f(n)), n => a'*f'(n)) 
              by { assert forall n:nat :: liftToR0(n => a*f(n))(n) == (n => a'*f'(n))(n); } 
          }
   } 
 
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then f1+f2 ∈ O(g1+g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> f1+f2 ∈ O(g1+g2)
   lemma lem_bigO_sum(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -96,12 +96,12 @@ module LemComplexityNat {
       by { lem_bigOtoBigOR0(f2, g2); }
     assert CR0.bigO(n => f1'(n)+f2'(n), n => g1'(n)+g2'(n))  
       by { LCR0.lem_bigO_sum(f1', g1', f2', g2'); }
-    lem_funExt(liftToR0(n => f1(n)+f2(n)), n => f1'(n)+f2'(n));
-    lem_funExt(liftToR0(n => g1(n)+g2(n)), n => g1'(n)+g2'(n));  
+    lem_fun_Ext(liftToR0(n => f1(n)+f2(n)), n => f1'(n)+f2'(n));
+    lem_fun_Ext(liftToR0(n => g1(n)+g2(n)), n => g1'(n)+g2'(n));  
     lem_bigOR0toBigO(n => f1(n)+f2(n), n => g1(n)+g2(n));     
   }
 
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then f1*f2 ∈ O(g1*g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> f1*f2 ∈ O(g1*g2)
   lemma lem_bigO_prod(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -117,67 +117,20 @@ module LemComplexityNat {
       by { lem_bigOtoBigOR0(f2, g2); }
     assert CR0.bigO(n => f1'(n)*f2'(n), n => g1'(n)*g2'(n))  
       by { reveal A, B; LCR0.lem_bigO_prod(f1', g1', f2', g2'); }
-    lem_funExt(liftToR0(n => f1(n)*f2(n)), n => f1'(n)*f2'(n)) 
-      by { lem_etaApp(n => f1'(n)*f2'(n)); } 
-    lem_funExt(liftToR0(n => g1(n)*g2(n)), n => g1'(n)*g2'(n)) 
-      by { lem_etaApp(n => g1'(n)*g2'(n)); }
+    lem_fun_Ext(liftToR0(n => f1(n)*f2(n)), n => f1'(n)*f2'(n)) 
+      by { lem_fun_EtaApp(n => f1'(n)*f2'(n)); } 
+    lem_fun_Ext(liftToR0(n => g1(n)*g2(n)), n => g1'(n)*g2'(n)) 
+      by { lem_fun_EtaApp(n => g1'(n)*g2'(n)); }
     lem_bigOR0toBigO(n => f1(n)*f2(n), n => g1(n)*g2(n));
   }   
 
-  // If f ∈ O(g) then f+g ∈ Θ(g)
-  lemma lem_bigO_sumSimp(f:nat->nat, g:nat->nat)  
-    requires f in O(g) 
-    ensures  (n => f(n)+g(n)) in Th(g) 
-  {
-    // var f':nat->R0 := liftToR0(f);
-    // var g':nat->R0 := liftToR0(g);
-    // assert CR0.bigO(f', g') 
-    //   by { lem_bigOtoBigOR0(f, g); } 
-    // assert CR0.bigTh(n => f'(n)+g'(n), g')  
-    //   by { LCR0.lem_bigO_sumSimp(f', g'); }   
-    // lem_funExt(liftToR0(n => f(n)+g(n)), n => f'(n)+g'(n));  
-    // lem_funExt(liftToR0(g), g');  
-    // lem_bigThR0toBigTh(n => f(n)+g(n), g);        
-    var c:nat, n0:nat :| c > 0 && bigOfrom(c, n0, f, g);  
-    assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
-
-    // prove f+g ∈ O(g)
-    var c1:nat, n1:nat := c+1, n0;
-    forall n:nat | 0 <= n1 <= n
-      ensures f(n) + g(n) <= c1*g(n)
-    {
-      calc {
-           f(n) + g(n); 
-        <= { reveal H1; }
-           c*g(n) + g(n); 
-        == (c + 1)*g(n);
-        == c1*g(n);         
-      }
-    }  
-    assert bigOfrom(c1, n1, n => f(n)+g(n), g);
-
-    // prove f+g ∈ Ω(g)
-    var c2:nat, n2:nat := 1, 0;
-    forall n:nat | 0 <= n2 <= n
-      ensures c2*g(n) <= f(n) + g(n)
-    {
-      calc {
-           c2*g(n); 
-        <= f(n) + g(n);        
-      }
-    }  
-    assert bigOmFrom(c2, n2, n => f(n)+g(n), g);
-
-    lem_bigTh_def2IMPdef(n => f(n)+g(n), g);    
-  }
-
-  // If f ∈ O(g+h) and g ∈ O(h) then f ∈ O(h)
-  lemma lem_bigO_sumSimp2(f:nat->nat, g:nat->nat, h:nat->nat)  
+  // f ∈ O(g+h) ∧ g ∈ O(h) ==> f ∈ O(h)
+  lemma lem_bigO_sumSimp(f:nat->nat, g:nat->nat, h:nat->nat)  
     requires f in O(n => g(n)+h(n)) 
     requires g in O(h) 
     ensures  f in O(h)
   {
-    lem_bigO_sumSimp(g, h);
+    lem_asymp_sumSimp(g, h);
     lem_bigTh_defEQdef2(n => g(n)+h(n), h);
     assert bigO(n => g(n)+h(n), h);
     lem_bigO_trans(f, n => g(n)+h(n), h);
@@ -192,17 +145,17 @@ module LemComplexityNat {
     var cr:nat->R0 := liftToR0(constGrowth());
     assert CR0.bigO(fr, CR0.constGrowth()) 
       by { LCR0.lem_bigO_constGrowth(fr, a as R0); }  
-    lem_funExt(liftToR0(constGrowth()), CR0.constGrowth());
+    lem_fun_Ext(liftToR0(constGrowth()), CR0.constGrowth());
     lem_bigOR0toBigO(f, constGrowth());  
   }  
 
   /******************************************************************************
-    Big O basic properties lifted to sets
+    O basic properties lifted to sets
   ******************************************************************************/
   // Each result follows from it's corresponding non-set lifted property
 
   // This is lem_bigO_sum lifted to sets
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then O(f1+f2) ⊆ O(g1+g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> O(f1+f2) ⊆ O(g1+g2)
   lemma lem_bigOset_sum(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -219,7 +172,7 @@ module LemComplexityNat {
   }  
 
   // This is lem_bigO_prod lifted to sets
-  // If f1 ∈ O(g1) and f2 ∈ O(g2) then O(f1*f2) ⊆ O(g1*g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> O(f1*f2) ⊆ O(g1*g2)
   lemma lem_bigOset_prod(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2)
@@ -236,7 +189,7 @@ module LemComplexityNat {
   }   
 
   // This is lem_bigO_sumSimp lifted to sets
-  // If f ∈ O(g) then O(f+g) = O(g)
+  // f ∈ O(g) ==> O(f+g) = O(g)
   lemma lem_bigOset_sumSimp(f:nat->nat, g:nat->nat)  
     requires f in O(g) 
     ensures  O(n => f(n)+g(n)) == O(g)
@@ -247,7 +200,7 @@ module LemComplexityNat {
     {
       assert h in O(n => f(n)+g(n));  
       assert (n => f(n)+g(n)) in O(g) 
-        by { lem_bigO_sumSimp(f, g);
+        by { lem_asymp_sumSimp(f, g);
              lem_bigTh_defEQdef2(n => f(n)+g(n), g); }
       lem_bigO_trans(h, n => f(n)+g(n), g);  
     }    
@@ -259,19 +212,19 @@ module LemComplexityNat {
       assert h in O(g);  
 
       assert g in Th(n => f(n)+g(n)) 
-        by { lem_bigO_sumSimp(f, g); 
+        by { lem_asymp_sumSimp(f, g); 
              lem_bigTh_defEQdef2(n => f(n)+g(n), g);
              lem_bigTh_sim(n => f(n)+g(n), g); }
       
       assert g in O(n => f(n)+g(n)) 
         by { lem_bigTh_defEQdef2(g, n => f(n)+g(n)); }
 
-      lem_bigO_trans(h, g, n => f(n)+g(n));  
+      lem_bigO_trans(h, g, n => f(n)+g(n));
     }     
   }
 
   /******************************************************************************
-    Big Ω basic properties
+    Ω basic properties
   ******************************************************************************/
 
   // Reflexivity
@@ -285,7 +238,7 @@ module LemComplexityNat {
   } 
 
   /******************************************************************************
-    Big Θ basic properties
+    Θ basic properties
   ******************************************************************************/
 
   // Reflexivity
@@ -299,7 +252,7 @@ module LemComplexityNat {
   }  
 
   // Simmetry
-  // If f ∈ Θ(g) then g ∈ Θ(f)
+  // f ∈ Θ(g) ==> g ∈ Θ(f)
   lemma {:axiom} lem_bigTh_sim(f:nat->nat, g:nat->nat)  
     requires f in Th(g) 
     ensures  g in Th(f)
@@ -425,6 +378,48 @@ module LemComplexityNat {
   }
 
   /******************************************************************************
+    Mixed O/Θ/Ω properties
+  ******************************************************************************/
+
+  // f ∈ O(g) ==> f+g ∈ Θ(g)
+  lemma lem_asymp_sumSimp(f:nat->nat, g:nat->nat)  
+    requires f in O(g) 
+    ensures  (n => f(n)+g(n)) in Th(g) 
+  {     
+    var c:nat, n0:nat :| c > 0 && bigOfrom(c, n0, f, g);  
+    assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
+
+    // prove f+g ∈ O(g)
+    var c1:nat, n1:nat := c+1, n0;
+    forall n:nat | 0 <= n1 <= n
+      ensures f(n) + g(n) <= c1*g(n)
+    {
+      calc {
+           f(n) + g(n); 
+        <= { reveal H1; }
+           c*g(n) + g(n); 
+        == (c + 1)*g(n);
+        == c1*g(n);         
+      }
+    }  
+    assert bigOfrom(c1, n1, n => f(n)+g(n), g);
+
+    // prove f+g ∈ Ω(g)
+    var c2:nat, n2:nat := 1, 0;
+    forall n:nat | 0 <= n2 <= n
+      ensures c2*g(n) <= f(n) + g(n)
+    {
+      calc {
+           c2*g(n); 
+        <= f(n) + g(n);        
+      }
+    }  
+    assert bigOmFrom(c2, n2, n => f(n)+g(n), g);
+
+    lem_bigTh_def2IMPdef(n => f(n)+g(n), g);    
+  }
+
+  /******************************************************************************
     Common growth rates comparison
   ******************************************************************************/
 
@@ -456,9 +451,9 @@ module LemComplexityNat {
       calc {
            constGrowth()(n); 
         == 1;
-        <= { lem_logGEQone(n); }
+        <= { lem_log2_GEQone(n); }
            1*log2Growth()(n);      
-        == c*log2Growth()(n);          
+        == c*log2Growth()(n);        
       }
     }
     assert bigOfrom(c, n0, constGrowth(), log2Growth());      
@@ -510,7 +505,7 @@ module LemComplexityNat {
         <= { lem_log2nLEQnMinus1(n); }
            n-1;
         <= c*n;
-        == { lem_expn1(n); }
+        == { lem_exp_n1(n); }
            c*exp(n, 1);
         == c*linGrowth()(n);
       }
@@ -533,7 +528,7 @@ module LemComplexityNat {
         <= { lem_log2nPlus1LEQn(n); }
            n;
         <= c*n;
-        == { lem_expn1(n); }
+        == { lem_exp_n1(n); }
            c*exp(n, 1);
         == c*linGrowth()(n);
       }
@@ -565,7 +560,7 @@ module LemComplexityNat {
       calc {      
            linGrowth()(n); 
         == exp(n, 1);        
-        <= { lem_expMonoIncr(n, 1, k); }
+        <= { lem_exp_MonoIncr(n, 1, k); }
            exp(n, k);
         <= c*exp(n, k);
         == c*polyGrowth(k)(n);
@@ -645,7 +640,7 @@ module LemComplexityNat {
            exp2Growth()(n); 
         == exp2(n);        
         == exp(2, n);
-        <= { lem_expBaseMonoIncr(n, 2, b); }
+        <= { lem_exp_BaseMonoIncr(n, 2, b); }
            exp(b, n);
         <= c*exp(b, n);
         == c*expGrowth(b)(n);

@@ -13,7 +13,7 @@ module Cost2ArrayList refines Cost2List {
 
   type State<T> = seq<T>
 
-  trait Cost2ArrayList<T(0)> extends Cost2List<T, ArrayOp<T>, State<T>> { 
+  trait Cost2ArrayList<T(0)> extends Cost2List<T, ArrayOp<T>, State<T>> {
 
     ghost var elems:seq<T>  // ghost model for physical array arr
 

@@ -38,8 +38,8 @@ method quadCallV2(x:Input) returns (ghost t:nat)
   assert (n => f(n)*f(n)) in O(quadGrowth()) by {
     lem_bigO_refl(n => f(n)*f(n));
     assert forall n:nat :: f(n)*f(n) == quadGrowth()(n) 
-      by { lem_expn2All(); }
-    lem_funExt(n => f(n)*f(n), quadGrowth());
+      by { lem_exp_n2Auto(); }
+    lem_fun_Ext(n => f(n)*f(n), quadGrowth());
   }
 } 
 

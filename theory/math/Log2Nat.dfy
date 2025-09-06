@@ -5,6 +5,7 @@ include "./ExpNat.dfy"
 ******************************************************************************/
 
 module Log2Nat {
+
   import opened ExpNat
 
   // log2(n) 
@@ -15,7 +16,7 @@ module Log2Nat {
     if n == 1 then 0 else 1 + log2(n/2)
   }
 
-  lemma lem_log2FirstValues()
+  lemma lem_log2_FirstValues()
     ensures log2(1) == 0
     ensures log2(2) == 1
     ensures log2(3) == 1
@@ -26,7 +27,7 @@ module Log2Nat {
   }
 
   // n >= 2 ==> log2(n) >= 1
-  lemma lem_logGEQone(n:nat)
+  lemma lem_log2_GEQone(n:nat)
     requires n >= 2
     ensures  log2(n) >= 1
   {
@@ -34,14 +35,14 @@ module Log2Nat {
   }
 
   // n > 0 /\ m > 0 /\ n <= m ==> log2(n) <= log2(m)
-  lemma lem_log2MonoIncr(n:nat, m:nat)
+  lemma lem_log2_MonoIncr(n:nat, m:nat)
     requires n > 0 && m > 0
     ensures  n <= m ==> log2(n) <= log2(m)
     decreases n, m
   {
     reveal log2();
     if n != 1 && m != 1 { 
-      lem_log2MonoIncr(n-1, m-1); 
+      lem_log2_MonoIncr(n-1, m-1); 
     }
   }
 
@@ -57,7 +58,7 @@ module Log2Nat {
   **************************************************************************/
 
   // log2(2^n) = n 
-  lemma lem_log2AndExp2Inverse(n:nat)
+  lemma lem_log2Exp2_Inverse(n:nat)
     requires exp(2,n) > 0
     ensures  log2(exp(2,n)) == n 
   {
@@ -65,9 +66,9 @@ module Log2Nat {
       // BC: n = 0
       calc {
           log2(exp(2,0));
-        == { lem_exp2FirstValues(); }
+        == { lem_exp2_FirstValues(); }
           log2(1);
-        == { lem_log2FirstValues(); }
+        == { lem_log2_FirstValues(); }
           0;   
       }
     } else {
@@ -80,7 +81,7 @@ module Log2Nat {
           log2(2*exp(2, n-1));
         == { reveal log2(); }
           1 + log2(exp(2, n-1));
-        == { lem_log2AndExp2Inverse(n-1); } // IH
+        == { lem_log2Exp2_Inverse(n-1); } // IH
           1 + (n - 1);
         == n;
       }
@@ -88,7 +89,7 @@ module Log2Nat {
   }
 
   // If n=2^k then log2(2^n)=n 
-  lemma {:axiom} lem_exp2Andlog2Inverse(n:nat, k:nat)
+  lemma {:axiom} lem_exp2log2_Inverse(n:nat, k:nat)
     requires exp(2, k) > 0
     requires n == exp(2, k) 
     ensures  exp(2, log2(n)) == n

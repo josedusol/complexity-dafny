@@ -12,7 +12,7 @@ type Input {
 
 ghost function f(N:nat) : nat
 {
-  if N < 10 then exp(N,1) else 20 
+  if N < 10 then exp(N,1) else 20
 }
 
 method linAfter(x:Input) returns (ghost t:nat)

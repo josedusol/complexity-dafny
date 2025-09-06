@@ -12,41 +12,31 @@ module ExpNat {
     if e == 0 then 1 else b*exp(b, e-1)
   }
 
-  lemma lem_exp2FirstValues()
-    ensures exp(2,0) == 1
-    ensures exp(2,1) == 2 
-    ensures exp(2,2) == 4
-    ensures exp(2,3) == 8
-    ensures exp(2,4) == 16
-  {
-    reveal exp();
-  }
-
   // b >= 1 /\ n <= m ==> b^n <= b^m
-  lemma lem_expMonoIncr(b:nat, n:nat, m:nat)
+  lemma lem_exp_MonoIncr(b:nat, n:nat, m:nat)
     requires b >= 1
     ensures  n <= m ==> exp(b, n) <= exp(b, m)
     decreases n, m
   { 
     reveal exp();
     if n != 0 && m != 0 {  
-      lem_expMonoIncr(b, n-1, m-1); 
+      lem_exp_MonoIncr(b, n-1, m-1); 
     }
   }
 
   // n <= m ==> n^e <= m^e
-  lemma lem_expBaseMonoIncr(e:nat, n:nat, m:nat)
+  lemma {:axiom} lem_exp_BaseMonoIncr(e:nat, n:nat, m:nat)
     ensures n <= m ==> exp(n, e) <= exp(m, e)
     decreases n, m
-  {  
-    reveal exp();
-    if n != 0 && m != 0 {  
-      lem_expBaseMonoIncr(e, n-1, m-1);  // TODO
-    }
-  }  
+  // {   // TODO
+  //   reveal exp();
+  //   if n != 0 && m != 0 {  
+  //     lem_exp_BaseMonoIncr(e, n-1, m-1); 
+  //   }
+  // }  
 
   // b>0 ==> b^e > 0
-  lemma lem_expIsPositive(b:nat, e:nat)
+  lemma lem_exp_Positive(b:nat, e:nat)
     requires b > 0
     ensures exp(b,e) > 0
   {
@@ -66,33 +56,33 @@ module ExpNat {
            exp(b,e);
         == { reveal exp(); }
            b*exp(b, e-1);
-        >  { lem_expIsPositive(b, e-1); }
+        >  { lem_exp_Positive(b, e-1); }
            0;  
       }
     }
   }
   
   // n^1 == n
-  lemma lem_expn1(n:nat)
+  lemma lem_exp_n1(n:nat)
     ensures exp(n,1) == n
   { reveal exp; }
 
   // n^2 == n*n
-  lemma lem_expn2(n:nat)
+  lemma lem_exp_n2(n:nat)
     ensures exp(n,2) == n*n
   { reveal exp; }  
 
   // n^3 == n*n*n
-  lemma lem_expn3(n:nat)
+  lemma lem_exp_n3(n:nat)
     ensures exp(n,3) == n*n*n  
   { reveal exp; }  
 
   // (n+1)^2 == n*n + 2*n + 1
-  lemma {:axiom} lem_binomial2(n:nat)
+  lemma {:axiom} lem_exp_binomial(n:nat)
     ensures exp(n+1,2) == n*n + 2*n + 1
 
   // n^2 == (n-1)*2 + 2*(n-1) + 1
-  lemma {:axiom} lem_binomial(n:nat)
+  lemma {:axiom} lem_exp_binomial2(n:nat)
     requires n > 0
     ensures exp(n,2) == exp(n-1,2) + 2*(n-1) + 1 
     
@@ -101,36 +91,46 @@ module ExpNat {
   ******************************************************************************/
 
   // 2^x
-  ghost function exp2(e:nat) : nat
+  ghost function exp2(n:nat) : nat
   { 
-    exp(2, e)
+    exp(2, n)
   }
+
+  lemma lem_exp2_FirstValues()
+    ensures exp2(0) == exp(2,0) == 1
+    ensures exp2(1) == exp(2,1) == 2 
+    ensures exp2(2) == exp(2,2) == 4
+    ensures exp2(3) == exp(2,3) == 8
+    ensures exp2(4) == exp(2,4) == 16
+  {
+    reveal exp();
+  }  
 
   /******************************************************************************
     Universal clausures of lemmas
   ******************************************************************************/
 
-  lemma lem_expn1All()
+  lemma lem_exp_n1Auto()
     ensures forall n:nat :: exp(n,1) == n  
   { 
     forall n:nat ensures exp(n,1) == n {
-      lem_expn1(n);
+      lem_exp_n1(n);
     }
   }
 
-  lemma lem_expn2All()
+  lemma lem_exp_n2Auto()
     ensures forall n:nat :: exp(n,2) == n*n  
   {
     forall n:nat ensures exp(n,2) == n*n {
-      lem_expn2(n);
+      lem_exp_n2(n);
     }
   }  
 
-  lemma lem_expn3All()
+  lemma lem_exp_n3Auto()
     ensures forall n:nat :: exp(n,3) == n*n*n 
   {
     forall n:nat ensures exp(n,3) == n*n*n {
-      lem_expn3(n);
+      lem_exp_n3(n);
     }
   }   
 

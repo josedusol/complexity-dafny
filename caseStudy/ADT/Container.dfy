@@ -24,7 +24,7 @@ module Container {
     function Get(i:nat): (T, ghost R0)
       reads this, Repr()
       // Pre:
-      requires Valid()
+      requires  Valid()
       requires 0 <= i < Size()
 
     // Returns the set of heap objects that are part of this data structure's representation

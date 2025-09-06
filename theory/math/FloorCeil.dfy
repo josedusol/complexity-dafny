@@ -39,7 +39,7 @@ module FloorCeil {
   { }
 
   // floor(x) + 1 >= ceil(x)
-  lemma lem_floorPlus1GEQceil(x:real)
+  lemma lem_floorPlus1GEQceil(x:real) 
     ensures floor(x) + 1 >= ceil(x)
   { }
 

@@ -6,6 +6,7 @@ include "./Log2Nat.dfy"
 ******************************************************************************/
 
 module LemBoundsNat {
+
   import opened ExpNat
   import opened Log2Nat
 
@@ -13,14 +14,15 @@ module LemBoundsNat {
   lemma lem_log2exp2_bounds(n:nat)
     requires n > 0
     ensures  exp(2, log2(n)) <= n
+    decreases n
   {
     if n == 1 {
       // BC: n = 1
       calc {
            exp(2, log2(1));
-        == { lem_log2FirstValues(); }
+        == { lem_log2_FirstValues(); }
            exp(2, 0);
-        == { lem_exp2FirstValues(); }
+        == { lem_exp2_FirstValues(); }
            1;   
       }
     } else {
@@ -34,7 +36,7 @@ module LemBoundsNat {
            exp(2, log2(n));
         == { reveal exp(); }
            2*exp(2, log2(n)-1);
-        <= { reveal A; lem_expMonoIncr(2, log2(n)-1, log2(n/2)); }
+        <= { reveal A; lem_exp_MonoIncr(2, log2(n)-1, log2(n/2)); }
            2*exp(2, log2(n/2));
         <= { lem_log2exp2_bounds(n/2); }
            2*(n/2);
@@ -46,16 +48,17 @@ module LemBoundsNat {
   // n > 0 ==> n < 2^(log2(n)+1)
   lemma lem_nLQexp2log2nPlus1(n:nat)
     requires n > 0
-    ensures  n < exp(2, log2(n)+1)
+    ensures  n < exp(2, log2(n)+1) 
+    decreases n
   {
     if n == 1 {
       // BC: n = 1
       calc {
            1; 
         <  2; 
-        == { lem_exp2FirstValues(); }
+        == { lem_exp2_FirstValues(); }
            exp(2, 1);
-        == { lem_log2FirstValues(); }
+        == { lem_log2_FirstValues(); }
            exp(2, log2(1)+1);   
       }
     } else {
@@ -75,7 +78,7 @@ module LemBoundsNat {
     }
   }
 
-  // n>0 ==> log2(n+1) <= n
+  // n > 0 ==> log2(n+1) <= n
   lemma lem_log2nPlus1LEQn(n:nat) 
     requires n > 0 
     ensures  log2(n+1) <= n
@@ -85,7 +88,7 @@ module LemBoundsNat {
       // BC: n = 1
       calc {
            log2(2);
-        == { lem_log2FirstValues(); }
+        == { lem_log2_FirstValues(); }
            1;   
         <= 1;   
       }
@@ -97,7 +100,7 @@ module LemBoundsNat {
            log2(n+1);
         == { reveal log2(); }
            1 + log2((n+1)/2);
-        <= { assert (n+1)/2 <= n; lem_log2MonoIncr((n+1)/2, n); } 
+        <= { assert (n+1)/2 <= n; lem_log2_MonoIncr((n+1)/2, n); } 
            1 + log2(n);   
         <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
            1 + (n-1);
@@ -106,7 +109,7 @@ module LemBoundsNat {
     }
   }
 
-  // n>=4 ==> log2(n) <= n-2
+  // n >= 4 ==> log2(n) <= n-2
   lemma lem_log2nLEQnMinus2(n:nat)
     requires n >= 4 
     ensures  log2(n) <= n-2
@@ -116,7 +119,7 @@ module LemBoundsNat {
       // BC: n = 4
       calc {
            log2(4);
-        == { lem_log2FirstValues(); }
+        == { lem_log2_FirstValues(); }
            2;   
         <= 2;
         == 4-2;   
@@ -129,7 +132,7 @@ module LemBoundsNat {
            log2(n);
         == { reveal log2(); }
            1 + log2(n/2);
-        <= { assert n/2 <= n-1; lem_log2MonoIncr(n/2, n-1); } 
+        <= { assert n/2 <= n-1; lem_log2_MonoIncr(n/2, n-1); } 
            1 + log2(n-1);   
         <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
            1 + (n-3);
@@ -138,7 +141,7 @@ module LemBoundsNat {
     }
   }
 
-  // n>0 ==> log2(n) <= n-1
+  // n > 0 ==> log2(n) <= n-1
   lemma lem_log2nLEQnMinus1(n:nat)  
     requires n > 0 
     ensures  log2(n) <= n-1
@@ -166,7 +169,7 @@ module LemBoundsNat {
         == 0 <= n*(exp(n,2) - 1);  
         == 0 <= exp(n,2) - 1;      
         == 1 <= exp(n,2);
-        == { lem_expIsPositive(n,2); }
+        == { lem_exp_Positive(n,2); }
            true;                     
       }
     }
@@ -203,7 +206,7 @@ module LemBoundsNat {
   }
 
   // n>=4 ==> n <= 2^(n-2)
-  lemma {:axiom} lem_nLEQexp2nMinus2(n:nat)
+  lemma lem_nLEQexp2nMinus2(n:nat)
     requires n >= 4
     ensures  n <= exp(2,n-2)
     decreases n
@@ -225,7 +228,7 @@ module LemBoundsNat {
         == (n-1) + 1;
         <= { lem_nLEQexp2nMinus2(n-1); }   // by IH 
            exp(2,n-3) + 1;
-        <= { lem_expIsPositive(2, n-3); assert exp(2,n-3) >= 1; }
+        <= { lem_exp_Positive(2, n-3); assert exp(2,n-3) >= 1; }
            exp(2,n-3) + exp(2,n-3);
         == { reveal exp(); }
            exp(2,n-2);       
@@ -255,7 +258,7 @@ module LemBoundsNat {
       //    T:     n^2 <= 2^n
       calc {   
            exp(n,2);
-        == { lem_binomial(n); }
+        == { lem_exp_binomial2(n); }
            exp(n-1,2) + 2*(n-1) + 1;
         <= { lem_expn2LEQexp2n(n-1);  }   // by IH  
            exp(2,n-1) + 2*(n-1) + 1; 

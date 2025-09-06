@@ -60,7 +60,7 @@ module LemDynaArrayList {
              (N => Tgrow(m,N,N))(n);
           == (m*n + n) as R0;
           == ((m+1)*n) as R0;
-          == { lem_expOne(n as R0); }
+          == { lem_exp_One(n as R0); }
              c*exp(n as R0, 1.0);
           == c*linGrowth()(n);   
         }
@@ -105,7 +105,7 @@ module LemDynaArrayList {
            (N => TinsertUp(m,N))(n);
         == ((m+2)*n + 1) as R0;
         <= c*n as R0;
-        == { lem_expOne(n as R0); }
+        == { lem_exp_One(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
@@ -124,7 +124,7 @@ module LemDynaArrayList {
            Tinsert2Up(n);
         == (n + 1) as R0;
         <= c*n as R0;
-        == { lem_expOne(n as R0); }
+        == { lem_exp_One(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
@@ -157,7 +157,7 @@ module LemDynaArrayList {
            (N => Tappend(m,N))(n);
         == ((m+1)*n + 1) as R0;
         <= c*n as R0;
-        == { lem_expOne(n as R0); }
+        == { lem_exp_One(n as R0); }
            c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }

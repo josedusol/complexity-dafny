@@ -12,7 +12,7 @@ module Factorial {
     if n == 0 then 1 else n*fac(n-1)
   }
 
-  lemma lem_facFirstValues()
+  lemma lem_fac_FirstValues()
     ensures fac(0) == 1
     ensures fac(1) == 1
     ensures fac(2) == 2

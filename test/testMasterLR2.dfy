@@ -60,7 +60,7 @@ lemma test_masterMethodForT1lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
@@ -113,7 +113,7 @@ lemma test_masterMethodForT2lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
+      assert polyGrowth(k)(n) == 1.0 by { lem_exp_ZeroAuto(); }
       assert 1.0 <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
@@ -167,7 +167,7 @@ lemma test_masterMethodForT3lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 4.0*polyGrowth(k)(n)
     {
-      assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
+      assert polyGrowth(k)(n) == 1.0 by { lem_exp_ZeroAuto(); }
       assert w(n) <= 4.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(4.0, 1, w, polyGrowth(k));
@@ -222,7 +222,7 @@ lemma test_masterMethodForT4lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert polyGrowth(k)(n) == 1.0 by { lem_expZeroAll(); }
+      assert polyGrowth(k)(n) == 1.0 by { lem_exp_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));
@@ -278,7 +278,7 @@ lemma test_masterMethodForT5lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 3.0*exp(n as R0, k)
     {
-      assert exp(n as R0, k) == n as R0 by { lem_expOneAll(); } 
+      assert exp(n as R0, k) == n as R0 by { lem_exp_OneAuto(); } 
       assert w(n) <= 3.0*exp(n as R0, k); 
     }
     assert bigOfrom(3.0, 1, w, n => exp(n as R0, k));
@@ -295,7 +295,7 @@ lemma test_masterMethodForT5lifted_simplify()
   var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, T5', (n:nat) => exp(n as R0, 1.0)*exp(2.0, (n/1) as R0));
   assert forall n:nat :: 0 <= n0 <= n   ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
   assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*exp(n as R0, 1.0)*exp(2.0, (n/1) as R0);
-  lem_expOneAll();
+  lem_exp_OneAuto();
   assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*exp(2.0, (n/1) as R0);
   assert forall n:nat :: 0 <= n0+1 <= n ==> T5'(n) <= c*(n as R0)*exp(2.0, n as R0);
   assert bigOfrom(c, n0+1, T5', (n:nat) => (n as R0)*exp(2.0, n as R0)); 
@@ -349,7 +349,7 @@ lemma test_masterMethodForT6()
       ensures w(n) <= 3.0*exp(n as R0, k)
     {
       reveal Nat.exp();
-      assert exp(n as R0, 2.0) == (n*n) as R0 by { lem_expTwo(n as R0); } 
+      assert exp(n as R0, 2.0) == (n*n) as R0 by { lem_exp_Two(n as R0); } 
       assert w(n) <= 3.0*exp(n as R0, k);  
     }
     assert bigOfrom(3.0, 1, w, n => exp(n as R0, k));
@@ -370,7 +370,7 @@ lemma lem_simplifyPowrTwo()
     ensures T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0)
   {
     assert T6'(n) <= c*exp(n as R0, 2.0)*exp(2.0, (n/2) as R0);
-    lem_expTwo(n as R0);
+    lem_exp_Two(n as R0);
     assert T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0);
   }
   assert forall n:nat :: 0 <= n0+1 <= n ==> T6'(n) <= c*((n*n) as R0)*exp(2.0, (n/2) as R0);  
@@ -424,7 +424,7 @@ lemma test_masterMethodForT7lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*exp(n as R0, k)
     {
-      assert exp(n as R0, k) == n as R0 by { lem_expOne(n as R0); } // n >= 1
+      assert exp(n as R0, k) == n as R0 by { lem_exp_One(n as R0); } // n >= 1
       assert log2(n+1) <= n by { lem_log2nPlus1LEQn(n); }  // n >= 1
       assert w(n) <= 1.0*(n as R0);
   }

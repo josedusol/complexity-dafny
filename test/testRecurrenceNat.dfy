@@ -5,7 +5,7 @@ import opened Recurrence
 opaque ghost function f1(n:nat) : nat
   decreases n 
 {   
-  if n == 0 then 1 else f1(n-1) + 2 
+  if n == 0 then 1 else f1(n-1) + 2
 } 
 
 opaque ghost function f2(n:nat, i:nat) : nat

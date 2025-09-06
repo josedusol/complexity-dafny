@@ -44,7 +44,7 @@ method linFor(x:Input) returns (ghost t:nat)
   t := 0; reveal T();
   
   for i := 0 to N
-    invariant t == T(N) - T(N-i)  // = T2(i) 
+    invariant t == T(N) - T(N-i)  // = T2(i)
   {
     // Op. interesante
     t := t+1 ;
@@ -92,7 +92,7 @@ lemma lem_TbigOlin()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));

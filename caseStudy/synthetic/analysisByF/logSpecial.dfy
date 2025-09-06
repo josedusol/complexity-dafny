@@ -49,7 +49,7 @@ method log(x:Input) returns (ghost t:nat)
   }
   assert t == T(N); 
   assert t <= log2(N) by { lem_TclosedBound(N); }
-  assert t <= f(N)    by { lem_log2MonoIncr(N, N+1); }
+  assert t <= f(N)    by { lem_log2_MonoIncr(N, N+1); }
  
   assert bigOLog(f) by { var c, n0 := lem_fBigOlog(); }
 } 
@@ -86,7 +86,7 @@ lemma lem_fBigOlog() returns (c:nat, n0:nat)
     calc {
          f(n);
       == log2(n+1);
-      <= { assert n>=1; lem_log2MonoIncr(n+1, 2*n); }
+      <= { assert n>=1; lem_log2_MonoIncr(n+1, 2*n); }
          log2(2*n);  
       == { reveal log2(); }
          log2(2) + log2(n);             

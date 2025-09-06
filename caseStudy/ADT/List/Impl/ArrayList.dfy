@@ -12,11 +12,6 @@ include "./LemArrayList.dfy"
 module ArrayList refines List {
 
   import opened LemArrayList
-  
-  // Refine input type for each relevant operation
-  type InsertIn<T> = (array<T>, nat, nat, T)    
-  type AppendIn<T> = (array<T>, nat, T)   
-  type OkIn<T> = (array<T>, nat)   
 
   class ArrayList<T(0)> extends List<T> {
 
@@ -191,7 +186,10 @@ module ArrayList refines List {
       // Complexity:
       ensures  var N := old(Size()); && t <= Tdelete(N)
                                      && tIsBigO(N, t as R0, linGrowth())       
-      // TODO: implementation with array shift here
+    {
+      
+
+    }
 
   }
 

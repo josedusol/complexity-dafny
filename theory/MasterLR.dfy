@@ -303,7 +303,7 @@ module MasterLR {
            c;
         == { lem_mmLR_mValue(b, s, n); reveal S, sum();  }
            c + S(a, b, s, w, n);
-        == { lem_mmLR_mValue(b, s, n); lem_expZero(aR); }
+        == { lem_mmLR_mValue(b, s, n); lem_exp_Zero(aR); }
            exp(aR, mv as real)*c + S(a, b, s, w, n);
         == { reveal TsumForm(); } 
            TsumForm(a, b, c, s, w, n);  
@@ -335,9 +335,9 @@ module MasterLR {
                Sa(a,0)*liftD(w,0.0)(n-0*s);
             == { reveal Sa(); } 
                exp(a as R0, 0 as real)*liftD(w,0.0)(n-0*s); 
-            == { lem_expZero(a as R0); }    
+            == { lem_exp_Zero(a as R0); }    
                1.0*liftD(w,0.0)(n-0*s); 
-            == { lem_expZero(a as R0); }    
+            == { lem_exp_Zero(a as R0); }    
                liftD(w,0.0)(n);             
           }      
         }  
@@ -354,7 +354,7 @@ module MasterLR {
         == { reveal mRewr; }
            aR*(exp(aR, (mv-1) as real)*c + S(a, b, s, w, n-s)) + w(n); 
         == aR*exp(aR, (mv-1) as real)*c + aR*S(a, b, s, w, n-s) + w(n); 
-        == { lem_expDef(aR, (mv-1) as real); }
+        == { lem_exp_Def(aR, (mv-1) as real); }
            exp(aR, mv as real)*c + aR*S(a, b, s, w, n-s) + w(n);     
         == { reveal sumRewr; }
            exp(aR, mv as real)*c + aR*sum(0, mv-2, i => Sa(a,i)*Sw(s,w,n,i+1)) + w(n);
@@ -412,7 +412,7 @@ module MasterLR {
              lem_sum_leibniz(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l), 
                                       l => aR*exp(a as real,l as real)*Sw(s,w,n,l+1)); } 
            sum(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1));  
-        == { reveal Sa(); lem_expDefAll();
+        == { reveal Sa(); lem_exp_DefAuto();
              assert forall l :: 0 <= l <= mv-2 ==> 
                aR*exp(aR,l as real)*Sw(s,w,n,l+1) == Sa(a,l+1)*Sw(s,w,n,l+1);
              lem_sum_leibniz(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1), 

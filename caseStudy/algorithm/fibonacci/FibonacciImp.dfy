@@ -103,7 +103,7 @@ lemma lem_fBigOlin() returns (c:R0, n0:nat)
     calc {
          f(n);
       == n as R0;
-      == { lem_expOne(n as R0); }
+      == { lem_exp_One(n as R0); }
          exp(n as R0, 1.0);
       <= c*exp(n as R0, 1.0); 
       == c*linGrowth()(n);  

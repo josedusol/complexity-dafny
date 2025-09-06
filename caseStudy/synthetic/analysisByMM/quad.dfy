@@ -138,7 +138,7 @@ lemma {:isolate_assertions} lem_T1BigOquadAux(N:nat)
     assert T2(N) as R0 <= c * n as R0
       by { assert T2(N) <= (T2(N))*n; }
     assert exp(n as R0, k) == n as R0 
-      by { assert n as R0 > 0.0; lem_expOne(n as R0); }
+      by { assert n as R0 > 0.0; lem_exp_One(n as R0); }
     assert T2(N) as R0 <= c * exp(n as R0, k); 
     assert w(n) <= c * exp(n as R0, k)
       by { assert w(n) == T2(N) as R0; }
@@ -168,7 +168,7 @@ lemma lem_T2BigOlin()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_expZeroAll(); }
+      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
     assert bigOfrom(1.0, 1, w, polyGrowth(k));

@@ -10,7 +10,7 @@ module SumInt {
   import R = SumReal
 
   // sum_{k=a}^{b}f(k)
-  opaque ghost function sum(a:int, b:int, f:int->int) : int
+  opaque ghost function sum(a:int, b:int, f:int->int) : int 
     decreases b - a
   {
     if a > b  

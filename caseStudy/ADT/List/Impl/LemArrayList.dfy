@@ -66,9 +66,9 @@ module LemArrayList {
            Tinsert2(n);
         == (n + 1) as R0;
         <= c*n as R0;
-        == { lem_expOne(n as R0); }
+        == { lem_exp_One(n as R0); }
            c*exp(n as R0, 1.0);
-        == c*linGrowth()(n);   
+        == c*linGrowth()(n);
       }
     }
     assert bigOfrom(c, n0, Tinsert2, linGrowth());
@@ -94,8 +94,14 @@ module LemArrayList {
   /******************************************************************************
     Complexity analysis for Delete operation 
   ******************************************************************************/
-  
+
   ghost function Tdelete(N:nat) : R0 
   // TODO
+
+
+
+
+
+
 
 }

@@ -3,7 +3,7 @@ include "./math/Factorial.dfy"
 include "./math/FloorCeil.dfy"
 include "./math/LemFunction.dfy"
 include "./math/Log2Nat.dfy"
-include "./math/SqrtNat.dfy"
+include "./math/Root2Nat.dfy"
 include "./math/TypeR0.dfy"
 include "./ComplexityR0.dfy"
 
@@ -11,13 +11,13 @@ include "./ComplexityR0.dfy"
   Complexity definitions for non-negative integer functions
 ******************************************************************************/
 
-module ComplexityNat { 
+module ComplexityNat {
   import opened ExpNat
   import opened Factorial  
-  import opened FloorCeil   
+  import opened FloorCeil
   import opened LemFunction
   import opened Log2Nat
-  import opened SqrtNat
+  import opened Root2Nat
   import opened TypeR0 
   import CR0 = ComplexityR0
 

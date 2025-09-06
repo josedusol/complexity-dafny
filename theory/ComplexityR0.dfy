@@ -1,8 +1,10 @@
 include "./math/ExpReal.dfy"
 include "./math/Factorial.dfy"
 include "./math/FloorCeil.dfy"
+include "./math/Log2Real.dfy"
 include "./math/LogReal.dfy"
-include "./math/SqrtNat.dfy"
+include "./math/Root2Real.dfy"
+include "./math/RootReal.dfy"
 include "./math/TypeR0.dfy"
 
 /******************************************************************************
@@ -13,8 +15,10 @@ module ComplexityR0 {
   import opened ExpReal
   import opened Factorial  
   import opened FloorCeil   
+  import opened Log2Real
   import opened LogReal
-  import opened SqrtNat
+  import opened Root2Real
+  import opened RootReal
   import opened TypeR0 
 
   /******************************************************************************
@@ -135,7 +139,7 @@ module ComplexityR0 {
   ghost function logGrowth2(b:R0) : nat->R0
     requires b > 1.0
   {   
-    n => log(b, (n+1) as R0) 
+    n => log(b, (n+1) as R0)
   }
 
   ghost function log2Growth() : nat->R0
@@ -143,14 +147,14 @@ module ComplexityR0 {
     n => if n>0 then log2(n as R0) else 0.0
   }
 
-  ghost function log2Plus1Growth() : nat->R0
+  ghost function log2Plus1Growth() : nat->R0 
   {   
     n => log2((n+1) as R0) 
   }
 
   ghost function sqrtGrowth() : nat->R0
   {   
-    n => sqrt(n) as R0
+    n => sqrt(n as R0)
   }
 
   ghost function linGrowth() : nat->R0
@@ -180,7 +184,7 @@ module ComplexityR0 {
 
   ghost function exp2Growth() : nat->R0
   {   
-    n => exp2(n as R0)
+    n => exp2(n as R0) 
   }
 
   ghost function facGrowth() : nat->R0

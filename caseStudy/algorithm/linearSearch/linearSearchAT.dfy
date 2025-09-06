@@ -137,7 +137,7 @@ lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
          Tavg(n);
       == (n + 1) as real / 2.0;
       <= n as real;
-      == { lem_expOne(n as R0); }
+      == { lem_exp_One(n as R0); }
          exp(n as R0, 1.0);
       == linGrowth()(n);
     }
@@ -154,7 +154,7 @@ lemma lem_TavgBigOmlin() returns (c:R0, n0:nat)
     calc {
          c*linGrowth()(n);
       == 0.5*exp(n as R0, 1.0);
-      == { lem_expOne(n as R0); }
+      == { lem_exp_One(n as R0); }
          0.5 * n as real;
       <= (n + 1) as real / 2.0;
          Tavg(n);
