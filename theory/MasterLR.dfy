@@ -13,6 +13,7 @@ include "./LemComplexityR0.dfy"
 ******************************************************************************/
 
 module MasterLR {  
+
   import opened ExpReal 
   import opened FloorCeil   
   import opened LemBoundsNat
@@ -52,7 +53,7 @@ module MasterLR {
   // Note. Always match w to the tightest Θ(n^k) it belongs. 
   //       - It is neccesary and sufficient to conclude the 
   //         thight Θ(n^{k+1}) bound when a=1.
-  //       - It is neccesary, but not always sufficient, to conclude the 
+  //       - It is neccesary, but not always sufficient, to conclude the
   //         thight Θ(n^k*a^{n/s}) bound when a>1.
   //       In general, we can only be sure of O type bounds. Thigher Θ bounds
   //       require a case by case analysis.
@@ -62,7 +63,7 @@ module MasterLR {
     requires forall n:nat :: T(n) == TbodyLR(a, b, c, s, T, w, n) 
 
     ensures a == 1 ==> T in O((n:nat) => exp(n as R0, k + 1.0))
-    ensures a > 1  ==> T in O((n:nat) => exp(n as R0, k)*exp(a as R0, (n/s) as R0))
+    ensures a > 1  ==> T in O((n:nat) => exp(n as R0, k)*exp(a as R0, n as R0 / s as R0))
   {
     // Prove: ∀ n : T(n) = a^m*c + S(n) where m=max(0,ceil((n-b)/s))
     assert forall n:nat :: T(n) == TsumForm(a, b, c, s, w, n)
@@ -637,7 +638,7 @@ module MasterLR {
     requires forall n:nat :: T(n) == TbodyLR2(a, b, c, T, w, n) 
 
     ensures a == 1 ==> T in O((n:nat) => exp(n as R0, k + 1.0))
-    ensures a > 1  ==> T in O((n:nat) => exp(n as R0, k)*exp(a as R0, (n/b) as R0))
+    ensures a > 1  ==> T in O((n:nat) => exp(n as R0, k)*exp(a as R0, n as R0 / b as R0))
   {
     // proof using thm_masterMethodLR with s := b.
     assert a > 0;   

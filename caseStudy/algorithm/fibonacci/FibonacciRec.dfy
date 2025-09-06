@@ -221,7 +221,7 @@ lemma lem_TupBigOexp2()
     assert bigOfrom(2.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, Tup, w, k);
-  assert Tup in O(n => exp(n as R0, 0.0)*exp(2.0, (n/1) as R0));
+  assert Tup in O(n => exp(n as R0, 0.0)*exp(2.0, n as R0 / 1.0));
   // simpl TODO
   assume Tup in O(n => exp(2.0, n as R0));
 }

@@ -10,7 +10,7 @@ module SumSetReal {
     if |s| == 0 
     then 0.0
     else var x :| x in s;
-        f(x) + sum(s - {x}, f)
+         f(x) + sum(s - {x}, f)
   }
 
 }

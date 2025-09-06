@@ -14,6 +14,7 @@ include "./LemComplexityR0.dfy"
 ******************************************************************************/
 
 module LemComplexityNat { 
+
   import opened ExpNat
   import opened FloorCeil   
   import opened LemBoundsNat

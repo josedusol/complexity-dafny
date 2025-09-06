@@ -20,10 +20,10 @@ module RootReal {
   // Non-negativity
   // x >= 0 ∧ q > 0 ⇒ root(x,q) >= 0
   lemma lem_root_NonNegative(x:real, q:real)
-    requires x >= 0.0 && q > 0.0
+    requires x >= 0.0 && q > 0.0 
     ensures root(x, q) >= 0.0
   { 
-    reveal root(); 
+    reveal root();  
   }
 
   // q > 0 ⇒ root(0,q) = 0

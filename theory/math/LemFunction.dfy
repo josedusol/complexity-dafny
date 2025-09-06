@@ -34,7 +34,7 @@ module LemFunction {
     lem_fun_Ext(f, x => f(x)); 
   }
 
-  lemma lem_funExtProd<A,B>(f1:A->real, g1:A->real, f2:A->real, g2:A->real)
+  lemma lem_fun_ExtProd<A,B>(f1:A->real, g1:A->real, f2:A->real, g2:A->real)
     requires forall x:A :: f1(x) == f2(x)
     requires forall x:A :: g1(x) == g2(x)
     ensures (x => f1(x)*g1(x)) == (x => f2(x)*g2(x))

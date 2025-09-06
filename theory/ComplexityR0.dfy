@@ -12,6 +12,7 @@ include "./math/TypeR0.dfy"
 ******************************************************************************/
 
 module ComplexityR0 { 
+
   import opened ExpReal
   import opened Factorial  
   import opened FloorCeil   
@@ -61,7 +62,7 @@ module ComplexityR0 {
   // Def. of Ω relation 
   ghost predicate bigOm(f:nat->R0, g:nat->R0)
   { 
-    exists c:R0, n0:nat :: c > 0.0 && bigOmFrom(c, n0, f, g) 
+    exists c:R0, n0:nat :: c > 0.0 && bigOmFrom(c, n0, f, g)
   }
 
   ghost predicate bigOmFrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)

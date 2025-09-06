@@ -36,7 +36,7 @@ lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
       == c + f(n);
       <= { reveal H1; }
          c + d*exp(n as R0, k);
-      <= { assert n > 0; lem_expGEQone(n as R0, k); }
+      <= { assert n > 0; lem_exp_GEQone(n as R0, k); }
          c*exp(n as R0, k) + d*exp(n as R0, k);
       == (c + d)*exp(n as R0, k);     
       == c1*exp(n as R0, k);    
@@ -64,7 +64,7 @@ lemma test_sumBigOmax2(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
       <= c + f(n);
       <= { reveal H1; }   
          c + d*exp(n as R0, k);
-      <= { assert n > 0; lem_expGEQone(n as R0, k); }
+      <= { assert n > 0; lem_exp_GEQone(n as R0, k); }
          c*exp(n as R0, k) + d*exp(n as R0, k);
       == (c + d)*exp(n as R0, k);     
       == c1*exp(n as R0, k);    

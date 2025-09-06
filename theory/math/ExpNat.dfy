@@ -62,20 +62,28 @@ module ExpNat {
     }
   }
   
+  /******************************************************************************
+    Relate to dafny primitive powers
+  ******************************************************************************/
+
   // n^1 == n
-  lemma lem_exp_n1(n:nat)
+  lemma lem_exp_Pow1(n:nat)
     ensures exp(n,1) == n
   { reveal exp; }
 
   // n^2 == n*n
-  lemma lem_exp_n2(n:nat)
+  lemma lem_exp_Pow2(n:nat)
     ensures exp(n,2) == n*n
   { reveal exp; }  
 
   // n^3 == n*n*n
-  lemma lem_exp_n3(n:nat)
+  lemma lem_exp_Pow3(n:nat)
     ensures exp(n,3) == n*n*n  
   { reveal exp; }  
+
+  /******************************************************************************
+    Binomial expansion
+  ******************************************************************************/
 
   // (n+1)^2 == n*n + 2*n + 1
   lemma {:axiom} lem_exp_binomial(n:nat)
@@ -85,7 +93,7 @@ module ExpNat {
   lemma {:axiom} lem_exp_binomial2(n:nat)
     requires n > 0
     ensures exp(n,2) == exp(n-1,2) + 2*(n-1) + 1 
-    
+
   /******************************************************************************
     Special 2^x
   ******************************************************************************/
@@ -110,27 +118,27 @@ module ExpNat {
     Universal clausures of lemmas
   ******************************************************************************/
 
-  lemma lem_exp_n1Auto()
+  lemma lem_exp_Pow1Auto()
     ensures forall n:nat :: exp(n,1) == n  
   { 
     forall n:nat ensures exp(n,1) == n {
-      lem_exp_n1(n);
+      lem_exp_Pow1(n);
     }
   }
 
-  lemma lem_exp_n2Auto()
+  lemma lem_exp_Pow2Auto()
     ensures forall n:nat :: exp(n,2) == n*n  
   {
     forall n:nat ensures exp(n,2) == n*n {
-      lem_exp_n2(n);
+      lem_exp_Pow2(n);
     }
   }  
 
-  lemma lem_exp_n3Auto()
+  lemma lem_exp_Pow3Auto()
     ensures forall n:nat :: exp(n,3) == n*n*n 
   {
     forall n:nat ensures exp(n,3) == n*n*n {
-      lem_exp_n3(n);
+      lem_exp_Pow3(n);
     }
   }   
 
