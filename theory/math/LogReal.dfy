@@ -16,15 +16,16 @@ module LogReal {
     requires b > 1.0 && x > 0.0
     ensures  b > 1.0 && x >= 1.0 ==> log(b, x) >= 0.0
 
+  // b > 1 ∧ x >= 1 ==> log_b(x) >= 0
+  lemma {:axiom} lem_log_NonNegative(b:real, x:real)
+    requires b > 1.0 && x >= 1.0 
+    ensures  log(b, x) >= 0.0 
+
   // log_b(1) == 0
   lemma {:axiom} lem_log_One(b:real)
     requires b > 1.0
     ensures  log(b, 1.0) == 0.0
 
-  // b > 1 ∧ x >= 1 ==> log_b(x) >= 0
-  lemma {:axiom} lem_log_NonNegative(b:real, x:real)
-    requires b > 1.0 && x >= 1.0 
-    ensures  log(b, x) >= 0.0 
 
   // log_b(b) == 1.0
   lemma lem_log_Base(b:real)

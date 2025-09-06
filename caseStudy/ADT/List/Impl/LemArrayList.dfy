@@ -95,13 +95,34 @@ module LemArrayList {
     Complexity analysis for Delete operation 
   ******************************************************************************/
 
-  ghost function Tdelete(N:nat) : R0 
-  // TODO
+  ghost function Tdelete(N:nat, k:nat) : R0 
+    requires N >= k+1
+  {
+    (N - k - 1) as R0
+  }
 
+  ghost function Tdelete2(N:nat) : R0 
+  {
+    N as R0
+  }
 
-
-
-
-
+  lemma lem_Delete_Tdelete2BigOlin() returns (c:R0, n0:nat) 
+    ensures c > 0.0 && bigOfrom(c, n0, Tdelete2, linGrowth())
+  {
+    c, n0 := 1.0, 1;
+    forall n:nat | 0 <= n0 <= n
+      ensures Tdelete2(n) <= c*linGrowth()(n)
+    {
+      calc {
+           Tdelete2(n);
+        == n as R0;
+        <= c*n as R0;
+        == { lem_exp_One(n as R0); }
+           c*exp(n as R0, 1.0);
+        == c*linGrowth()(n);
+      }
+    }
+    assert bigOfrom(c, n0, Tdelete2, linGrowth());
+  }
 
 }

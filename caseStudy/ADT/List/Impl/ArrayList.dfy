@@ -3,7 +3,6 @@ include "../../../../theory/math/TypeR0.dfy"
 include "../../../../theory/ComplexityR0.dfy"
 include "../List.dfy"
 include "./LemArrayList.dfy"
-//include "./CostArrayList.dfy"
 
 /******************************************************************************
   Array implementation of a List
@@ -173,22 +172,48 @@ module ArrayList refines List {
     }
 
     // Deletes element at position k in the list
-    method {:axiom} Delete(k:nat) returns (ghost t:R0)
+    method Delete(k:nat) returns (ghost t:R0)
       modifies this, Repr()
       // Pre:    
       requires Valid()
       requires 0 <= k < Size()
       // Post:
-      ensures  Valid() && fresh(Repr() - old(Repr()))
+      ensures  Valid()
       ensures  Size() == old(Size()) - 1
-      ensures  forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)
-      ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)   
+      ensures  forall j :: 0 <= j < k      ==> Get(j).0 == old(Get(j).0)    // [0, k) is unchanged
+      ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)  // (k, old(Size())) is left shifted  
       // Complexity:
-      ensures  var N := old(Size()); && t <= Tdelete(N)
+      ensures  var N := old(Size()); && t == Tdelete(N, k)
                                      && tIsBigO(N, t as R0, linGrowth())       
     {
-      
+      var N := Size();
+      t := 0.0;
 
+      // Update model
+      elems := elems[..k] + elems[k+1..];
+
+      // Update array:
+      // Shift elements from (k, N) to the left
+      for i := k to N-1 
+        modifies arr
+        invariant arr[..k]  == old(arr[..k])        // [0, k) is unchanged
+        invariant arr[k..i] == old(arr[k+1..i+1])   // (k, i] is left shifted
+        invariant arr[i..]  == old(arr[i..])        // [i, N) still equals old
+        invariant t == (i - k) as R0
+      {
+        arr[i] := arr[i+1]; //shift left
+        t := t + 1.0;
+      }
+      assert arr[..k]    == old(arr[..k]) == elems[..k];     // [0, k) is unchanged
+      assert arr[k..N-1] == old(arr[k+1..N]) == elems[k..];  // (k, N) is left shifted
+
+      // Update number of elements
+      nElems := nElems - 1;
+      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+
+      assert t == (N - k - 1) as R0 == Tdelete(N, k) 
+               <= N as R0           == Tdelete2(N);
+      assert Tdelete2 in O(linGrowth()) by { var c, n0 := lem_Delete_Tdelete2BigOlin(); }          
     }
 
   }
