@@ -30,7 +30,7 @@ module Root2Real {
   }
 
   // Monotonicity
-  // x <= y ⇒ sqrt(x) <= sqrt(y)
+  // x <= y ⟹ sqrt(x) <= sqrt(y)
   lemma lem_sqrt_BaseMonoIncr(x:R0, y:R0)
     ensures  x <= y ==> sqrt(x) <= sqrt(y) // TODO
 //   {
@@ -38,7 +38,7 @@ module Root2Real {
 //   }
 
 //   // Monotonicity in the index
-//   // 0 < p <= q ∧ x >= 0 ⇒ root(x,p) >= root(x,q)
+//   // 0 < p <= q ∧ x >= 0 ⟹ root(x,p) >= root(x,q)
 //   lemma {:axiom} lem_sqrt_IndexMonoIncr(x:real, p:real, q:real)
 //     requires 0.0 < p <= q && x >= 0.0
 //     ensures root(x,p) >= root(x,q)

@@ -4,6 +4,7 @@
 
 module SumSetReal {
 
+  // Σ_{s}f
   opaque ghost function sum(s:set<int>, f:int->real): real
     decreases s
   {

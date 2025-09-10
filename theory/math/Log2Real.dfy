@@ -17,10 +17,11 @@ module Log2Real {
     requires x > 0.0
     ensures  x >= 1.0 ==> log2(x) >= 0.0
   { 
+    lem_log_NonNegativeAuto();
     log(2.0, x)
   }
 
-  // x >= 2 ==> log2(x) >= 1
+  // x >= 2 ⟹ log2(x) >= 1
   lemma lem_log2_GEQone(x:real)
     requires x >= 2.0
     ensures  log2(x) >= 1.0

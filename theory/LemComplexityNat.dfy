@@ -44,7 +44,7 @@ module LemComplexityNat {
   }
 
   // Transitivity
-  // f ∈ O(g) ∧ g ∈ O(h) ==> f ∈ O(h)
+  // f ∈ O(g) ∧ g ∈ O(h) ⟹ f ∈ O(h)
   lemma lem_bigO_trans(f:nat->nat, g:nat->nat, h:nat->nat)  
     requires f in O(g) 
     requires g in O(h) 
@@ -62,7 +62,7 @@ module LemComplexityNat {
     lem_bigOR0toBigO(f, h);
   }
 
-  // f ∈ O(g) ∧ a > 0 ==> a*f ∈ O(g)
+  // f ∈ O(g) ∧ a > 0 ⟹ a*f ∈ O(g)
   lemma lem_bigO_constFactor(f:nat->nat, g:nat->nat, a:nat)  
     requires f in O(g) 
     requires a > 0
@@ -81,7 +81,7 @@ module LemComplexityNat {
          }
   } 
 
-  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> f1+f2 ∈ O(g1+g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ⟹ f1+f2 ∈ O(g1+g2)
   lemma lem_bigO_sum(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -102,7 +102,7 @@ module LemComplexityNat {
     lem_bigOR0toBigO(n => f1(n)+f2(n), n => g1(n)+g2(n));     
   }
 
-  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> f1*f2 ∈ O(g1*g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ⟹ f1*f2 ∈ O(g1*g2)
   lemma lem_bigO_prod(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -125,7 +125,7 @@ module LemComplexityNat {
     lem_bigOR0toBigO(n => f1(n)*f2(n), n => g1(n)*g2(n));
   }   
 
-  // f ∈ O(g+h) ∧ g ∈ O(h) ==> f ∈ O(h)
+  // f ∈ O(g+h) ∧ g ∈ O(h) ⟹ f ∈ O(h)
   lemma lem_bigO_sumSimp(f:nat->nat, g:nat->nat, h:nat->nat)  
     requires f in O(n => g(n)+h(n)) 
     requires g in O(h) 
@@ -156,7 +156,7 @@ module LemComplexityNat {
   // Each result follows from it's corresponding non-set lifted property
 
   // This is lem_bigO_sum lifted to sets
-  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> O(f1+f2) ⊆ O(g1+g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ⟹ O(f1+f2) ⊆ O(g1+g2)
   lemma lem_bigOset_sum(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2) 
@@ -173,7 +173,7 @@ module LemComplexityNat {
   }  
 
   // This is lem_bigO_prod lifted to sets
-  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ==> O(f1*f2) ⊆ O(g1*g2)
+  // f1 ∈ O(g1) ∧ f2 ∈ O(g2) ⟹ O(f1*f2) ⊆ O(g1*g2)
   lemma lem_bigOset_prod(f1:nat->nat, g1:nat->nat, f2:nat->nat, g2:nat->nat)  
     requires f1 in O(g1) 
     requires f2 in O(g2)
@@ -190,7 +190,7 @@ module LemComplexityNat {
   }   
 
   // This is lem_bigO_sumSimp lifted to sets
-  // f ∈ O(g) ==> O(f+g) = O(g)
+  // f ∈ O(g) ⟹ O(f+g) = O(g)
   lemma lem_bigOset_sumSimp(f:nat->nat, g:nat->nat)  
     requires f in O(g) 
     ensures  O(n => f(n)+g(n)) == O(g)
@@ -215,7 +215,7 @@ module LemComplexityNat {
       assert g in Th(n => f(n)+g(n)) 
         by { lem_asymp_sumSimp(f, g); 
              lem_bigTh_defEQdef2(n => f(n)+g(n), g);
-             lem_bigTh_sim(n => f(n)+g(n), g); }
+             lem_bigTh_sym(n => f(n)+g(n), g); }
       
       assert g in O(n => f(n)+g(n)) 
         by { lem_bigTh_defEQdef2(g, n => f(n)+g(n)); }
@@ -252,11 +252,12 @@ module LemComplexityNat {
     lem_bigTh_defEQdef2(f, f);
   }  
 
-  // Simmetry
-  // f ∈ Θ(g) ==> g ∈ Θ(f)
-  lemma {:axiom} lem_bigTh_sim(f:nat->nat, g:nat->nat)  
+  // Symmetry
+  // f ∈ Θ(g) ⟹ g ∈ Θ(f)
+  lemma {:axiom} lem_bigTh_sym(f:nat->nat, g:nat->nat)  
     requires f in Th(g) 
     ensures  g in Th(f)
+  // TODO  
 
   // Zero function is Θ(0)
   lemma lem_bigTh_zeroGrowth(f:nat->nat)  
@@ -382,7 +383,7 @@ module LemComplexityNat {
     Mixed O/Θ/Ω properties
   ******************************************************************************/
 
-  // f ∈ O(g) ==> f+g ∈ Θ(g)
+  // f ∈ O(g) ⟹ f+g ∈ Θ(g)
   lemma lem_asymp_sumSimp(f:nat->nat, g:nat->nat)  
     requires f in O(g) 
     ensures  (n => f(n)+g(n)) in Th(g) 
@@ -424,7 +425,7 @@ module LemComplexityNat {
     Common growth rates comparison
   ******************************************************************************/
 
-  // 0 ∈ O(f(n))
+  // 0 ∈ O(f)
   lemma lem_bigO_zeroBigOany(f:nat->nat)
     ensures zeroGrowth() in O(f) 
   {
@@ -441,7 +442,7 @@ module LemComplexityNat {
     assert bigOfrom(c, n0, zeroGrowth(), f);
   }   
 
-  // 1 ∈ O(log2(n)) 
+  // 1 ∈ O(log2) 
   lemma lem_bigO_constBigOlog2()
     ensures constGrowth() in O(log2Growth()) 
   {
@@ -460,12 +461,12 @@ module LemComplexityNat {
     assert bigOfrom(c, n0, constGrowth(), log2Growth());      
   } 
 
-  // k >= 1 ==> 1 ∈ O(n^k)  
+  // k >= 1 ⟹ 1 ∈ O(n^k)  
   lemma lem_bigO_constBigOpoly(k:nat)
     requires k >= 1
     ensures  constGrowth() in O(polyGrowth(k)) 
   {
-    // Follows from transitivity of 1 ∈ O(log2(n)) and log2(n) ∈ O(n^k)  
+    // Follows from transitivity of 1 ∈ O(log2) and log2 ∈ O(n^k)  
     assert constGrowth() in O(log2Growth())  by { lem_bigO_constBigOlog2(); }
     assert log2Growth()  in O(polyGrowth(k)) by { lem_bigO_log2BigOpoly(k); }
     lem_bigO_trans(constGrowth(), log2Growth(), polyGrowth(k));
@@ -475,13 +476,13 @@ module LemComplexityNat {
   lemma lem_bigO_constBigOlin()
     ensures constGrowth() in O(linGrowth())  
   {
-    // Follows from transitivity of 1 ∈ O(log2(n)) and log2(n) ∈ O(n)  
+    // Follows from transitivity of 1 ∈ O(log2) and log2(n) ∈ O(n)  
     assert constGrowth() in O(log2Growth()) by { lem_bigO_constBigOlog2(); }
     assert log2Growth()  in O(linGrowth())  by { lem_bigO_log2BigOlin(); }
     lem_bigO_trans(constGrowth(), log2Growth(), linGrowth());
   }    
 
-  // b >= 2 ==> 1 ∈ O(b^n)  
+  // b >= 2 ⟹ 1 ∈ O(b^n)  
   lemma lem_bigO_constBigOexp(b:nat)
     requires b >= 2
     ensures  constGrowth() in O(expGrowth(b)) 
@@ -492,7 +493,7 @@ module LemComplexityNat {
     lem_bigO_trans(constGrowth(), linGrowth(), expGrowth(b));
   }      
 
-  // log2(n) ∈ O(n) 
+  // log2 ∈ O(n) 
   lemma lem_bigO_log2BigOlin()
     ensures log2Growth() in O(linGrowth())
   { 
@@ -506,7 +507,7 @@ module LemComplexityNat {
         <= { lem_log2nLEQnMinus1(n); }
            n-1;
         <= c*n;
-        == { lem_exp_n1(n); }
+        == { lem_exp_Pow1(n); }
            c*exp(n, 1);
         == c*linGrowth()(n);
       }
@@ -518,7 +519,6 @@ module LemComplexityNat {
   lemma lem_bigO_log2BigOlinV2()
     ensures log2Plus1Growth() in O(linGrowth())
   { 
-    // we show that c=1 and n0=1
     var c:nat, n0:nat := 1, 1;
     forall n:nat | 0 <= n0 <= n
       ensures log2Plus1Growth()(n) <= c*linGrowth()(n)
@@ -529,7 +529,7 @@ module LemComplexityNat {
         <= { lem_log2nPlus1LEQn(n); }
            n;
         <= c*n;
-        == { lem_exp_n1(n); }
+        == { lem_exp_Pow1(n); }
            c*exp(n, 1);
         == c*linGrowth()(n);
       }
@@ -537,23 +537,22 @@ module LemComplexityNat {
     assert bigOfrom(c, n0, log2Plus1Growth(), linGrowth());
   }
 
-  // k >= 1 ==> log2(n) ∈ O(n^k) 
+  // k >= 1 ⟹ log2 ∈ O(n^k) 
   lemma lem_bigO_log2BigOpoly(k:nat)
     requires k >= 1
     ensures  log2Growth() in O(polyGrowth(k))
   { 
-    // Follows from transitivity of log2(n) ∈ O(n) and n ∈ O(n^k)  
+    // Follows from transitivity of log2 ∈ O(n) and n ∈ O(n^k)  
     assert log2Growth() in O(linGrowth())   by { lem_bigO_log2BigOlin(); }
     assert linGrowth()  in O(polyGrowth(k)) by { lem_bigO_linBigOpoly(k); }
     lem_bigO_trans(log2Growth(), linGrowth(), polyGrowth(k));   
   }
 
-  // k >= 1 ==> n ∈ O(n^k) 
+  // k >= 1 ⟹ n ∈ O(n^k) 
   lemma lem_bigO_linBigOpoly(k:nat)
     requires k >= 1
     ensures  linGrowth() in O(polyGrowth(k)) 
   { 
-    // we show that c=1 and n0=1
     var c:nat, n0:nat := 1, 1;
     forall n:nat | 0 <= n0 <= n
       ensures linGrowth()(n) <= c*polyGrowth(k)(n)
@@ -627,7 +626,7 @@ module LemComplexityNat {
     lem_bigO_trans(linGrowth(), exp2Growth(), expGrowth(b));
   }  
 
-  // b >= 2 ==> 2^n ∈ O(b^n)  
+  // b >= 2 ⟹ 2^n ∈ O(b^n)  
   lemma lem_bigO_exp2BigOexp(b:nat)
     requires b >= 2
     ensures  exp2Growth() in O(expGrowth(b))

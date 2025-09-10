@@ -134,12 +134,14 @@ module ComplexityR0 {
   ghost function logGrowth(b:R0) : nat->R0
     requires b > 1.0
   {   
+    lem_log_NonNegativeAuto();
     n => if n>0 then log(b, n as R0) else 0.0
   }
 
   ghost function logGrowth2(b:R0) : nat->R0
     requires b > 1.0
   {   
+    lem_log_NonNegativeAuto();
     n => log(b, (n+1) as R0)
   }
 

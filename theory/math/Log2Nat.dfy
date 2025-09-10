@@ -26,7 +26,7 @@ module Log2Nat {
     reveal log2();
   }
 
-  // n >= 2 ==> log2(n) >= 1
+  // n >= 2 ⟹ log2(n) >= 1
   lemma lem_log2_GEQone(n:nat)
     requires n >= 2
     ensures  log2(n) >= 1
@@ -34,7 +34,7 @@ module Log2Nat {
     reveal log2();
   }
 
-  // n > 0 /\ m > 0 /\ n <= m ==> log2(n) <= log2(m)
+  // n,m > 0 ∧ n <= m ⟹ log2(n) <= log2(m)
   lemma lem_log2_MonoIncr(n:nat, m:nat)
     requires n > 0 && m > 0
     ensures  n <= m ==> log2(n) <= log2(m)
@@ -88,7 +88,7 @@ module Log2Nat {
     }
   }
 
-  // If n=2^k then log2(2^n)=n 
+  // n = 2^k ⟹ log2(2^n) = n 
   lemma {:axiom} lem_exp2log2_Inverse(n:nat, k:nat)
     requires exp(2, k) > 0
     requires n == exp(2, k) 

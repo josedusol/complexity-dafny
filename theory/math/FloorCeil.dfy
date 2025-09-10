@@ -28,7 +28,7 @@ module FloorCeil {
      -floor(-x)
   }  
 
-  // ceil(x) <= n <==> x <= n
+  // ceil(x) <= n ⟺ x <= n
   lemma {:axiom} lem_ceilxLEQnIFFxLEQn(x:real, n:int)
     ensures ceil(x) <= n <==> x <= n as real
 
@@ -42,12 +42,12 @@ module FloorCeil {
     ensures floor(x) + 1 >= ceil(x)
   { }
 
-  // x <= y ==> floor(x) <= ceil(y)
+  // x <= y ⟹ floor(x) <= ceil(y)
   lemma lem_floorCeilMono(x:real, y:real)
     ensures x <= y ==> floor(x) <= ceil(y)
   { }
   
-    // x <= y ==> floor(x/d) <= ceil(y/d)
+    // x <= y ⟹ floor(x/d) <= ceil(y/d)
   lemma lem_floorCeilMonoDiv(x:real, y:real, d:real)
     requires d > 0.0
     ensures  x <= y ==> floor(x/d) <= ceil(y/d)

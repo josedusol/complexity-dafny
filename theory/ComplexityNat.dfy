@@ -19,7 +19,7 @@ module ComplexityNat {
   import opened LemFunction
   import opened Log2Nat
   import opened Root2Nat
-  import opened TypeR0 
+  import opened TypeR0
   import CR0 = ComplexityR0
 
   /******************************************************************************

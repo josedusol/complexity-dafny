@@ -10,7 +10,7 @@ module LemBoundsNat {
   import opened ExpNat
   import opened Log2Nat
 
-  // n > 0 ==> 2^log2(n) <= n
+  // n > 0 ⟹ 2^log2(n) <= n
   lemma lem_log2exp2_bounds(n:nat)
     requires n > 0
     ensures  exp(2, log2(n)) <= n
@@ -45,7 +45,7 @@ module LemBoundsNat {
     }
   }
 
-  // n > 0 ==> n < 2^(log2(n)+1)
+  // n > 0 ⟹ n < 2^(log2(n)+1)
   lemma lem_nLQexp2log2nPlus1(n:nat)
     requires n > 0
     ensures  n < exp(2, log2(n)+1) 
@@ -78,7 +78,7 @@ module LemBoundsNat {
     }
   }
 
-  // n > 0 ==> log2(n+1) <= n
+  // n > 0 ⟹ log2(n+1) <= n
   lemma lem_log2nPlus1LEQn(n:nat) 
     requires n > 0 
     ensures  log2(n+1) <= n
@@ -109,7 +109,7 @@ module LemBoundsNat {
     }
   }
 
-  // n >= 4 ==> log2(n) <= n-2
+  // n >= 4 ⟹ log2(n) <= n-2
   lemma lem_log2nLEQnMinus2(n:nat)
     requires n >= 4 
     ensures  log2(n) <= n-2
@@ -141,7 +141,7 @@ module LemBoundsNat {
     }
   }
 
-  // n > 0 ==> log2(n) <= n-1
+  // n > 0 ⟹ log2(n) <= n-1
   lemma lem_log2nLEQnMinus1(n:nat)  
     requires n > 0 
     ensures  log2(n) <= n-1
@@ -205,7 +205,7 @@ module LemBoundsNat {
     }
   }
 
-  // n>=4 ==> n <= 2^(n-2)
+  // n >= 4 ⟹ n <= 2^(n-2)
   lemma lem_nLEQexp2nMinus2(n:nat)
     requires n >= 4
     ensures  n <= exp(2,n-2)
@@ -243,7 +243,7 @@ module LemBoundsNat {
     reveal exp();
   }
 
-  // n>=4 ==> n^2 <= 2^n
+  // n >= 4 ⟹ n^2 <= 2^n
   lemma lem_expn2LEQexp2n(n:nat)
     requires n >= 4
     ensures  exp(n,2) <= exp(2,n)

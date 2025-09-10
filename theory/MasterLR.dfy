@@ -2,6 +2,7 @@ include "./math/ExpReal.dfy"
 include "./math/FloorCeil.dfy"
 include "./math/LemBoundsNat.dfy"
 include "./math/LemFunction.dfy"
+include "./math/LogReal.dfy"
 include "./math/MaxMin.dfy"
 include "./math/SumReal.dfy"
 include "./math/TypeR0.dfy"
@@ -15,9 +16,10 @@ include "./LemComplexityR0.dfy"
 module MasterLR {  
 
   import opened ExpReal 
-  import opened FloorCeil   
+  import opened FloorCeil
   import opened LemBoundsNat
   import opened LemFunction
+  import opened LogReal
   import opened MaxMin
   import opened SumReal
   import opened TypeR0 
@@ -159,42 +161,42 @@ module MasterLR {
     liftD(w,0.0)(n-i*s)
   } 
 
-  // Expression: sum_{i=0}^{m-1}a^i*w(n-i*s)
+  // Expression: Σ_{i=0}^{m-1}a^i*w(n-i*s)
   opaque ghost function S(a:nat, b:nat, s:nat, w:nat->R0, n:nat) : real
     requires s > 0
   {    
     sum(0, m(b,s,n)-1, i => Sa(a,i)*Sw(s,w,n,i))      
   } 
 
-  // Expression: sum_{i=0}^{j-1}a^i*w(n-i*s)
+  // Expression: Σ_{i=0}^{j-1}a^i*w(n-i*s)
   opaque ghost function S1(a:nat, b:nat, s:nat, w:nat->R0, n0:nat, n:nat) : real
     requires s > 0 && b >= s-1 && n >= n0 && n > b
   {    
     sum(0, j(b,s,n0,n)-1, i => Sa(a,i)*Sw(s,w,n,i))      
   }   
 
-  // Expression: sum_{i=j}^{m-1}a^i*w(n-i*s)
+  // Expression: Σ_{i=j}^{m-1}a^i*w(n-i*s)
   opaque ghost function S2(a:nat, b:nat, s:nat, w:nat->R0, n0:nat, n:nat) : real
     requires s > 0 && b >= s-1 && n >= n0 && n > b
   {    
     sum(j(b,s,n0,n), m(b,s,n)-1, i => Sa(a,i)*Sw(s,w,n,i))      
   }    
 
-  // Expression: d*n^k*sum_{i=0}^{j-1}a^i
+  // Expression: d*n^k*Σ_{i=0}^{j-1}a^i
   opaque ghost function SupBound1(a:nat, b:nat, s:nat, w:nat->R0, k:R0, d:R0, n0:nat, n:nat) : real
     requires s > 0 && b >= s-1 && n >= n0 && n > b
   {    
     d*exp(n as R0, k)*sum(0, j(b,s,n0,n)-1, i => Sa(a,i))    
   } 
 
-  // Expression: wMax*sum_{i=i0}^{m-1}a^i 
+  // Expression: wMax*Σ_{i=i0}^{m-1}a^i 
   opaque ghost function SupBound2(a:nat, b:nat, s:nat, w:nat->R0, n0:nat, n:nat) : real
     requires s > 0 && b >= s-1 && n >= n0 && n > b
   {    
     wMax(b,s,w,n,n0)*sum(j(b,s,n0,n), m(b,s,n)-1, i => Sa(a,i))    
   } 
 
-  // Expression: d*n^k*sum_{i=0}^{i0-1}a^i + wMax*sum_{i=i0}^{m-1}a^i 
+  // Expression: d*n^k*Σ_{i=0}^{i0-1}a^i + wMax*Σ_{i=i0}^{m-1}a^i 
   opaque ghost function SupBound(a:nat, b:nat, s:nat, w:nat->R0, k:R0, d:R0, n0:nat, n:nat) : real
     requires s > 0 && b >= s-1 && n >= n0 && n > b
   {    
@@ -276,7 +278,7 @@ module MasterLR {
     }
   }
 
-  // ∀ n : T(n) = a^m*c + sum_{i=0}^{m-1}a^i*w(n-i*s) where m=ceil((n-b)/s)
+  // ∀ n : T(n) = a^m*c + Σ_{i=0}^{m-1}a^i*w(n-i*s) where m=ceil((n-b)/s)
   lemma lem_mmLR_sumForm(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0)  
     requires a > 0 && s > 0 && b >= s-1
     requires forall n:nat :: T(n) == TbodyLR(a, b, c, s, T, w, n) 
@@ -538,7 +540,7 @@ module MasterLR {
 
   // When n0 > b.
   // ∀ n >= n0 : S(n) <= SupBound(n)
-  //                   = d*n^k*sum_{i=0}^{i0-1}a^i + wMax*sum_{i=i0}^{m-1}a^i
+  //                   = d*n^k*Σ_{i=0}^{i0-1}a^i + wMax*Σ_{i=i0}^{m-1}a^i
   lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, d:R0, n0:nat)  
     requires a > 0 && s > 0 && b >= s-1 && n0 > b
     requires bigOfrom(d, n0, w, n => exp(n as R0, k))
@@ -546,7 +548,7 @@ module MasterLR {
   //{}
 
   // ∀ n >= n1 : S(n) <= Sbound(n,d)
-  //                   = d*n^k*sum_{i=0}^{m-1}a^i
+  //                   = d*n^k*Σ_{i=0}^{m-1}a^i
   // lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, d:R0, n0:nat)  
   //   requires a > 0 && s > 0 && b >= s-1
   //   //requires bigO(w, n => pow(n as R0, k))

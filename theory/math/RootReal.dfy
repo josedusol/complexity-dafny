@@ -18,7 +18,7 @@ module RootReal {
   }
 
   // Non-negativity
-  // x >= 0 ∧ q > 0 ⇒ root(x,q) >= 0
+  // x >= 0 ∧ q > 0 ⟹ root(x,q) >= 0
   lemma lem_root_NonNegative(x:real, q:real)
     requires x >= 0.0 && q > 0.0 
     ensures root(x, q) >= 0.0
@@ -26,7 +26,7 @@ module RootReal {
     reveal root();  
   }
 
-  // q > 0 ⇒ root(0,q) = 0
+  // q > 0 ⟹ root(0,q) = 0
   lemma lem_root_Zero(q:real)
     requires q > 0.0
     ensures  root(0.0, q) == 0.0 
@@ -98,7 +98,7 @@ module RootReal {
   ******************************************************************************/
 
   // root(x,q) is strictly increasing in the radicand x ∈ [0,∞)
-  // x,y >= 0 ∧ x < y ⇒ root(x,q) < root(y,q)
+  // x,y >= 0 ∧ x < y ⟹ root(x,q) < root(y,q)
   lemma lem_root_RadStrictIncr(x:real, y:real, q:real)
     requires x >= 0.0 && y >= 0.0 && q > 0.0
     ensures x < y ==> root(x, q) < root(y, q)
@@ -114,7 +114,7 @@ module RootReal {
   ******************************************************************************/  
 
   // root(x,q) is strictly increasing in the index
-  // 0 < x < 1 ∧ p,q > 0 ∧ p < q ⇒ root(x,p) < root(x,q)
+  // 0 < x < 1 ∧ p,q > 0 ∧ p < q ⟹ root(x,p) < root(x,q)
   lemma lem_root_IndexStrictIncr(x:real, p:real, q:real)
     requires 0.0 < x < 1.0 && p > 0.0 && q > 0.0
     ensures p < q ==> root(x, p) < root(x, q)
@@ -131,7 +131,7 @@ module RootReal {
   ******************************************************************************/    
 
   // root(x,q) is strictly decreasing in the index when x > 1 
-  // x > 1 ∧ p,q > 0 ∧ p < q ⇒ root(x,p) > root(x,q)
+  // x > 1 ∧ p,q > 0 ∧ p < q ⟹ root(x,p) > root(x,q)
   lemma lem_root_IndexStrictDecr(x:real, p:real, q:real)
     requires x > 1.0 && p > 0.0 && q > 0.0 
     ensures p < q ==> root(x, p) > root(x, q)
@@ -142,7 +142,7 @@ module RootReal {
   }
 
   // A weak version of lem_root_IndexStrictDecr but holds for x=0 and x=1
-  // (x = 0 ∨ x >= 1) ∧ p,q > 0 ∧ p <= q ⇒ root(x,p) >= root(x,q)
+  // (x = 0 ∨ x >= 1) ∧ p,q > 0 ∧ p <= q ⟹ root(x,p) >= root(x,q)
   lemma lem_root_IndexMonoDecr(x:real, p:real, q:real)
     requires x == 0.0 || x >= 1.0 
     requires p > 0.0 && q > 0.0

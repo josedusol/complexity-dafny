@@ -4,7 +4,7 @@
 
 module SumReal {
 
-  // sum_{k=a}^{b}f(k)
+  // Σ_{k=a}^{b}f(k)
   opaque ghost function sum(a:int, b:int, f:int->real): real
     decreases b - a
   {
@@ -13,7 +13,7 @@ module SumReal {
     else f(a) + sum(a+1, b, f)
   }
 
-  // a <= b+1 ==> sum_{k=a}^{b+1}f(k) = sum_{k=a}^{b}f(k) + f(b+1)
+  // a <= b+1 ⟹ Σ_{k=a}^{b+1}f(k) = Σ_{k=a}^{b}f(k) + f(b+1)
   lemma lem_sum_dropLast(a:int, b:int, f:int->real)
     requires a <= b+1
     ensures  sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
@@ -31,8 +31,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= j
-      //   IH: sum(a+1, b+1, f) = sum(a+1, b, f) + f(b+1)
-      //    T: sum(a, b+1, f)   = sum(a, b, f)   + f(b+1)
+      //   IH: Σ(a+1, b+1, f) = Σ(a+1, b, f) + f(b+1)
+      //    T: Σ(a, b+1, f)   = Σ(a, b, f)   + f(b+1)
       calc {  
            sum(a, b+1, f);
         == { reveal sum(); } 
@@ -57,7 +57,7 @@ module SumReal {
     }
   }
 
-  // i <= j+1 ==> c*sum_{k=i}^{j}f(k) = sum_{k=i}^{j}c*f(k)
+  // i <= j+1 ⟹ c*Σ_{k=i}^{j}f(k) = Σ_{k=i}^{j}c*f(k)
   lemma lem_sum_linearityConst(a:int, b:int, c:real, f:int->real)
     requires a <= b+1
     ensures  c*sum(a, b, f) == sum(a, b, k => c*f(k))
@@ -74,8 +74,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: c*sum(a+1, b, f) = c*sum(a+1, b, k => c*f(k))
-      //    T: c*sum(a, b, f)   = c*sum(a, b, k => f(k))
+      //   IH: c*Σ(a+1, b, f) = c*Σ(a+1, b, k => c*f(k))
+      //    T: c*Σ(a, b, f)   = c*Σ(a, b, k => f(k))
       calc {  
            c*sum(a, b, f);
         == { reveal sum(); } 
@@ -90,7 +90,7 @@ module SumReal {
     }  
   }
 
-  // a <= b+1 ==> sum_{k=a}^{b}c = c*(b - a + 1)
+  // a <= b+1 ⟹ Σ_{k=a}^{b}c = c*(b - a + 1)
   lemma lem_sum_const(a:int, b:int, c:real)
     requires a <= b+1
     ensures  sum(a, b, k => c) == c * (b - a + 1) as real
@@ -106,8 +106,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, k => c) = c*(b - (a+1) + 1) = c*(b - a)
-      //    T: sum(a, b, k => c)   = c*(b - a + 1) 
+      //   IH: Σ(a+1, b, k => c) = c*(b - (a+1) + 1) = c*(b - a)
+      //    T: Σ(a, b, k => c)   = c*(b - a + 1) 
       calc {  
            sum(a, b, k => c);
         == { reveal sum(); }
@@ -131,7 +131,7 @@ module SumReal {
     }
   } 
 
-  // a <= b+1 ==> sum_{k=a}^{b}f(k) = sum_{k=a+d}^{b+d}f(k-d)
+  // a <= b+1 ⟹ Σ_{k=a}^{b}f(k) = Σ_{k=a+d}^{b+d}f(k-d)
   lemma lem_sum_shiftIndex(a:int, b:int, d:int, f:int->real)
     requires a <= b+1
     ensures  sum(a, b, f) == sum(a+d, b+d, k => f(k-d))
@@ -148,8 +148,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, f) = sum((a+d)+1, b+d, k => f(k-d))
-      //    T: sum(a, b, f)   = sum(a+d, b+d, k => f(k-d))
+      //   IH: Σ(a+1, b, f) = Σ((a+d)+1, b+d, k => f(k-d))
+      //    T: Σ(a, b, f)   = Σ(a+d, b+d, k => f(k-d))
       calc {  
            sum(a, b, f);
         == { reveal sum(); } 
@@ -163,7 +163,7 @@ module SumReal {
     }
   } 
 
-  // a <= b+1 ==> sum_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
+  // a <= b+1 ⟹ Σ_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
   lemma lem_sum_interval(a:int, b:int)
     requires a <= b+1 
     decreases b - a
@@ -179,8 +179,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: sumr(a+1, b, K => k) = (b*(b+1) + (a+1)*(1-(a+1)))/2 
-      //    T: sumr(a, b, k => k)   = (b*(b+1) + a*(1-a))/2 
+      //   IH: Σ(a+1, b, K => k) = (b*(b+1) + (a+1)*(1-(a+1)))/2 
+      //    T: Σ(a, b, k => k)   = (b*(b+1) + a*(1-a))/2 
       calc {  
            sum(a, b, k => k as real);
         == { reveal sum(); }
@@ -192,8 +192,8 @@ module SumReal {
     } 
   }
 
-  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) == g(k)) 
-  //          ==> sum_{k=a}^{b}f = sum_{k=a}^{b}g
+  // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) == g(k)) 
+  //          ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{b}g
   lemma lem_sum_leibniz(a:int, b:int, f:int->real, g:int->real)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) == g(k)
@@ -211,8 +211,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, f) = sum(a+1, b, g)
-      //    T: sum(a, b, f)   = sum(a, b, g)
+      //   IH: Σ(a+1, b, f) = Σ(a+1, b, g)
+      //    T: Σ(a, b, f)   = Σ(a, b, g)
       calc {  
            sum(a, b, f);
         == { reveal sum(); } 
@@ -226,8 +226,8 @@ module SumReal {
     }
   } 
 
-  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) <= g(k)) 
-  //          ==> sum_{k=a}^{b}f <= sum_{k=a}^{b}g
+  // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) <= g(k)) 
+  //          ⟹ Σ_{k=a}^{b}f <= Σ_{k=a}^{b}g
   lemma lem_sum_mono(a:int, b:int, f:int->real, g:int->real)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
@@ -245,8 +245,8 @@ module SumReal {
       }
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, f) <= sum(a+1, b, g)
-      //    T: sum(a, b, f)   <= sum(a, b, g)
+      //   IH: Σ(a+1, b, f) <= Σ(a+1, b, g)
+      //    T: Σ(a, b, f)   <= Σ(a, b, g)
       calc {  
            sum(a, b, f);
         == { reveal sum(); } 
@@ -261,7 +261,7 @@ module SumReal {
     }
   } 
 
-  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j}f + sum_{k=j+1}^{b}f
+  // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j}f + Σ_{k=j+1}^{b}f
   lemma lem_sum_split(a:int, b:int, j:int, f:int->real)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
@@ -272,8 +272,8 @@ module SumReal {
       assert true; // trivial
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, f) = sum(a+1, j, f) + sum(j+1, b, f)
-      //    T: sum(a, b, f)   = sum(a, j, f) + sum(j+1, b, f)
+      //   IH: Σ(a+1, b, f) = Σ(a+1, j, f) + Σ(j+1, b, f)
+      //    T: Σ(a, b, f)   = Σ(a, j, f) + Σ(j+1, b, f)
       if a == j {
         calc {  
              sum(j, b, f);
@@ -297,7 +297,7 @@ module SumReal {
     }
   } 
 
-  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j-1}f + sum_{k=j}^{b}f
+  // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j-1}f + Σ_{k=j}^{b}f
   lemma lem_sum_split2(a:int, b:int, j:int, f:int->real)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)

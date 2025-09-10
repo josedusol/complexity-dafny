@@ -12,6 +12,7 @@ module LemBoundsReal {
   import opened Root2Real
   import opened RootReal
 
+  // 1 < sqrt(2) < 2
   lemma lem_root_1LQsqrt2LQ2()
     ensures 1.0 < sqrt(2.0) < 2.0
   { 

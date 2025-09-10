@@ -6,10 +6,11 @@ include "./SumReal.dfy"
 ******************************************************************************/
 
 module SumInt {
+  
   import opened LemFunction  
   import R = SumReal
 
-  // sum_{k=a}^{b}f(k)
+  // Σ_{k=a}^{b}f(k)
   opaque ghost function sum(a:int, b:int, f:int->int) : int 
     decreases b - a
   {
@@ -26,7 +27,7 @@ module SumInt {
     reveal sum(), R.sum();
   }  
 
-  // a <= b+1 ==> sum_{k=a}^{b+1}f(k) = sum_{k=a}^{b}f(k) + f(b+1)
+  // a <= b+1 ⟹ Σ_{k=a}^{b+1}f(k) = Σ_{k=a}^{b}f(k) + f(b+1)
   lemma lem_sum_dropLast(a:int, b:int, f:int->int)
     requires a <= b+1
     ensures  sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
@@ -49,7 +50,7 @@ module SumInt {
     }
   }
 
-  // a <= b+1 ==> sum_{k=a}^{b}c = c*(b - a + 1)
+  // a <= b+1 ⟹ Σ_{k=a}^{b}c = c*(b - a + 1)
   lemma lem_sum_const(a:int, b:int, c:int)
     requires a <= b+1
     ensures  sum(a, b, k => c) == c*(b - a + 1)
@@ -77,7 +78,7 @@ module SumInt {
     }
   } 
 
-  // a <= b+1 ==> sum_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
+  // a <= b+1 ⟹ Σ_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
   lemma lem_sum_interval(a:int, b:int)
     requires a <= b+1 
     decreases b - a
@@ -93,8 +94,8 @@ module SumInt {
       }
     } else {  
       // Step. a <= b
-      //   IH: sum(a+1, b, K => k) = (b*(b+1) + (a+1)*(1-(a+1)))/2
-      //    T: sum(a, b, k => k)   = (b*(b+1) + a*(1-a))/2 
+      //   IH: Σ(a+1, b, K => k) = (b*(b+1) + (a+1)*(1-(a+1)))/2
+      //    T: Σ(a, b, k => k)   = (b*(b+1) + a*(1-a))/2 
       calc {  
           sum(a, b, k => k);
         == { reveal sum(); }
@@ -106,8 +107,8 @@ module SumInt {
     }
   }
 
-  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) == g(k)) 
-  //          ==> sum_{k=a}^{b}f = sum_{k=a}^{b}g
+  // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) == g(k)) 
+  //          ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{b}g
   lemma lem_sum_leibniz(a:int, b:int, f:int->int, g:int->int)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) == g(k)
@@ -121,8 +122,8 @@ module SumInt {
     lem_sum_liftEq(a, b, g);
   }
 
-  // a <= b+1 /\ (∀ k : a<=k<=b : f(k) <= g(k)) 
-  //          ==> sum_{k=a}^{b}f <= sum_{k=a}^{b}g
+  // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) <= g(k)) 
+  //          ⟹ Σ_{k=a}^{b}f <= Σ_{k=a}^{b}g
   lemma lem_sum_mono(a:int, b:int, f:int->int, g:int->int)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
@@ -136,7 +137,7 @@ module SumInt {
     lem_sum_liftEq(a, b, g);
   }
 
-  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j}f + sum_{k=j+1}^{b}f
+  // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j}f + Σ_{k=j+1}^{b}f
   lemma lem_sum_split(a:int, b:int, j:int, f:int->int)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
@@ -149,7 +150,7 @@ module SumInt {
     lem_sum_liftEq(j+1, b, f);   
   }
 
-  // a<=j<=b ==> sum_{k=a}^{b}f = sum_{k=a}^{j-1}f + sum_{k=j}^{b}f
+  // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j-1}f + Σ_{k=j}^{b}f
   lemma lem_sum_split2(a:int, b:int, j:int, f:int->int)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)
@@ -164,14 +165,14 @@ module SumInt {
 
   // Following sum lemmas are only stated for integer sum
 
-  // sum_{k=1}^{n}k = (n*(n+1))/2 
+  // Σ_{k=1}^{n}k = (n*(n+1))/2 
   lemma lem_sum_triangle(n:nat)
     ensures sum(1, n, k => k) == (n*(n+1))/2
   {
     lem_sum_interval(1, n);
   }
 
-  // a <= b+1 ==> sum_{k=a}^{b}(b-k+a) = sum_{k=a}^{b}k
+  // a <= b+1 ⟹ Σ_{k=a}^{b}(b-k+a) = Σ_{k=a}^{b}k
   lemma {:axiom} lem_sum_revIndex(a:int, b:int)
     requires a <= b+1
     ensures  sum(a, b, k => b-k+a) == sum(a, b, k => k)

@@ -27,7 +27,7 @@ lemma test_bigOprod()
 
   lem_fun_Ext((n:nat) => linGrowth()(n)*linGrowth()(n), quadGrowth())
     by { assert forall n:nat :: linGrowth()(n)*linGrowth()(n) == quadGrowth()(n) 
-           by { lem_exp_n1Auto(); lem_exp_n2Auto(); }
+           by { lem_exp_Pow1Auto(); lem_exp_Pow2Auto(); }
     } 
   lem_fun_Ext((n:nat) => f1(n)*f2(n), (n:nat) => (2*n)*(3*n)); 
 }
@@ -52,7 +52,7 @@ lemma test_polyBigO() returns (c:nat, n0:nat)
   assert bigOfrom(c, n0, poly, quadGrowth());
 } 
 
-lemma test_log2BigOn() returns (c:nat, n0:nat)
+lemma test_log2BigOlin() returns (c:nat, n0:nat)
   ensures ((n:nat) => log2(n+1)) in O(linGrowth())
 {
   c, n0 := 1, 1;

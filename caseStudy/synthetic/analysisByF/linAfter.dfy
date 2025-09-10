@@ -34,7 +34,7 @@ method linAfter(x:Input) returns (ghost t:nat)
       t := t+1 ;
     }
   }
-  assert t == if N < 10 then 20 else T(N, 0); 
+  assert t == if N < 10 then 20 else T(N, 0);
   assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
   assert t <= f(N);
   assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }

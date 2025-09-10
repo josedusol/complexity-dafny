@@ -1,7 +1,7 @@
 include "../theory/math/ExpReal.dfy"
 include "../theory/math/LemBoundsNat.dfy"
 include "../theory/math/LemFunction.dfy"
-include "../theory/math/Log2Nat.dfy"
+include "../theory/math/LogReal.dfy"
 include "../theory/math/MaxMin.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
@@ -11,7 +11,7 @@ include "../theory/LemComplexityR0.dfy"
 import opened ExpReal
 import opened LemBoundsNat
 import opened LemFunction
-import opened Log2Nat
+import opened LogReal
 import opened MaxMin
 import opened SumInt
 import opened TypeR0
