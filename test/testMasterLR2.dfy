@@ -255,7 +255,7 @@ lemma lem_T5def(n:nat)
 //   T5(n) = 9*2^(n-1) - 3*n - 6
 // Asymptotic closed form by MT: 
 //   T5(n) in O(n*2^n)
-// Thiger bound:
+// Tighter bound:
 //   T5(n) ∈ Θ(2^n)
 lemma test_masterMethodForT5lifted() 
   ensures liftToR0(T5) in O(n => (n as R0)*exp(2.0, n as R0))
@@ -325,7 +325,7 @@ lemma lem_T6def(n:nat)
 //   T6(n) = ... hard
 // Asymptotic closed form by MT:
 //   T6(n) ∈ O(n^2*2^(n/2))
-// Thiger bound:
+// Tighter bound:
 //   T6(n) ∈ Θ(2^(n/2)) 
 lemma test_masterMethodForT6() 
   ensures liftToR0(T6) in O(n => ((n*n) as R0)*exp(2.0, n as R0 / 2.0))
@@ -395,7 +395,7 @@ lemma lem_T7def(n:nat)
 //   T7(n) = m*n - 2^{m+1} + 2m + 2   , where m=floor(log2(n+1))
 // Asymptotic closed form by MT:
 //   T7(n) ∈ O(n^2)     
-// Thiger bound:
+// Tighter bound:
 //   T7(n) ∈ Θ(n*log(n))
 lemma test_masterMethodForT7lifted()
   ensures liftToR0(T7) in O(n => exp(n as R0, 2.0))

@@ -99,7 +99,7 @@ lemma lem_T2def(n:nat)
 }
 
 lemma lem_T1BigOquad() 
-  ensures liftToR0(T1) in O(n => exp(n as R0, 2.0))
+  ensures liftToR0(T1) in O(n => exp(n as R0, 2.0)) 
 {
   var a:nat       := 1;
   var b:nat       := 0;

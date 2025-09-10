@@ -1,21 +1,27 @@
+include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/Log2Nat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/Log2Real.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened Log2Nat
-import opened ComplexityNat
+import opened LemFunction
+import Nat = Log2Nat
+import opened Log2Real
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
 }
 
-ghost function f(N:nat) : nat
+ghost function f(n:nat) : nat
 {
-  if N>0 then log2(N) else 0
+  if n>0 then Nat.log2(n) else 0
 }
 
 method log(x:Input) returns (ghost t:nat)
   ensures t <= f(x.size())
-  ensures tIsBigO(x.size(), t, log2Growth())
+  ensures tIsBigO(x.size(), t as R0, log2Growth())
 {
   var N := x.size();
   var i;
@@ -31,8 +37,7 @@ method log(x:Input) returns (ghost t:nat)
   }
   assert t == T(N); 
   assert t <= f(N) by { lem_TclosedBound(N); }
- 
-  assert f in O(log2Growth()) by { var c, n0 := lem_fBigOlog2(); }
+  assert liftToR0(f) in O(log2Growth()) by { var c, n0 := lem_fBigOlog2(); }
 } 
 
 ghost function T(i:nat) : nat
@@ -46,64 +51,71 @@ ghost function T(i:nat) : nat
 
 // T(N) ~ log2(N)
 // T(N) = Θ(log(N)) 
-lemma lem_TclosedBound(N:nat)
-  decreases N
-  ensures N==0 ==> T(N) == 0
-  ensures N>0  ==> T(N) <= log2(N)
+lemma lem_TclosedBound(n:nat)
+  decreases n
+  ensures n==0 ==> T(n) == 0
+  ensures n>0  ==> T(n) <= Nat.log2(n)
 {  
-  if N > 1 {
-    reveal log2(); 
-    lem_TclosedBound(N/2);
+  if n > 1 {
+    reveal Nat.log2(); 
+    lem_TclosedBound(n/2);
   } 
 }
 
-lemma lem_fBigOlog2() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f, log2Growth())
+lemma lem_fBigOlog2() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), log2Growth())
 {
-  c, n0 := 1, 1;
+  c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*log2Growth()(n)
+    ensures f(n) as R0 <= c*log2Growth()(n)
   {
-    assert f(n) <= c*log2Growth()(n); 
+    calc {
+         f(n) as R0;
+      == (if n>0 then Nat.log2(n) else 0) as R0;
+      == Nat.log2(n) as R0;
+      <= { lem_log2_NatLowBound(n);  }
+         log2(n as R0);  
+      == c*log2Growth()(n); 
+    }
   }
 }
 
 //**************************************************************************//
 
 ghost method testT1() {
-  reveal log2();
+  reveal Nat.log2();
   var N:nat := 1;
   var r := T(N);
   assert r == 0; 
-  assert r <= log2(N+1); 
+  assert r <= Nat.log2(N+1); 
 
   N := 2;
   r := T(N);
   assert r == 1;
-  assert r <= log2(N+1);
+  assert r <= Nat.log2(N+1);
 
   N := 3;
   r := T(N); 
   assert r == 1;
-  assert r <= log2(N+1);
+  assert r <= Nat.log2(N+1);
 
   N := 4;
   r := T(N); 
   assert r == 2;
-  assert r <= log2(N+1);
+  assert r <= Nat.log2(N+1);
 
   N := 5;
   r := T(N); 
   assert r == 2;
-  assert r <= log2(N+1);
+  assert r <= Nat.log2(N+1);
 
   N := 10;
   r := T(N); 
   assert r == 3;
-  assert r <= log2(N+1);  
+  assert r <= Nat.log2(N+1);  
 
   N := 40;
   r := T(N); 
   assert r == 5;
-  assert r <= log2(N+1);    
+  assert r <= Nat.log2(N+1);    
 } 

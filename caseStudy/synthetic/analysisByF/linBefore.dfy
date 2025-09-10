@@ -1,8 +1,10 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
@@ -10,12 +12,12 @@ type Input {
 
 ghost function f(N:nat) : nat
 {
-  if N < 10 then exp(N,1) else 20 
+  if N < 10 then N else 20 
 }
 
 method linBefore(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, constGrowth())
+  ensures tIsBigO(x.size(), t as R0, constGrowth())
 {
   var N := x.size();
   if N < 10 {
@@ -35,9 +37,8 @@ method linBefore(x:Input) returns (ghost t:nat)
     t := 20 ;
   }
   assert t == if N < 10 then T(N, 0) else 20;
-  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
-  assert t <= f(N);
-  assert f in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
+  assert t == f(N) by { lem_Tclosed(N, 0); }
+  assert liftToR0(f) in O(constGrowth()) by { var c, n0 := lem_fBigOconst(); }
 } 
 
 ghost function T(N:nat, i:nat): nat
@@ -56,19 +57,19 @@ lemma lem_Tclosed(N:nat, i:nat)
 {  
 }
 
-lemma lem_fBigOconst() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f, constGrowth())
+lemma lem_fBigOconst() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), constGrowth())
 {
-  c, n0 := 20, 10; 
+  c, n0 := 20.0, 10; 
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*constGrowth()(n)
+    ensures f(n) as R0 <= c*constGrowth()(n)
   {
     calc {
-         f(n);
-      == if n < 10 then exp(n,1) else 20;
-      == { reveal exp(); }
-         if n < 10 then n else 20;    
+         f(n) as R0;
+      == (if n < 10 then n else 20) as R0;
+      == 20 as R0;
+      <= c * 1 as R0;
+      == c*constGrowth()(n); 
     }
-    assert f(n) <= c*constGrowth()(n);
   }
 }

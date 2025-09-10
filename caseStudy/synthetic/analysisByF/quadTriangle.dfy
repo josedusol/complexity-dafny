@@ -1,27 +1,28 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
 }
 
-ghost function f(N:nat) : nat
+ghost function f(n:nat) : nat
 {
-  (N*(N+1))/2
+  (n*(n+1))/2
 }
 
 method quadTriangle(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, quadGrowth())
+  ensures tIsBigO(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0;
 
-  var i, j;
-  i, j := 0, 0;
+  var i, j := 0, 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == T1(N,0) - T1(N,i) // = T1(N, N-i)
@@ -44,13 +45,12 @@ method quadTriangle(x:Input) returns (ghost t:nat)
 
   assert t == T1(N, 0); 
   assert t == f(N) by { lem_T1closed(N, 0); }
-  assert t <= f(N); 
-  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }  
+  assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }  
 } 
 
 method quadTriangleFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, quadGrowth())
+  ensures tIsBigO(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0;
@@ -70,8 +70,7 @@ method quadTriangleFor(x:Input) returns (ghost t:nat)
   
   assert t == T1(N, 0); 
   assert t == f(N) by { lem_T1closed(N, 0); }
-  assert t <= f(N); 
-  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); } 
+  assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); } 
 }
 
 ghost function T1(N:nat, i:int): nat
@@ -119,20 +118,21 @@ lemma lem_T1closed(N:nat, i:nat)
   }    
 } 
 
-lemma lem_fBigOquad() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f, quadGrowth())
+lemma lem_fBigOquad() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*quadGrowth()(n)
+    ensures f(n) as R0 <= c*quadGrowth()(n)
   {
     calc {
-         f(n);
-      == (n*(n+1))/2; 
-      <= n*n;   
+         f(n) as R0;
+      == ((n*(n+1))/2) as R0; 
+      <= { assert (n*(n+1))/2 <= n*n; }
+         (n*n) as R0;   
+      <= c * (n*n) as R0;
+      == c*quadGrowth()(n);
     }
-    assert f(n) <= c*quadGrowth()(n) 
-      by { reveal exp(); } 
   }
 }
 

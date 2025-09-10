@@ -138,7 +138,7 @@ module ComplexityR0 {
     n => if n>0 then log(b, n as R0) else 0.0
   }
 
-  ghost function logGrowth2(b:R0) : nat->R0
+  ghost function logPlus1Growth(b:R0) : nat->R0
     requires b > 1.0
   {   
     lem_log_NonNegativeAuto();
@@ -162,17 +162,17 @@ module ComplexityR0 {
 
   ghost function linGrowth() : nat->R0
   {   
-    n => exp(n as R0, 1.0)
+    n => n as R0
   }
 
   ghost function quadGrowth() : nat->R0
   {   
-    n => exp(n as R0, 2.0)
+    n => (n*n) as R0
   }
 
   ghost function cubicGrowth() : nat->R0
   {   
-    n => exp(n as R0, 3.0)
+    n => (n*n*n) as R0
   }
 
   ghost function polyGrowth(k:R0) : nat->R0

@@ -1,21 +1,23 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
 }
 
-ghost function f(N:nat) : nat
+ghost function f(n:nat) : nat
 {
-  N
+  n
 }
 
 method quadCallV2(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())*f(x.size())
-  ensures tIsBigO(x.size(), t, quadGrowth())
+  ensures tIsBigO(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   var i;
@@ -31,7 +33,7 @@ method quadCallV2(x:Input) returns (ghost t:nat)
   }
   assert t == f(N)*f(N); 
   assert t <= f(N)*f(N); 
-  assert (n => f(n)*f(n)) in O(quadGrowth()) 
+  assert liftToR0(n => f(n)*f(n)) in O(quadGrowth()) 
     by { var c, n0 := lem_fmfBigOquad(); }
 } 
 
@@ -53,19 +55,18 @@ method quadCallSub(x:Input) returns (ghost t:nat)
   assert t == f(N); 
 } 
 
-lemma lem_fmfBigOquad() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, n => f(n)*f(n), quadGrowth())
+lemma lem_fmfBigOquad() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(n => f(n)*f(n)), quadGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n)*f(n) <= c*quadGrowth()(n)
+    ensures (f(n)*f(n)) as R0 <= c*quadGrowth()(n)
   {
     calc {
-         f(n)*f(n);
-      == n*n;
-      == { reveal exp(); }
-         exp(n,2);   
+         (f(n)*f(n)) as R0;
+      == (n*n) as R0;
+      <= c * (n*n) as R0;
+      == c*quadGrowth()(n);   
     }
-    assert f(n)*f(n) <= c*quadGrowth()(n); 
   }
 }

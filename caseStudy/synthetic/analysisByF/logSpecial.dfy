@@ -36,8 +36,9 @@ method log(x:Input) returns (ghost t:nat)
   ensures  tIsBigOLog(x.size(), t)
 {
   var N := x.size();
-  var i;
-  i, t := N, 0;
+  t := 0;
+
+  var i := N;
   while i > 1
     invariant 0 <= i <= N
     invariant t == T(N) - T(i)
@@ -47,10 +48,10 @@ method log(x:Input) returns (ghost t:nat)
     i := i/2 ;
     t := t+1 ;
   }
+
   assert t == T(N); 
   assert t <= log2(N) by { lem_TclosedBound(N); }
   assert t <= f(N)    by { lem_log2_MonoIncr(N, N+1); }
- 
   assert bigOLog(f) by { var c, n0 := lem_fBigOlog(); }
 } 
 

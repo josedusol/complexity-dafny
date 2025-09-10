@@ -1,8 +1,10 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
@@ -10,12 +12,12 @@ type Input {
 
 ghost function f(N:nat) : nat
 { 
-  exp(N,1)
+  N
 }
 
 method lin(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, linGrowth())
+  ensures tIsBigO(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
 
@@ -32,14 +34,13 @@ method lin(x:Input) returns (ghost t:nat)
   }
 
   assert t == T(N, 0); 
-  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
-  assert t <= f(N);
-  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert t == f(N) by { lem_Tclosed(N, 0); }
+  assert liftToR0(f) in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 }
 
 method linFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, linGrowth())
+  ensures tIsBigO(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   t := 0;
@@ -52,25 +53,23 @@ method linFor(x:Input) returns (ghost t:nat)
   }
 
   assert t == T(N, 0); 
-  assert t == f(N) by { reveal exp(); lem_Tclosed(N, 0); }
-  assert t <= f(N);
-  assert f in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
+  assert t == f(N) by { lem_Tclosed(N, 0); }
+  assert liftToR0(f) in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 }
 
-lemma lem_fBigOlin() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f, linGrowth())
+lemma lem_fBigOlin() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), linGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*linGrowth()(n)
+    ensures f(n) as R0 <= c*linGrowth()(n)
   {
     calc {
-         f(n);
-      == exp(n,1);
-      == { reveal exp(); }
-         n;   
+         f(n) as R0;
+      == n as R0;
+      <= c * n as R0;
+      == c*linGrowth()(n);
     }
-    assert f(n) <= c*linGrowth()(n); 
   }
 }
 

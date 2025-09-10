@@ -16,8 +16,7 @@ ghost function T(N:nat, i:nat) : nat
   i+1
 }
 
-ghost method breakLinAT(x:Input, P:nat->bool)
-  returns (t:nat)
+ghost method breakLinAT(x:Input, P:nat->bool) returns (t:nat)
   requires x.size() > 0
   requires exists i :: 0 <= i < x.size() && P(i)
   ensures  exists k :: 0 <= k < x.size() && P(k) && t == T(x.size(),k)
@@ -47,7 +46,7 @@ ghost method expectationLoop(N:nat)
   returns (tE:real)
   requires N > 0
   ensures tE == Tavg(N)
-  ensures tIsBigO(N, tE, n => n as R0)
+  ensures tIsBigO(N, tE, linGrowth())
 {
   tE := 0.0; 
   var p := 0; reveal sum();  
@@ -69,7 +68,7 @@ ghost method expectationLoop(N:nat)
   }
   assert tE == sum(0, N-1, i => (i+1) as real * (1.0 / N as real)); 
   assert tE == Tavg(N) by { lem_solveSum(N); }
-  assert Tavg in O(n => n as R0) by { var c, n0 := lem_TavgBigOlin(); }
+  assert Tavg in O(linGrowth()) by { var c, n0 := lem_TavgBigOlin(); }
 }
 
 ghost function probability(N:nat, pred:nat->bool, p:nat) : R0
@@ -121,17 +120,17 @@ lemma lem_solveSum(N:nat)
 } 
 
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, Tavg, n => n as R0)
+  ensures c > 0.0 && bigOfrom(c, n0, Tavg, linGrowth())
 {
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
-    ensures Tavg(n) <= c*(n => n as R0)(n)
+    ensures Tavg(n) <= c*linGrowth()(n)
   {
     calc {
          Tavg(n);
-      == (n + 1) as real / 2.0;
-      <= n as real;
+      == (n + 1) as R0 / 2.0; 
+      <= c * n as R0;
+      == c*linGrowth()(n);
     }
-    assert Tavg(n) <= c*(n => n as R0)(n); 
   }
 }

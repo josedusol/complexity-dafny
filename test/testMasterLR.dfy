@@ -204,7 +204,7 @@ lemma lem_T4def(n:nat)
 //   T4(n) = ... hard
 // Asymptotic closed form by MT:
 //   T4(n) ∈ O(n^2*2^(n/2))
-// Thiger bound:
+// Tighter bound:
 //   T4(n) ∈ Θ(2^(n/2)) 
 lemma test_masterMethodForT6() 
   ensures liftToR0(T4) in O(n => ((n*n) as R0)*exp(2.0, n as R0 / 2.0))
@@ -238,7 +238,7 @@ lemma test_masterMethodForT6()
   lem_simplifyPowrTwo();
 }
 
-lemma lem_simplifyPowrTwo() 
+lemma lem_simplifyPowrTwo()
   requires liftToR0(T4) in O(n => exp(n as R0, 2.0)*exp(2.0, n as R0 / 2.0))
   ensures  liftToR0(T4) in O(n => ((n*n) as R0)*exp(2.0, n as R0 / 2.0))
 {  

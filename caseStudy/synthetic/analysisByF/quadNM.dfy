@@ -1,31 +1,35 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
 }
 
-ghost function f(N:nat, M:nat) : nat
+ghost function f(n:nat, m:nat) : nat
 {
-  N*M
+  n*m
 }
 
-method quadNM(x:Input, y:Input) returns (ghost t:nat, ghost t':nat)
+method quadNM(x:Input, y:Input) returns (ghost t:nat)
   ensures t == f(x.size(), y.size())
-  ensures x.size() == y.size() ==> tIsBigO(x.size(), t, quadGrowth())
+  ensures x.size() == y.size() ==> tIsBigO(x.size(), t as R0, quadGrowth())
 {
   var N, M := x.size(), y.size();
+  t := 0;
+
   var i, j;
-  i, j, t, t' := 0, 0, 0, 0;
+  i, j := 0, 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == T1(N,M,0) - T1(N,M,i)  // = T1(N, N-i)
     decreases N - i
   {
-    j := 0; t' := 0; 
+    j := 0; ghost var t' := 0; 
     while j != M
       invariant 0 <= j <= M && i != N
       invariant t' == T2(N,M,0) - T2(N,M,j)  // = T2(N, N - j)
@@ -38,12 +42,11 @@ method quadNM(x:Input, y:Input) returns (ghost t:nat, ghost t':nat)
     i := i+1;
     t := t+t';
   }
+  
   assert t == T1(N,M,0); 
   assert t == f(N,M) by { lem_T1closed(N, M, 0); }
-  assert t <= f(N,M); 
- 
   assert N == M ==> t == (n => f(n,n))(N);
-  assert (n => f(n,n)) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert liftToR0(n => f(n,n)) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 ghost function T1(N:nat, M:nat, i:nat): nat
@@ -85,19 +88,18 @@ lemma lem_T1closed(N:nat, M:nat, i:nat)
   } 
 }
 
-lemma lem_fBigOquad() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, n => f(n,n), quadGrowth())
+lemma lem_fBigOquad() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(n => f(n,n)), quadGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n,n) <= c*quadGrowth()(n)
+    ensures f(n,n) as R0 <= c*quadGrowth()(n)
   {
     calc {
-         f(n,n);
-      == n*n;  
-      == { reveal exp(); }
-         exp(n,2); 
+         f(n,n) as R0;
+      == (n*n) as R0;  
+      <= c * (n*n) as R0;
+      == c*quadGrowth()(n); 
     }
-    assert n >= n0 ==> f(n,n) <= c*quadGrowth()(n); 
   }
 }

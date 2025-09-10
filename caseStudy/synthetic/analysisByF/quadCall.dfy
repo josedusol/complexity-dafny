@@ -1,21 +1,23 @@
-include "../../../theory/math/ExpNat.dfy"
-include "../../../theory/ComplexityNat.dfy"
+include "../../../theory/math/LemFunction.dfy"
+include "../../../theory/math/TypeR0.dfy"
+include "../../../theory/ComplexityR0.dfy"
 
-import opened ExpNat
-import opened ComplexityNat
+import opened LemFunction
+import opened TypeR0
+import opened ComplexityR0
 
 type Input {
   function size() : nat
 }
 
-ghost function f(N:nat) : nat
+ghost function f(n:nat) : nat
 {
-  exp(N,2)
+  n*n
 }
 
 method quadCall(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t, quadGrowth())
+  ensures tIsBigO(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   var i;
@@ -31,19 +33,18 @@ method quadCall(x:Input) returns (ghost t:nat)
     t := t + t'; 
   }
   assert t == T1(N, 0); 
-  assert t == f(N) by { reveal exp(); lem_T1closed(N, 0); }
-  assert t <= f(N); 
-  assert f in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
+  assert t == f(N) by { lem_T1closed(N, 0); }
+  assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
-ghost function f'(N:nat) : nat
+ghost function f'(n:nat) : nat
 {
-  N
+  n
 }
 
 method quadCallSub(x:Input) returns (ghost t:nat)
   ensures t == f'(x.size())
-  ensures tIsBigO(x.size(), t, linGrowth())
+  ensures tIsBigO(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   var i;
@@ -59,79 +60,76 @@ method quadCallSub(x:Input) returns (ghost t:nat)
   }
   assert t == T2(N, 0); 
   assert t == f'(N) by { lem_T2closed(N, 0); }
-  assert t <= f'(N); 
-  assert f' in O(linGrowth()) by { var c, n0 := lem_subBigOlin(); }
+  assert liftToR0(f') in O(linGrowth()) by { var c, n0 := lem_subBigOlin(); }
 } 
 
-ghost function T1(N:nat, i:nat): nat
-  requires  0 <= i <= N
-  decreases N - i
+ghost function T1(n:nat, i:nat): nat
+  requires  0 <= i <= n
+  decreases n - i
 {
-  if i != N 
-  then T1(N, i+1) + T2(N, 0) 
+  if i != n 
+  then T1(n, i+1) + T2(n, 0) 
   else 0
 }
 
-ghost function T2(N:nat, j:nat): nat
-  requires  0 <= j <= N
-  decreases N - j
+ghost function T2(n:nat, j:nat): nat
+  requires  0 <= j <= n
+  decreases n - j
 {
-  if j != N 
-  then T2(N, j+1) + 1 
+  if j != n 
+  then T2(n, j+1) + 1 
   else 0
 }
 
-lemma lem_T2closed(N:nat, j:nat)
-  requires 0 <= j <= N
-  decreases N - j
-  ensures T2(N, j) == N - j
+lemma lem_T2closed(n:nat, j:nat)
+  requires 0 <= j <= n
+  decreases n - j
+  ensures T2(n, j) == n - j
 {  
-  if j != N  { 
-    lem_T2closed(N, j+1); 
+  if j != n  { 
+    lem_T2closed(n, j+1); 
   }  
 }
 
-lemma lem_T1closed(N:nat, i:nat)
-  requires 0 <= i <= N
-  decreases N - i
-  ensures T1(N, i) == (N - i)*N
+lemma lem_T1closed(n:nat, i:nat)
+  requires 0 <= i <= n
+  decreases n - i
+  ensures T1(n, i) == (n - i)*n
 {  
-  if i != N  { 
-    lem_T2closed(N, 0);
-    lem_T1closed(N, i+1); 
+  if i != n  { 
+    lem_T2closed(n, 0);
+    lem_T1closed(n, i+1); 
   } 
 }
 
-lemma lem_subBigOlin() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f', linGrowth())
+lemma lem_subBigOlin() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f'), linGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f'(n) <= c*linGrowth()(n)
+    ensures f'(n) as R0 <= c*linGrowth()(n)
   {
     calc {
-         f'(n);
-      == n;
-      == { reveal exp(); }
-         exp(n,1);
+         f'(n) as R0;
+      == n as R0;
+      <= c * n as R0;
+      == c*linGrowth()(n);
     }
-    assert f'(n) <= c*linGrowth()(n); 
   }
 }
 
-lemma lem_fBigOquad() returns (c:nat, n0:nat)
-  ensures c > 0 && bigOfrom(c, n0, f, quadGrowth())
+lemma lem_fBigOquad() returns (c:R0, n0:nat)
+  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
 {
-  c, n0 := 1, 0;
+  c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
-    ensures f(n) <= c*quadGrowth()(n)
+    ensures f(n) as R0 <= c*quadGrowth()(n)
   {
     calc {
-         f(n);
-      == exp(n,2);
-      == { reveal exp(); }
-         n*n;   
+         f(n) as R0;
+      == (n*n) as R0;
+      <= c * (n*n) as R0;
+      == c*quadGrowth()(n);
     }
-    assert f(n) <= c*quadGrowth()(n); 
   }
 }

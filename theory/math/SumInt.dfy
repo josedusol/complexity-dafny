@@ -6,7 +6,7 @@ include "./SumReal.dfy"
 ******************************************************************************/
 
 module SumInt {
-  
+
   import opened LemFunction  
   import R = SumReal
 

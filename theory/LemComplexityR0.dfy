@@ -70,7 +70,7 @@ module LemComplexityR0 {
   }  
 
   // f ∈ O(g) ∧ a > 0 ⟹ a*f ∈ O(g)
-  lemma lem_bigO_constFactor(f:nat->R0, g:nat->R0, a:R0)  
+  lemma lem_bigO_constFactor(f:nat->R0, g:nat->R0, a:R0)
     requires f in O(g) 
     requires a > 0.0 
     ensures  (n => a*f(n)) in O(g) 
@@ -372,6 +372,7 @@ module LemComplexityR0 {
     assert c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, constGrowth());
   }  
 
+  // The base of log doesn't change asymptotics
   // b1,b2 > 0 ⟹ h ∈ Θ(log_b1) ⟺ h ∈ Θ(log_b2)
   lemma lem_bigTh_logBase(b1:real, b2:real, h:nat->R0)  
     requires b1 > 1.0 && b2 > 1.0
@@ -592,7 +593,7 @@ module LemComplexityR0 {
   // 1 ∈ O(log_b) 
   lemma lem_bigO_constBigOlog(b:R0)
     requires b > 1.0
-    ensures  constGrowth() in O(logGrowth(b)) 
+    ensures  constGrowth() in O(logGrowth(b))
   {
     var c:R0, n0:nat := 1.0, ceil(b);
     forall n:nat | 0 <= n0 <= n 
@@ -602,7 +603,7 @@ module LemComplexityR0 {
            constGrowth()(n);
         == 1.0;
         <= { lem_logGEQone(b, n as R0); }
-           1.0*logGrowth(b)(n);      
+           1.0*logGrowth(b)(n);
         == c*logGrowth(b)(n);         
       }
     }
@@ -668,8 +669,6 @@ module LemComplexityR0 {
            ((n - 1) + 1) as R0;   
         == n as R0;   
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);
       }
     }
@@ -692,8 +691,6 @@ module LemComplexityR0 {
         <= { lem_log2nPlus1LEQn(n); }
            (n + 1) as R0;   
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);
       }
     }
@@ -722,7 +719,9 @@ module LemComplexityR0 {
     {
       calc {      
            linGrowth()(n); 
-        == exp(n as R0, 1.0);        
+        == n as R0;  
+        == { lem_exp_Pow1(n as R0); }
+           exp(n as R0, 1.0);
         <= { lem_exp_MonoIncr(n as R0, 1.0, k); }
            exp(n as R0, k);
         <= c*exp(n as R0, k);
@@ -737,6 +736,8 @@ module LemComplexityR0 {
     ensures linGrowth() in O(quadGrowth()) 
   {
     lem_bigO_linBigOpoly(2.0);
+    lem_exp_Pow2Auto();
+    lem_fun_Ext((n:nat) => exp(n as R0, 2.0), (n:nat) => (n*n) as R0);
   }
 
   // n ∈ O(n^3) 
@@ -744,6 +745,8 @@ module LemComplexityR0 {
     ensures linGrowth() in O(cubicGrowth()) 
   { 
     lem_bigO_linBigOpoly(3.0);
+    lem_exp_Pow3Auto();
+    lem_fun_Ext((n:nat) => exp(n as R0, 3.0), (n:nat) => (n*n*n) as R0);    
   }  
 
   // n^2 ∈ O(2^n)  
@@ -756,7 +759,9 @@ module LemComplexityR0 {
     {
       calc {      
            quadGrowth()(n); 
-        == exp(n as R0, 2.0);           
+        == (n*n) as R0;
+        == { lem_exp_Pow2(n as R0); }
+           exp(n as R0, 2.0);          
         == { lem_exp_OverNat(n, 2); }
            EN.exp(n, 2) as real;
         <= { lem_expn2LEQexp2n(n); }  
