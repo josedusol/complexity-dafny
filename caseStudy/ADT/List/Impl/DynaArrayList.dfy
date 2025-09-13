@@ -86,7 +86,7 @@ module DynaArrayList refines DynaList {
     function Repr(): set<object>
       reads this
     {
-      {this, arr}
+      {arr}
     }    
 
     // Returns true iff the data structure's invariant holds
@@ -96,8 +96,7 @@ module DynaArrayList refines DynaList {
       && 0 <= nElems <= arr.Length
       && 0 < arr.Length
       && m > 1
-      && this in Repr() 
-      && arr  in Repr()
+      && arr in Repr()
       // The array and its ghost counterpart are aligned
       && nElems == |elems| 
       && (forall i :: 0 <= i < nElems ==> arr[i] == elems[i])
@@ -109,7 +108,7 @@ module DynaArrayList refines DynaList {
 
     // Set growth factor m > 1
     method SetGrowthFactor(gfactor:nat)
-      modifies Repr()
+      modifies this
       // Pre: 
       requires Valid()
       requires gfactor > 1
@@ -122,7 +121,7 @@ module DynaArrayList refines DynaList {
 
     // Increment array capacity by growth factor
     method Grow() returns (ghost t:R0) 
-      modifies Repr()
+      modifies this
       // Pre: 
       requires Valid()
       // Post:
@@ -159,7 +158,7 @@ module DynaArrayList refines DynaList {
 
     // Inserts element x at position k in the list
     method Insert(k:nat, x:T) returns (ghost t:R0)
-      modifies Repr()    
+      modifies this, Repr()    
       // Pre:      
       requires Valid()
       requires 0 <= k <= Size()
@@ -240,7 +239,7 @@ module DynaArrayList refines DynaList {
 
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
-      modifies Repr()    
+      modifies this, Repr()    
       // Pre:
       requires Valid()
       // Post:

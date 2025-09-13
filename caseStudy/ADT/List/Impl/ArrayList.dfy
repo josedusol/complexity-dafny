@@ -78,7 +78,7 @@ module ArrayList refines List {
     function Repr(): set<object>
       reads this
     {
-      {this, arr}
+      {arr}
     }    
 
     // Returns true iff the data structure's invariant holds
@@ -87,8 +87,7 @@ module ArrayList refines List {
     {
       && 0 <= nElems <= arr.Length
       && 0 < arr.Length
-      && this in Repr() 
-      && arr  in Repr()
+      && arr in Repr()
       // The array and its ghost counterpart are aligned
       && nElems == |elems| 
       && (forall i :: 0 <= i < nElems ==> arr[i] == elems[i])
@@ -100,7 +99,7 @@ module ArrayList refines List {
 
     // Inserts element x at position k in the list
     method Insert(k:nat, x:T) returns (ghost t:R0)
-      modifies Repr()    
+      modifies this, Repr()    
       // Pre:
       requires Valid()
       requires 0 <= k <= Size()
@@ -151,7 +150,7 @@ module ArrayList refines List {
                                               
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
-      modifies Repr()    
+      modifies this, Repr()    
       // Pre:
       requires Valid()
       requires !IsFull()
@@ -172,7 +171,7 @@ module ArrayList refines List {
 
     // Deletes element at position k in the list
     method Delete(k:nat) returns (ghost t:R0)
-      modifies Repr()
+      modifies this, Repr()
       // Pre:    
       requires Valid()
       requires 0 <= k < Size()
