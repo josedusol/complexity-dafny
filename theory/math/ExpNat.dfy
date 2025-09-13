@@ -1,5 +1,4 @@
 include "./LemFunction.dfy"
-//include "./Order.dfy"
 
 /******************************************************************************
   Exponentiation over non-negative integers
@@ -8,7 +7,6 @@ include "./LemFunction.dfy"
 module ExpNat {
 
   import opened LemFunction
-  //import opened Order
 
   // b^e
   opaque ghost function exp(b:nat, e:nat) : nat
@@ -17,10 +15,10 @@ module ExpNat {
     if e == 0 then 1 else b*exp(b, e-1)
   }
 
-  // b > 0 ⟹ b^e > 0
-  lemma lem_exp_Positive(b:nat, e:nat)
+  // b > 0 ⟹ b^e >= 1
+  lemma {:induction false} lem_exp_GEQone(b:nat, e:nat)
     requires b > 0
-    ensures exp(b,e) > 0
+    ensures exp(b,e) >= 1
   {
     if e == 0 { 
       // BC: e = 0
@@ -28,22 +26,30 @@ module ExpNat {
            exp(b, 0);
         == { reveal exp(); }
            1;
-        >  0;  
+        >= 1;  
       }
     } else {
       // Step. e > 0
-      //   IH: b^(e-1)  > 0
-      //    T:      b^e > 0
+      //   IH: b^(e-1)  >= 1
+      //    T:      b^e >= 1
       calc {
            exp(b,e);
         == { reveal exp(); }
            b*exp(b, e-1);
-        >  { lem_exp_Positive(b, e-1); }
-           0;  
+        >= { lem_exp_GEQone(b, e-1); }
+           1;  
       }
     }
   }
-  
+
+  // b > 0 ⟹ b^e > 0
+  lemma lem_exp_Positive(b:nat, e:nat)
+    requires b > 0
+    ensures  exp(b,e) > 0
+  {
+    lem_exp_GEQone(b, e);
+  }
+
   /******************************************************************************
     Relate exp(x,0), exp(x,1), exp(x,2), etc. to Dafny primitive powers
   ******************************************************************************/
@@ -110,6 +116,7 @@ module ExpNat {
     Order properties on the exponent with base >= 1 (or > 1)
   ******************************************************************************/
 
+  // Strictly increasing
   // b > 1 ∧ n < m ⟹ b^n < b^m
   lemma lem_exp_StrictIncr(b:nat, n:nat, m:nat)
     requires b > 1
@@ -217,12 +224,12 @@ module ExpNat {
     Order properties on the base
   ******************************************************************************/
   
-  
+  // TODO
   // n <= m ⟹ n^e <= m^e
-  lemma {:axiom} lem_exp_BaseMonoIncr(e:nat, n:nat, m:nat)
+  lemma lem_exp_BaseMonoIncr(e:nat, n:nat, m:nat)
     ensures n <= m ==> exp(n, e) <= exp(m, e)
     decreases n, m
-  // {   // TODO
+  // {   
   //   reveal exp();
   //   if n != 0 && m != 0 {  
   //     lem_exp_BaseMonoIncr(e, n-1, m-1); 

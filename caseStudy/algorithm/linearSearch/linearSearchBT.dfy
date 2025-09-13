@@ -1,15 +1,15 @@
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityNat.dfy"
-include "../../../theory/LemComplexityNat.dfy"
+include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/LemComplexityR0.dfy"
 include "./linearSearch.dfy"
 
 import opened LemFunction
 import opened SumReal
 import opened TypeR0
-import opened ComplexityNat
-import opened LemComplexityNat
+import opened ComplexityR0
+import opened LemComplexityR0
 
 ghost function f1(N:nat) : nat
 {
@@ -19,7 +19,7 @@ ghost function f1(N:nat) : nat
 ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
   ensures t == f1(|s|) 
-  ensures tIsBigTh(|s|, t, zeroGrowth())
+  ensures tIsBigTh(|s|, t as R0, zeroGrowth())
 {
   assume {:axiom} |s| == 0;  // best case
   var n:nat;
@@ -37,8 +37,11 @@ ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f1(|s|);
-  assert f1 in Th(zeroGrowth()) by { lem_bigTh_zeroGrowth(f1); }
-  lem_bigTh_tIsBigTh2(|s|, t, zeroGrowth());
+  assert liftToR0(f1) in Th(zeroGrowth()) by {
+      lem_bigTh_zeroGrowth(liftToR0(f1)) 
+        by { assert 0 as R0 == 0.0; }
+    }
+  lem_bigTh_tIsBigTh2(|s|, t as R0, zeroGrowth());
 } 
 
 //**************************************************************************//
@@ -51,7 +54,7 @@ ghost function f2(N:nat) : nat
 ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   ensures post(s, x, i)
   ensures t == f2(|s|)
-  ensures tIsBigTh(|s|, t, constGrowth())
+  ensures tIsBigTh(|s|, t as R0, constGrowth())
 {
   assume {:axiom} |s| > 0 && s[0] == x;  // best case when not empty
   var n:nat;
@@ -70,6 +73,9 @@ ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
     t := t + 1;
   }
   assert t == f2(|s|);
-  assert f2 in Th(constGrowth()) by { lem_bigTh_constGrowth(f2, 1); }
-  lem_bigTh_tIsBigTh2(|s|, t, constGrowth());
+  assert liftToR0(f2) in Th(constGrowth()) by { 
+      lem_bigTh_constGrowth(liftToR0(f2), 1.0)
+        by { assert 1 as R0 == 1.0; }  
+    }
+  lem_bigTh_tIsBigTh2(|s|, t as R0, constGrowth());
 }

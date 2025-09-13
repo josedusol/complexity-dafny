@@ -11,7 +11,7 @@ module LemBoundsNat {
   import opened Log2Nat
 
   // n > 0 ⟹ 2^log2(n) <= n
-  lemma lem_log2exp2_bounds(n:nat)
+  lemma {:induction false} lem_log2exp2_bounds(n:nat)
     requires n > 0
     ensures  exp(2, log2(n)) <= n
     decreases n
@@ -46,7 +46,7 @@ module LemBoundsNat {
   }
 
   // n > 0 ⟹ n < 2^(log2(n)+1)
-  lemma lem_nLQexp2log2nPlus1(n:nat)
+  lemma {:induction false} lem_nLQexp2log2nPlus1(n:nat)
     requires n > 0
     ensures  n < exp(2, log2(n)+1) 
     decreases n
@@ -71,15 +71,14 @@ module LemBoundsNat {
            2*exp(2, log2(n));
         == { reveal log2(); }
            2*exp(2, log2(n/2)+1);
-        >  { lem_log2exp2_bounds(n/2); 
-             assert n < 2*exp(2, log2(n/2)+1); }
+        >  { lem_nLQexp2log2nPlus1(n/2); }  // assert n < 2*exp(2, log2(n/2)+1);
            n;
       }
     }
   }
 
   // n > 0 ⟹ log2(n+1) <= n
-  lemma lem_log2nPlus1LEQn(n:nat) 
+  lemma {:induction false} lem_log2nPlus1LEQn(n:nat) 
     requires n > 0 
     ensures  log2(n+1) <= n
     decreases n
@@ -110,7 +109,7 @@ module LemBoundsNat {
   }
 
   // n >= 4 ⟹ log2(n) <= n-2
-  lemma lem_log2nLEQnMinus2(n:nat)
+  lemma {:induction false} lem_log2nLEQnMinus2(n:nat)
     requires n >= 4 
     ensures  log2(n) <= n-2
     decreases n
@@ -134,7 +133,7 @@ module LemBoundsNat {
            1 + log2(n/2);
         <= { assert n/2 <= n-1; lem_log2_MonoIncr(n/2, n-1); } 
            1 + log2(n-1);   
-        <= { lem_log2nPlus1LEQn(n-1); }  // by IH 
+        <= { lem_log2nLEQnMinus2(n-1); }  // by IH 
            1 + (n-3);
         == n-2;           
       }
@@ -176,7 +175,7 @@ module LemBoundsNat {
   }
 
   // n < 2^n
-  lemma lem_nLQexp2n(n:nat)
+  lemma {:induction false} lem_nLQexp2n(n:nat)
     ensures n < exp(2,n)
     decreases n 
   {
@@ -197,7 +196,7 @@ module LemBoundsNat {
         == (n-1) + 1;
         <  { lem_nLQexp2n(n-1); }   // by IH 
            exp(2,n-1) + 1;
-        <= { assert exp(2,n-1) >= 1; }
+        <= { lem_exp_GEQone(2, n-1); assert exp(2,n-1) >= 1; }
            exp(2,n-1) + exp(2,n-1);
         == { reveal exp(); }
            exp(2,n);       
@@ -206,7 +205,7 @@ module LemBoundsNat {
   }
 
   // n >= 4 ⟹ n <= 2^(n-2)
-  lemma lem_nLEQexp2nMinus2(n:nat)
+  lemma {:induction false} lem_nLEQexp2nMinus2(n:nat)
     requires n >= 4
     ensures  n <= exp(2,n-2)
     decreases n
@@ -244,7 +243,7 @@ module LemBoundsNat {
   }
 
   // n >= 4 ⟹ n^2 <= 2^n
-  lemma lem_expn2LEQexp2n(n:nat)
+  lemma {:induction false} lem_expn2LEQexp2n(n:nat) 
     requires n >= 4
     ensures  exp(n,2) <= exp(2,n)
     decreases n

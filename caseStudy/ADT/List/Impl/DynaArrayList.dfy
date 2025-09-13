@@ -109,7 +109,7 @@ module DynaArrayList refines DynaList {
 
     // Set growth factor m > 1
     method SetGrowthFactor(gfactor:nat)
-      modifies this, Repr()
+      modifies Repr()
       // Pre: 
       requires Valid()
       requires gfactor > 1
@@ -122,7 +122,7 @@ module DynaArrayList refines DynaList {
 
     // Increment array capacity by growth factor
     method Grow() returns (ghost t:R0) 
-      modifies this, Repr()
+      modifies Repr()
       // Pre: 
       requires Valid()
       // Post:
@@ -132,33 +132,34 @@ module DynaArrayList refines DynaList {
       ensures arr[..nElems] == old(arr[..nElems])
       ensures m == old(m)
       // Complexity:
-      ensures var N := old(arr.Length); && t == Tgrow(m,N,Size())
-                                        && t <= Tgrow(m,N,N)
-                                        && tIsBigO(N, t as R0, linGrowth())      
+      ensures var C, N := old(Capacity()), old(Size()); 
+        && t == Tgrow(m,C,Size())
+        && t <= Tgrow(m,C,C)
+      ensures var C := old(Capacity()); tIsBigO(C, t as R0, linGrowth())      
     {   
-      var N, m := arr.Length, m;
+      var C, N, m := Capacity(), Size(), m;
 
       // Allocate new array
-      var newArr := new T[m*N];
-      t := (m*N) as R0;
+      var newArr := new T[m*C];
+      t := (m*C) as R0;
       
       // Copy old array content to new array
-      forall i | 0 <= i < Size() { 
+      forall i | 0 <= i < N { 
         newArr[i] := arr[i]; 
       }
-      t := t + Size() as R0;
+      t := t + N as R0;
 
       // Update current array
       arr := newArr;
       assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
     
-      assert t == (m*N + Size()) as R0 == Tgrow(m,N,Size()) <= Tgrow(m,N,N);
-      assert (N => Tgrow(m,N,N)) in O(linGrowth()) by { var c, n0 := lem_Grow_TgrowBigOlin(m); }    
+      assert t == (m*C + N) as R0 == Tgrow(m,C,N) <= Tgrow(m,C,C);
+      assert (C => Tgrow(m,C,C)) in O(linGrowth()) by { var c, n0 := lem_Grow_TgrowBigOlin(m); }    
     } 
 
     // Inserts element x at position k in the list
     method Insert(k:nat, x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:      
       requires Valid()
       requires 0 <= k <= Size()
@@ -170,20 +171,20 @@ module DynaArrayList refines DynaList {
       ensures Get(k).0 == x                                                     // xs[k] == x
       ensures m == old(m)
       // Complexity:
-      ensures var N := old(Size()); && t <= Tinsert(m,N,k)
-                                    && tIsBigO(N, t as R0, linGrowth())
-      ensures var N := old(Size()); !old(IsFull()) ==> t == Tinsert2(N,k)                            
+      ensures var N := old(Size()); 
+        && (if old(IsFull()) then t == Tinsert(m,N,k) else t == Tinsert2(N,k))
+        && tIsBigO(N, t as R0, linGrowth())                                                                          
     {
       var N, m := Size(), m;
       t := 0.0;
 
       // Grow array if neccesary
       if IsFull() { 
-        assert N == arr.Length;
+        assert N == Capacity();
         t := Grow(); 
         assert t == Tgrow(m,N,N) == ((m+1)*N) as R0; 
         assert !IsFull();
-        assert N < arr.Length;   
+        assert N < Capacity();   
       }
       assert arr[..N] == elems;
 
@@ -194,16 +195,15 @@ module DynaArrayList refines DynaList {
       // 1. Shift [k, N) to the right
       for i := N downto k
         modifies arr
-        invariant N < arr.Length
-        invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
-        invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N) is right shifted        
+        invariant arr[..k]      == old(arr[..k])     // [0, k) is unchanged  
+        invariant arr[k..i]     == old(arr[k..i])    // [k, i) still equals old
+        invariant arr[i+1..N+1] == old(arr[i..N])    // (i, N) is right shifted        
         invariant t == if old(IsFull()) then ((m+1)*N + N - i) as R0 else (N - i) as R0
       {
-        arr[i+1] := arr[i]; // shift right
-        assert arr[i+1] == old(arr[i]);
+        arr[i+1] := arr[i];  // shift right
         t := t + 1.0;
       }
-      assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
+      assert arr[..k]      == old(arr[..k])  == elems[..k];    // [0, k)   is unchanged
       assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N] is right shifted 
       assert t == if old(IsFull()) then ((m+1)*N + N - k) as R0 else (N - k) as R0;
 
@@ -213,44 +213,46 @@ module DynaArrayList refines DynaList {
     
       // Update number of elements
       nElems := nElems + 1;
-      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+      assert forall j :: 0 <= j < nElems ==> arr[j] == elems[j];
 
-      if old(IsFull()) {
-        calc {
-             t; 
-          == ((m+1)*N + N - k + 1) as R0;
-          == ((m+2)*N - k + 1) as R0;
-          == Tinsert(m, N, k);
-          <= TinsertUp(m, N);
-        }      
-        assert (N => TinsertUp(m,N)) in O(linGrowth()) by { var c, n0 := lem_Insert_TinsertBigOlin(m); }  
-      } else {
-        calc {
-             t; 
-          == (N - k + 1) as R0;
-          == Tinsert2(N, k);
-          <= Tinsert2Up(N);
+      assert && (if old(IsFull()) then t == Tinsert(m,N,k) else t == Tinsert2(N,k))
+             && tIsBigO(N, t as R0, linGrowth()) by {
+        if old(IsFull()) {
+          calc {
+              t; 
+            == ((m+1)*N + N - k + 1) as R0;
+            == ((m+2)*N - k + 1) as R0;
+            == Tinsert(m, N, k);
+          }      
+          assert Tinsert(m, N, k) <= TinsertUp(m, N);
+          assert (N => TinsertUp(m,N)) in O(linGrowth()) by { var c, n0 := lem_Insert_TinsertBigOlin(m); }  
+        } else {
+          calc {
+              t; 
+            == (N - k + 1) as R0;
+            == Tinsert2(N, k);
+          }     
+          assert Tinsert2(N, k) <= Tinsert2Up(N);   
+          assert Tinsert2Up in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }
         }        
-        assert Tinsert2Up in O(linGrowth()) by { var c, n0 := lem_Insert_Tinsert2BigOlin(); }
-      }
+      }          
     }
 
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       // Post:
-      ensures Valid()
+      ensures Valid() && fresh(Repr() - old(Repr()))
       ensures Size() == old(Size()) + 1
       ensures forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
       ensures Get(old(Size())).0 == x   
       ensures m == old(m)
       // Complexity:
-      ensures var N := old(Size()); && t <= Tappend(m, N)
-                                    && tIsBigO(N, t as R0, linGrowth())  
-      ensures var N := old(Size()); !old(IsFull()) ==> && t == Tappend2(N)    
-                                                       && tIsBigO(N, t as R0, constGrowth())                                   
+      ensures var N := old(Size()); 
+        if old(IsFull()) then t == Tappend(m,N) && tIsBigO(N, t as R0, linGrowth())
+                         else t == Tappend2(N)  && tIsBigO(N, t as R0, constGrowth())
     {
       var N, m := Size(), m;
       t := Insert(N, x);
@@ -295,15 +297,15 @@ module DynaArrayList refines DynaList {
         invariant arr[i..]  == old(arr[i..])        // [i, N) still equals old
         invariant t == (i - k) as R0
       {
-        arr[i] := arr[i+1]; //shift left
+        arr[i] := arr[i+1];  //shift left
         t := t + 1.0;
       }
-      assert arr[..k]    == old(arr[..k]) == elems[..k];     // [0, k) is unchanged
+      assert arr[..k]    == old(arr[..k])    == elems[..k];  // [0, k) is unchanged
       assert arr[k..N-1] == old(arr[k+1..N]) == elems[k..];  // (k, N) is left shifted
 
       // Update number of elements
       nElems := nElems - 1;
-      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+      assert forall j :: 0 <= j < nElems ==> arr[j] == elems[j];
 
       assert t == (N - k - 1) as R0 == Tdelete(N, k) 
                <= N as R0           == Tdelete2(N);

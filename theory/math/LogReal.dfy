@@ -26,7 +26,7 @@ module LogReal {
     lem_log_ExistsUnique(b, x);    
     var y :| exp(b, y) == x;
     y
-  }
+  } 
 
   /******************************************************************************
     log_b(x) and b^x are inverses of each other for x ∈ (0,∞) and b > 1

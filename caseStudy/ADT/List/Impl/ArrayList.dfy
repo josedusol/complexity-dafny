@@ -100,7 +100,7 @@ module ArrayList refines List {
 
     // Inserts element x at position k in the list
     method Insert(k:nat, x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       requires 0 <= k <= Size()
@@ -125,16 +125,15 @@ module ArrayList refines List {
       // 1. Shift [k, N) to the right
       for i := N downto k
         modifies arr
-        invariant N < arr.Length
-        invariant arr[..i]      == old(arr[..i])   // [0, i) is unchanged  
+        invariant arr[..k]      == old(arr[..k])   // [0, i) is unchanged  
+        invariant arr[k..i]     == old(arr[k..i])  // [k, i) still equals old
         invariant arr[i+1..N+1] == old(arr[i..N])  // (i, N) is right shifted        
         invariant t == (N - i) as R0    
       {
-        arr[i+1] := arr[i]; // shift right
-        assert arr[i+1] == old(arr[i]);
+        arr[i+1] := arr[i];  // shift right
         t := t + 1.0;
       }
-      assert arr[..k] == old(arr[..k]) == elems[..k];          // [0, k) is unchanged
+      assert arr[..k]      == old(arr[..k])  == elems[..k];    // [0, k)   is unchanged
       assert arr[k+1..N+1] == old(arr[k..N]) == elems[k+1..];  // [k, N] is right shifted 
 
       // 2. Insert x at position k
@@ -143,7 +142,7 @@ module ArrayList refines List {
 
       // Update number of elements
       nElems := nElems + 1;
-      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+      assert forall j :: 0 <= j < nElems ==> arr[j] == elems[j];
 
       assert t == (N - k + 1) as R0 == Tinsert(N, k) 
                <= (N + 1) as R0     == Tinsert2(N);
@@ -152,12 +151,12 @@ module ArrayList refines List {
                                               
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       requires !IsFull()
       // Post:
-      ensures  Valid()
+      ensures  Valid() && fresh(Repr() - old(Repr()))
       ensures  Size() == old(Size()) + 1
       ensures  forall j :: 0 <= j < old(Size()) ==> Get(j).0 == old(Get(j).0)    // [0, old(Size())) is unchanged  
       ensures  Get(old(Size())).0 == x  
@@ -173,7 +172,7 @@ module ArrayList refines List {
 
     // Deletes element at position k in the list
     method Delete(k:nat) returns (ghost t:R0)
-      modifies this, Repr()
+      modifies Repr()
       // Pre:    
       requires Valid()
       requires 0 <= k < Size()
@@ -201,15 +200,15 @@ module ArrayList refines List {
         invariant arr[i..]  == old(arr[i..])        // [i, N) still equals old
         invariant t == (i - k) as R0
       {
-        arr[i] := arr[i+1]; //shift left
+        arr[i] := arr[i+1];  //shift left
         t := t + 1.0;
       }
-      assert arr[..k]    == old(arr[..k]) == elems[..k];     // [0, k) is unchanged
+      assert arr[..k]    == old(arr[..k])   == elems[..k];   // [0, k) is unchanged
       assert arr[k..N-1] == old(arr[k+1..N]) == elems[k..];  // (k, N) is left shifted
 
       // Update number of elements
       nElems := nElems - 1;
-      assert forall j :: 0 <= j < |elems| ==> arr[j] == elems[j];
+      assert forall j :: 0 <= j < nElems ==> arr[j] == elems[j];
 
       assert t == (N - k - 1) as R0 == Tdelete(N, k) 
                <= N as R0           == Tdelete2(N);

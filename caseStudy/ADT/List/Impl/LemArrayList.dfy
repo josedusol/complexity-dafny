@@ -66,8 +66,6 @@ module LemArrayList {
            Tinsert2(n);
         == (n + 1) as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);
       }
     }
@@ -84,7 +82,7 @@ module LemArrayList {
   }
 
   lemma lem_Append_TappendBigOconst() returns (c:R0, n0:nat) 
-    ensures c > 0.0 &&bigOfrom(c, n0, Tappend, constGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, Tappend, constGrowth())
   {
     lem_bigO_constGrowth(Tappend, 1.0);
     var c':R0, n0':nat :| c' > 0.0 && bigOfrom(c', n0', Tappend, constGrowth());
@@ -117,8 +115,6 @@ module LemArrayList {
            Tdelete2(n);
         == n as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);
       }
     }

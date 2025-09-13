@@ -44,28 +44,26 @@ module LemDynaArrayList {
     Complexity analysis for Grow operation 
   ******************************************************************************/
 
-  ghost function Tgrow(m:nat, N:nat, n:nat) : R0
+  ghost function Tgrow(m:nat, C:nat, N:nat) : R0
   {
-    (m*N + n) as R0
+    (m*C + N) as R0
   }
 
   lemma lem_Grow_TgrowBigOlin(m:nat) returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, (N => Tgrow(m,N,N)), linGrowth())
+    ensures c > 0.0 && bigOfrom(c, n0, (C => Tgrow(m,C,C)), linGrowth())
   {
       c, n0 := (m+1) as R0, 1;
       forall n:nat | 0 <= n0 <= n
-        ensures (N => Tgrow(m,N,N))(n) <= c*linGrowth()(n)
+        ensures (C => Tgrow(m,C,C))(n) <= c*linGrowth()(n)
       {
         calc {
-             (N => Tgrow(m,N,N))(n);
+             (C => Tgrow(m,C,C))(n);
           == (m*n + n) as R0;
           == ((m+1)*n) as R0;
-          == { lem_exp_One(n as R0); }
-             c*exp(n as R0, 1.0);
           == c*linGrowth()(n);   
         }
       }
-      assert bigOfrom(c, n0, (N => Tgrow(m,N,N)), linGrowth());
+      assert bigOfrom(c, n0, (C => Tgrow(m,C,C)), linGrowth());
   }
 
   /******************************************************************************
@@ -105,8 +103,6 @@ module LemDynaArrayList {
            (N => TinsertUp(m,N))(n);
         == ((m+2)*n + 1) as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
@@ -124,8 +120,6 @@ module LemDynaArrayList {
            Tinsert2Up(n);
         == (n + 1) as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
@@ -157,8 +151,6 @@ module LemDynaArrayList {
            (N => Tappend(m,N))(n);
         == ((m+1)*n + 1) as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }
@@ -199,8 +191,6 @@ module LemDynaArrayList {
            Tdelete2(n);
         == n as R0;
         <= c*n as R0;
-        == { lem_exp_One(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);
       }
     }

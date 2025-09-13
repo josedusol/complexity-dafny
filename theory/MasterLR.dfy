@@ -637,7 +637,7 @@ module MasterLR {
   lemma thm_masterMethodLR2(a:nat, b:nat, c:R0, T:nat->R0, w:nat->R0, k:R0)  
     requires a > 0 && b > 0
     requires w in O((n:nat) => exp(n as R0, k)) 
-    requires forall n:nat :: T(n) == TbodyLR2(a, b, c, T, w, n) 
+    requires forall n:nat :: T(n) == TbodyLR2(a, b, c, T, w, n)
 
     ensures a == 1 ==> T in O((n:nat) => exp(n as R0, k + 1.0))
     ensures a > 1  ==> T in O((n:nat) => exp(n as R0, k)*exp(a as R0, n as R0 / b as R0))

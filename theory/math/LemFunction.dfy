@@ -1,4 +1,5 @@
 include "./Order.dfy"
+include "./Order2.dfy"
 include "./TypeR0.dfy"
 
 /******************************************************************************
@@ -8,7 +9,12 @@ include "./TypeR0.dfy"
 module LemFunction {
 
   import opened Order
+  //import Order2
   import opened TypeR0
+
+  /******************************************************************************
+    Liftings
+  ******************************************************************************/
 
   ghost function liftD<T>(f:nat->T, default:T) : int->T
   {
@@ -25,6 +31,10 @@ module LemFunction {
   {
     n => f(n) as R0
   }
+
+  /******************************************************************************
+    Extensionality
+  ******************************************************************************/
 
   lemma {:axiom} lem_fun_Ext<A,B>(f1:A->B, f2:A->B)
     requires forall x:A :: f1(x) == f2(x)

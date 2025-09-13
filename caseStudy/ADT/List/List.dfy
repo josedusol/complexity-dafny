@@ -43,7 +43,7 @@ module List {
 
     // Inserts element x at position k in the list
     method Insert(k:nat, x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       requires 0 <= k <= Size()
@@ -57,7 +57,7 @@ module List {
 
     // Appends element x in the list
     method Append(x:T) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       requires !IsFull()
@@ -69,7 +69,7 @@ module List {
 
     // Deletes element at position k in the list
     method Delete(k:nat) returns (ghost t:R0)
-      modifies this, Repr()    
+      modifies Repr()    
       // Pre:
       requires Valid()
       requires 0 <= k < Size()
