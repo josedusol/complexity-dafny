@@ -335,7 +335,7 @@ module LogReal {
 
   // When x ∈ (1,∞), log_b(x) is strictly decreasing on b
   // b1,b2 > 1 ∧ x > 1 ∧ b1 < b2 ⟹ log_b1(x) > log_b2(x)
-  lemma {:axiom} lem_log_BaseStrictDecr(b1:real, b2:real, x:real)
+  lemma lem_log_BaseStrictDecr(b1:real, b2:real, x:real)
     requires b1 > 1.0 && b2 > 1.0 && x > 1.0
     ensures  b1 < b2 ==> log(b1, x) > log(b2, x)     
   {

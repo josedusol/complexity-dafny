@@ -1,12 +1,12 @@
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
 
 import opened LemFunction
 import opened SumInt
 import opened TypeR0
-import opened ComplexityR0
+import opened Complexity
 
 type Input {
   function size() : nat
@@ -35,7 +35,7 @@ method linAfter2(x:Input) returns (ghost t:nat)
       decreases N - i
     {
       // Op. interesante
-      lem_sum_dropLastAll(1, i);
+      lem_sum_DropLastAuto(1, i);
       i := i+1 ;
       t := t+1 ;
     }

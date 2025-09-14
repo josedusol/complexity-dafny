@@ -1,13 +1,13 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
 include "../../../theory/MasterLR.dfy"
 
 import opened ExpReal
 import opened LemFunction
 import opened TypeR0
-import opened ComplexityR0
+import opened Complexity
 import opened MasterLR
 
 type Input {
@@ -44,7 +44,7 @@ method quad(x:Input) returns (ghost t:nat)
 
   assert t == T1(N, N); 
   lem_T1BigOquad(N);
-} 
+}
 
 method quadFor(x:Input) returns (ghost t:nat)
   ensures t == T1(x.size(), x.size())

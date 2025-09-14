@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
 include "./CostList.dfy"
 //include "./LemArrayList.dfy"
 //include "./CostArrayList.dfy"
@@ -271,8 +271,6 @@ module CostArrayList refines CostList {
            (n => OkCost<T>.Cost(n) as R0)(n);
         == (2*n)  as R0;
         <= c*n as R0;
-        == { lem_expOne(n as R0); }
-           c*exp(n as R0, 1.0);
         == c*linGrowth()(n);   
       }
     }

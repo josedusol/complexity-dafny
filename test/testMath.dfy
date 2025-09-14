@@ -5,7 +5,7 @@ include "../theory/math/SumSetReal.dfy"
 
 import Int  = SumInt
 import Real = SumReal
-import SeqR = SumSeqReal
+import SeqR = SumSeqReal 
 import SetR = SumSetReal
 
 ghost method test_sumrInterval() {

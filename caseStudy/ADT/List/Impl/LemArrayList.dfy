@@ -1,7 +1,7 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/TypeR0.dfy"
-include "../../../../theory/ComplexityR0.dfy"
-include "../../../../theory/LemComplexityR0.dfy"
+include "../../../../theory/Complexity.dfy"
+include "../../../../theory/LemComplexityBigOh.dfy"
 
 /******************************************************************************
   Auxiliary module for ArrayList verification
@@ -11,8 +11,8 @@ module LemArrayList {
 
   import opened ExpReal
   import opened TypeR0
-  import opened ComplexityR0
-  import opened LemComplexityR0
+  import opened Complexity
+  import opened LemComplexityBigOh
 
   /******************************************************************************
     Complexity analysis for Get operation  

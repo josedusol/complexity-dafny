@@ -1,6 +1,6 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/TypeR0.dfy"
-include "../../../../theory/ComplexityR0.dfy"
+include "../../../../theory/Complexity.dfy"
 include "../List.dfy"
 include "./LemArrayList.dfy"
 
@@ -10,6 +10,7 @@ include "./LemArrayList.dfy"
 
 module ArrayList refines List {
 
+  import opened Complexity
   import opened LemArrayList
 
   class ArrayList<T(0)> extends List<T> {

@@ -1,6 +1,5 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
 
@@ -13,7 +12,6 @@ module List {
 
   import opened TypeR0
   import opened ExpReal
-  import opened ComplexityR0
   import opened Container
 
   trait List<T> extends Container<T> {

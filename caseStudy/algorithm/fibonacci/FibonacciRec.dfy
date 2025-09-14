@@ -3,8 +3,9 @@ include "../../../theory/math/LemBoundsReal.dfy"
 include "../../../theory/math/Root2Real.dfy"
 include "../../../theory/math/RootReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
-include "../../../theory/LemComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
+include "../../../theory/LemComplexityBigOh.dfy"
+include "../../../theory/LemComplexityBigOm.dfy"
 include "../../../theory/MasterLR.dfy"
 
 import opened ExpReal
@@ -12,8 +13,9 @@ import opened LemBoundsReal
 import opened Root2Real
 import opened RootReal
 import opened TypeR0
-import opened ComplexityR0
-import opened LemComplexityR0
+import opened Complexity
+import opened LemComplexityBigOh
+import opened LemComplexityBigOm
 import opened MasterLR
 
 ghost function fib(n:nat): nat

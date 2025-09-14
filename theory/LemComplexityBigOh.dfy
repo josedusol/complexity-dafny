@@ -8,13 +8,13 @@ include "./math/Log2Real.dfy"
 include "./math/LogReal.dfy"
 include "./math/MaxMin.dfy"
 include "./math/TypeR0.dfy"
-include "./ComplexityR0.dfy"
+include "./Complexity.dfy"
 
 /******************************************************************************
-  Lemmas about complexity of lifted functions
+  Lemmas of Big Oh Notation
 ******************************************************************************/
 
-module LemComplexityR0 {
+module LemComplexityBigOh {
 
   import EN = ExpNat
   import opened ExpReal
@@ -26,7 +26,7 @@ module LemComplexityR0 {
   import opened LogReal
   import opened MaxMin
   import opened TypeR0 
-  import opened ComplexityR0
+  import opened Complexity
 
   /******************************************************************************
     O basic properties
@@ -139,18 +139,59 @@ module LemComplexityR0 {
     assert bigOfrom(c, n0, n => f1(n)*f2(n), n => g1(n)*g2(n));
   }
 
+  // f ∈ O(g) ⟹ f+g ∈ O(g)
+  lemma lem_bigO_sumSimp(f:nat->R0, g:nat->R0)  
+    requires f in O(g) 
+    ensures  (n => f(n)+g(n)) in O(g)  
+  {
+    var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, f, g);  
+    assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
+
+    // prove f+g ∈ O(g)
+    var c1:R0, n1:nat := c + 1.0, n0;
+    forall n:nat | 0 <= n1 <= n
+      ensures f(n) + g(n) <= c1*g(n)
+    {
+      calc {
+           f(n) + g(n); 
+        <= { reveal H1; }
+           c*g(n) + g(n); 
+        == (c + 1.0)*g(n);
+        == c1*g(n);         
+      }
+    }  
+    assert c1 > 0.0 && bigOfrom(c1, n1, n => f(n)+g(n), g);
+  }
+
+  // f ∈ O(g) ⟹ g ∈ O(f+g)
+  lemma lem_bigO_sumSynth(f:nat->R0, g:nat->R0)  
+    requires f in O(g) 
+    ensures  g in O(n => f(n)+g(n))  
+  {
+    var c1:R0, n1:nat := 1.0, 0;
+    forall n:nat | 0 <= n1 <= n
+      ensures g(n) <= c1*(f(n) + g(n))
+    {
+      calc {
+           g(n);       
+        <= f(n) + g(n);
+        <= c1*(f(n) + g(n));
+      }
+    }  
+    assert c1 > 0.0 && bigOfrom(c1, n1, g, n => f(n)+g(n));
+  }  
+
   // f ∈ O(g+h) ∧ g ∈ O(h) ⟹ f ∈ O(h)
-  lemma lem_bigO_sumSimp(f:nat->R0, g:nat->R0, h:nat->R0)  
+  lemma lem_bigO_sumSimp2(f:nat->R0, g:nat->R0, h:nat->R0)  
     requires f in O(n => g(n)+h(n)) 
     requires g in O(h) 
     ensures  f in O(h) 
   {
-    lem_asymp_sumSimp(g, h);
-    lem_bigTh_defIMPdef2(n => g(n)+h(n), h);
+    lem_bigO_sumSimp(g, h);
     assert bigO(n => g(n)+h(n), h);
     lem_bigO_trans(f, n => g(n)+h(n), h);
   }
-
+  
   // Any constant function is O(1)
   lemma lem_bigO_constGrowth(f:nat->R0, a:R0)  
     requires forall n:nat :: f(n) == a
@@ -169,6 +210,36 @@ module LemComplexityR0 {
     }
     assert bigOfrom(c, n0, f, constGrowth());
   }
+
+  // The base of log doesn't change asymptotics
+  // b1,b2 > 0 ⟹ (h ∈ O(log_b1) ⟺ h ∈ O(log_b2))
+  lemma lem_bigO_logBase(b1:real, b2:real, h:nat->R0)  
+    requires b1 > 1.0 && b2 > 1.0
+    requires h in O(logGrowth(b1))
+    ensures  h in O(logGrowth(b2))
+  {
+    var c1:R0, n0:nat :| c1 > 0.0 && bigOfrom(c1, n0, h, logGrowth(b1));
+    assert H1: forall n:nat :: 0 <= n0 <= n ==> h(n) <= c1*logGrowth(b1)(n); 
+
+    lem_log_NonNegative(b2, b1);
+    var G:R0 := log(b2, b1); 
+    assert G > 0.0 by { lem_log_Positive(b2, b1); }
+    var c1':R0, n0':nat := c1/G, n0+1;
+    forall n:nat | 0 <= n0' <= n
+      ensures h(n) <= c1'*logGrowth(b2)(n)
+    {
+      calc {
+           h(n);
+        <= { reveal H1; }
+           c1*(log(b1, n as R0));
+        == { lem_log_ChangeOfBase(b1, b2, n as R0); }
+           c1*(log(b2, n as R0)/G);  
+        == c1'*log(b2, n as R0);   
+        == c1'*logGrowth(b2)(n);      
+      }
+    }
+    assert c1' > 0.0 && bigOfrom(c1', n0', h, logGrowth(b2));
+  } 
 
   // Downward closure wrto <=
   // f(n) <= up(n) eventually ∧ up ∈ O(h) ⟹ f ∈ O(h)
@@ -233,8 +304,28 @@ module LemComplexityR0 {
     }
   }   
 
-  // This is lem_bigO_sumSimp lifted to sets
-  // f ∈ O(g) ==> O(f+g) = O(g)
+  // b1,b2 > 0 ⟹ O(log_b1) = O(log_b2)
+  lemma lem_bigOset_logBase(b1:real, b2:real)  
+    requires b1 > 1.0 && b2 > 1.0
+    ensures  O(logGrowth(b1)) == O(logGrowth(b2))
+  {
+    forall h:nat->R0
+      ensures h in O(logGrowth(b1)) <==> h in O(logGrowth(b2))
+    {
+      assert h in O(logGrowth(b1)) ==> h in O(logGrowth(b2)) by { 
+        if h in O(logGrowth(b1)) {
+          lem_bigO_logBase(b1, b2, h); 
+        }
+      }
+      assert h in O(logGrowth(b2)) ==> h in O(logGrowth(b1)) by { 
+        if h in O(logGrowth(b2)) {
+          lem_bigO_logBase(b2, b1, h); 
+        }
+      }      
+    }
+  }
+
+  // f ∈ O(g) ⟹ O(f+g) = O(g)
   lemma lem_bigOset_sumSimp(f:nat->R0, g:nat->R0)  
     requires f in O(g) 
     ensures  O(n => f(n)+g(n)) == O(g)
@@ -245,8 +336,7 @@ module LemComplexityR0 {
     {
       assert h in O(n => f(n)+g(n));  
       assert (n => f(n)+g(n)) in O(g) 
-        by { lem_asymp_sumSimp(f, g); 
-             lem_bigTh_defIMPdef2(n => f(n)+g(n), g); }
+        by { lem_bigO_sumSimp(f, g); }
       lem_bigO_trans(h, n => f(n)+g(n), g);  
     }    
 
@@ -255,322 +345,36 @@ module LemComplexityR0 {
       ensures h in O(n => f(n)+g(n)) 
     {
       assert h in O(g);  
-
-      assert g in Th(n => f(n)+g(n)) 
-        by { lem_asymp_sumSimp(f, g); 
-             lem_bigTh_defIMPdef2(n => f(n)+g(n), g);
-             lem_bigTh_sym(n => f(n)+g(n), g); }
-      
-      assert g in O(n => f(n)+g(n)) 
-        by { lem_bigTh_defIMPdef2(g, n => f(n)+g(n)); }
-
+      assert g in O(n => f(n)+g(n))
+        by { lem_bigO_sumSynth(f, g); }
       lem_bigO_trans(h, g, n => f(n)+g(n));  
-    }     
+    }      
+  }
+
+  // O(f) = O(g) ⟹ f ∈ O(g) ∧ g ∈ O(f)
+  lemma lem_bigOset_mutualInc(f:nat->R0, g:nat->R0)  
+    requires O(f) == O(g)
+    ensures  f in O(g) && g in O(f)
+  { 
+    assert f in O(f) by { lem_bigO_refl(f); }
+    assert g in O(g) by { lem_bigO_refl(g); }
+  }
+
+  // Congruence of membership with respect to equality
+  // O(f) = O(g) ∧ f ∈ O(h) ⟹ g ∈ O(h)
+  lemma lem_bigOset_congEq(f:nat->R0, g:nat->R0, h:nat->R0)  
+    requires O(f) == O(g)
+    requires f in O(h)
+    ensures  g in O(h) 
+  {
+    lem_bigOset_mutualInc(f, g);
+    assert g in O(f);
+    assert f in O(h);
+    lem_bigO_trans(g, f, h);
   }
 
   /******************************************************************************
-    Ω basic properties
-  ******************************************************************************/
-
-  // Reflexivity
-  // f ∈ Ω(f)
-  lemma lem_bigOm_refl(f:nat->R0)  
-    ensures f in Om(f) 
-  {  
-    var c:R0, n0:nat := 1.0, 0;
-    assert forall n:nat :: 0 <= n0 <= n ==> f(n) >= c*f(n);
-    assert bigOmFrom(c, n0, f, f);
-  }  
-
-  // Upward closure wrto <=
-  // lo(n) <= f(n) eventually ∧ lo ∈ Ω(h) ⟹ f ∈ Ω(h)
-  lemma lem_bigOm_LEQupwardClosure(f:nat->R0, lo:nat->R0, h:nat->R0, n1:nat)  
-    requires forall n:nat :: n >= n1 ==> lo(n) <= f(n)
-    requires lo in Om(h)
-    ensures  f  in Om(h)
-  {  
-    var c2:R0, n2:nat :| c2 > 0.0 && bigOmFrom(c2, n2, lo, h);
-    assert H1: forall n:nat :: 0 <= n2 <= n ==> c2*h(n) <= lo(n);
-
-    var c:R0, n0:nat := c2, max(n1, n2);
-    forall n:nat | 0 <= n0 <= n
-      ensures c*h(n) <= f(n)
-    {
-      calc {
-           c2*h(n);
-        <= lo(n);
-        <= f(n);        
-      }
-      assert c2*h(n) <= f(n);
-    }
-    assert bigOmFrom(c, n0, f, h);
-  }
-
-  /******************************************************************************
-    Θ basic properties
-  ******************************************************************************/
-
-  // Reflexivity
-  // f ∈ Θ(f)
-  lemma lem_bigTh_refl(f:nat->R0)  
-    ensures f in Th(f) 
-  {  
-    lem_bigO_refl(f); 
-    lem_bigOm_refl(f);
-    lem_bigTh_def2IMPdef(f, f);
-  }  
-
-  // Symmetry
-  // f ∈ Θ(g) ⟹ g ∈ Θ(f)
-  lemma {:axiom} lem_bigTh_sym(f:nat->R0, g:nat->R0)  
-    requires f in Th(g) 
-    ensures  g in Th(f)
-  // TODO  
-
-  // Zero function is Θ(0)
-  lemma lem_bigTh_zeroGrowth(f:nat->R0)  
-    requires forall n:nat :: f(n) == 0.0
-    ensures  f in Th(zeroGrowth())
-  {  
-    var c1:R0, c2:R0, n0:nat := 1.0, 1.0, 0;
-    forall n:nat | 0 <= n0 <= n
-      ensures c1*zeroGrowth()(n) <= f(n) <= c2*zeroGrowth()(n)
-    {
-      calc {
-           c1*zeroGrowth()(n);
-        == c1*0.0;  
-        == 0.0;  
-        <= f(n); 
-        == 0.0;
-        <= c2*0.0;      
-        == c2*zeroGrowth()(n);         
-      }
-    }
-    assert c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, zeroGrowth());
-  }
-
-  // Any non-zero constant function is Θ(1)
-  lemma lem_bigTh_constGrowth(f:nat->R0, a:R0)  
-    requires a > 0.0
-    requires forall n:nat :: f(n) == a
-    ensures  f in Th(constGrowth())
-  {
-    var c1:R0, c2:R0, n0:nat := a/2.0, a, 0;
-    forall n:nat | 0 <= n0 <= n
-      ensures c1*constGrowth()(n) <= f(n) <= c2*constGrowth()(n)
-    {
-      calc {
-           c1*constGrowth()(n);
-        == c1*1.0; 
-        == a/2.0; 
-        <= f(n); 
-        == a;
-        <= c2*1.0;      
-        == c2*constGrowth()(n);         
-      }
-    }
-    assert c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, constGrowth());
-  }  
-
-  // The base of log doesn't change asymptotics
-  // b1,b2 > 0 ⟹ h ∈ Θ(log_b1) ⟺ h ∈ Θ(log_b2)
-  lemma lem_bigTh_logBase(b1:real, b2:real, h:nat->R0)  
-    requires b1 > 1.0 && b2 > 1.0
-    requires h in Th(logGrowth(b1))
-    ensures  h in Th(logGrowth(b2))
-  {
-    var c1:R0, c2:R0, n0:nat :| c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, h, logGrowth(b1));
-    assert H1: forall n:nat :: 0 <= n0 <= n ==> c1*logGrowth(b1)(n) <= h(n) <= c2*logGrowth(b1)(n); 
-
-    lem_log_NonNegative(b2, b1);
-    var G:R0 := log(b2, b1); 
-    assert G > 0.0 by { lem_log_Positive(b2, b1); }
-    var c1':R0, c2':R0, n0':nat := c1/G, c2/G, n0+1;
-    forall n:nat | 0 <= n0' <= n
-      ensures c1'*logGrowth(b2)(n) <= h(n) <= c2'*logGrowth(b2)(n)
-    {
-      calc {
-           c1'*logGrowth(b2)(n);
-        == c1'*log(b2, n as R0); 
-        == c1*(log(b2, n as R0)/G);
-        == { lem_log_ChangeOfBase(b1, b2, n as R0); }    
-           c1*log(b1, n as R0);
-        <= { reveal H1; }
-           h(n);   
-      }
-      calc {
-           h(n);
-        <= { reveal H1; }
-           c2*(log(b1, n as R0));
-        == { lem_log_ChangeOfBase(b1, b2, n as R0); }
-           c2*(log(b2, n as R0)/G);  
-        == c2'*log(b2, n as R0);   
-        == c2'*logGrowth(b2)(n);      
-      }
-    }
-    assert c1' > 0.0 && c2' > 0.0 && bigThFrom(c1', c2', n0', h, logGrowth(b2));
-  } 
-
-  // b1,b2 > 0 ⟹ Θ(log_b1) = Θ(log_b2)
-  lemma lem_bigThset_logBase(b1:real, b2:real)  
-    requires b1 > 1.0 && b2 > 1.0
-    ensures  Th(logGrowth(b1)) == Th(logGrowth(b2))
-  {
-    forall h:nat->R0
-      ensures h in Th(logGrowth(b1)) <==> h in Th(logGrowth(b2))
-    {
-      assert h in Th(logGrowth(b1)) ==> h in Th(logGrowth(b2)) by { 
-        if h in Th(logGrowth(b1)) {
-          lem_bigTh_logBase(b1, b2, h); 
-        }
-      }
-      assert h in Th(logGrowth(b2)) ==> h in Th(logGrowth(b1)) by { 
-        if h in Th(logGrowth(b2)) {
-          lem_bigTh_logBase(b2, b1, h); 
-        }
-      }      
-    }
-  }
-
-  /******************************************************************************
-    bigTh and bigTh2 are equivalent definitions of Big Θ 
-  ******************************************************************************/
-
-  lemma lem_bigTh_defEQdef2(f:nat->R0, g:nat->R0)  
-    ensures bigTh(f, g) <==> bigTh2(f, g)
-  {
-    assert bigTh(f, g) ==> bigTh2(f, g) by {
-      if bigTh(f, g) {
-        lem_bigTh_defIMPdef2(f, g);
-      }      
-    }
-    assert bigTh2(f, g) ==> bigTh(f, g) by {
-      if bigTh2(f, g) {
-        lem_bigTh_def2IMPdef(f, g);
-      }      
-    }
-  }
-
-  lemma lem_bigTh_defIMPdef2(f:nat->R0, g:nat->R0)  
-    requires bigTh(f, g) 
-    ensures  bigTh2(f, g)
-  {
-    var c1:R0, c2:R0, n0:nat :| c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, g); 
-    assert H: forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n);
-
-    assert A: f in O(g) by {
-      forall n:nat | 0 <= n0 <= n
-        ensures f(n) <= c2*g(n)
-      {
-        assert f(n) <= c2*g(n) by { reveal H; }
-      }
-      assert bigOfrom(c2, n0, f, g);
-    }
-    assert B: f in Om(g) by {
-      forall n:nat | 0 <= n0 <= n
-        ensures c1*g(n) <= f(n)
-      {
-        assert c1*g(n) <= f(n) by { reveal H; }
-      }
-      assert bigOmFrom(c1, n0, f, g);
-    }
-    
-    assert f in O(g) && f in Om(g) by { reveal A, B; }
-  }      
-
-  lemma lem_bigTh_def2IMPdef(f:nat->R0, g:nat->R0)  
-    requires bigTh2(f, g) 
-    ensures  bigTh(f, g)
-  {
-    var c1:R0, n0_1:nat :| c1 > 0.0 && bigOmFrom(c1, n0_1, f, g) ; 
-    assert H1: forall n:nat :: 0 <= n0_1 <= n ==> c1*g(n) <= f(n);
-
-    var c2:R0, n0_2:nat :| c2 > 0.0 && bigOfrom(c2, n0_2, f, g) ; 
-    assert H2: forall n:nat :: 0 <= n0_2 <= n ==> f(n) <= c2*g(n);
-
-    var n0 := n0_1 + n0_2;
-    forall n:nat | 0 <= n0 <= n
-      ensures c1*g(n) <= f(n) <= c2*g(n)
-    {
-      assert c1*g(n) <= f(n) by { reveal H1; }
-      assert f(n) <= c2*g(n) by { reveal H2; }
-    }
-    assert bigThFrom(c1, c2, n0, f, g);
-  }
-
-  // A stronger way to conclude a program counter t is Θ(g) for input size n
-  lemma lem_bigTh_tIsBigTh2(n:nat, t:R0, g:nat->R0)  
-    requires exists f:nat->R0 :: f(n) == t && bigTh(f, g)
-    ensures  tIsBigTh(n, t, g) 
-  {
-    var f:nat->R0 :| f(n) == t && bigTh(f, g);
-    lem_bigTh_defIMPdef2(f, g);
-  }
-
-  /******************************************************************************
-    Mixed O/Θ/Ω properties
-  ******************************************************************************/
-
-  // f ∈ O(g) ⟹ f+g ∈ Θ(g)
-  lemma lem_asymp_sumSimp(f:nat->R0, g:nat->R0)  
-    requires f in O(g) 
-    ensures  (n => f(n)+g(n)) in Th(g)    
-  {
-    var c:R0, n0:nat :| c > 0.0 && bigOfrom(c, n0, f, g);  
-    assert H1: forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n);
-
-    // prove f+g ∈ O(g)
-    var c1:R0, n1:nat := c+1.0, n0;
-    forall n:nat | 0 <= n1 <= n
-      ensures f(n) + g(n) <= c1*g(n)
-    {
-      calc {
-           f(n) + g(n); 
-        <= { reveal H1; }
-           c*g(n) + g(n); 
-        == (c + 1.0)*g(n);
-        == c1*g(n);         
-      }
-    }  
-    assert bigOfrom(c1, n1, n => f(n)+g(n), g);
-
-    // prove f+g ∈ Ω(g)
-    var c2:R0, n2:nat := 1.0, 0;
-    forall n:nat | 0 <= n2 <= n
-      ensures c2*g(n) <= f(n) + g(n)
-    {
-      calc {
-           c2*g(n); 
-        <= f(n) + g(n);        
-      }
-    }  
-    assert bigOmFrom(c2, n2, n => f(n)+g(n), g);
-
-    lem_bigTh_def2IMPdef(n => f(n)+g(n), g);
-  }  
-
-  //   f(n) <= up(n) eventually ∧ lo(n) <= f(n) eventually 
-  // ∧ up ∈ O(h) ∧ lo ∈ Ω(h) ⟹ f ∈ Θ(h)
-  lemma lem_asymp_sandwich(f:nat->R0, lo:nat->R0, up:nat->R0, g:nat->R0, n1:nat, n2:nat)  
-    requires forall n:nat :: n >= n1 ==> lo(n) <= f(n)
-    requires forall n:nat :: n >= n2 ==> f(n)  <= up(n)
-    requires lo in Om(g)
-    requires up in O(g)
-    ensures  f  in Th(g)
-  {
-    assert f in Om(g) by {
-      lem_bigOm_LEQupwardClosure(f, lo, g, n1);
-    }
-    assert f in O(g) by {
-      lem_bigO_LEQdownwardClosure(f, up, g, n2);
-    }    
-    assert f in Th(g) by {
-      lem_bigTh_defEQdef2(f, g);
-    }
-  }
-
-  /******************************************************************************
-    Common growth rates comparison
+    Comparison of common growth rates according to O
   ******************************************************************************/
 
   // 0 ∈ O(f) 
@@ -587,8 +391,15 @@ module LemComplexityR0 {
         <= 1.0*f(n);             
       }
     }
-    assert bigOfrom(c, n0, zeroGrowth(), f);
+    assert c > 0.0 && bigOfrom(c, n0, zeroGrowth(), f);
   } 
+
+  // 0 ∈ O(1) 
+  lemma lem_bigO_zeroBigOconst()
+    ensures zeroGrowth() in O(constGrowth()) 
+  {
+    lem_bigO_zeroBigOany(constGrowth());
+  }   
 
   // 1 ∈ O(log_b) 
   lemma lem_bigO_constBigOlog(b:R0)
@@ -624,7 +435,7 @@ module LemComplexityR0 {
   lemma lem_bigO_constBigOlin()
     ensures constGrowth() in O(linGrowth()) 
   {
-    // Follows from transitivity of 1 ∈ O(log2) and log2 ∈ O(n)  
+    // From transitivity of 1 ∈ O(log2) and log2 ∈ O(n)  
     assert constGrowth() in O(log2Growth()) by { lem_bigO_constBigOlog2(); }
     assert log2Growth()  in O(linGrowth())  by { lem_bigO_log2BigOlin(); }
     lem_bigO_trans(constGrowth(), log2Growth(), linGrowth());
@@ -635,7 +446,7 @@ module LemComplexityR0 {
     requires k >= 1.0
     ensures  constGrowth() in O(polyGrowth(k)) 
   {
-    // Follows from transitivity of 1 ∈ O(log2) and log2 ∈ O(n^k)  
+    // From transitivity of 1 ∈ O(log2) and log2 ∈ O(n^k)  
     assert constGrowth() in O(log2Growth())  by { lem_bigO_constBigOlog2(); }
     assert log2Growth()  in O(polyGrowth(k)) by { lem_bigO_log2BigOpoly(k); }
     lem_bigO_trans(constGrowth(), log2Growth(), polyGrowth(k));
@@ -646,7 +457,7 @@ module LemComplexityR0 {
     requires b >= 2.0
     ensures  constGrowth() in O(expGrowth(b)) 
   {
-    // Follows from transitivity of 1 ∈ O(n) and n ∈ O(b^n)  
+    // From transitivity of 1 ∈ O(n) and n ∈ O(b^n)  
     assert constGrowth() in O(linGrowth())  by { lem_bigO_constBigOlin(); }
     assert linGrowth()   in O(expGrowth(b)) by { lem_bigO_linBigOexp(b); }
     lem_bigO_trans(constGrowth(), linGrowth(), expGrowth(b));
@@ -675,8 +486,20 @@ module LemComplexityR0 {
     assert bigOfrom(c, n0, log2Growth(), linGrowth());
   }
 
+  // log_b ∈ O(n) 
+  lemma lem_bigO_logBigOlin(b:R0)
+    requires b > 1.0
+    ensures logGrowth(b) in O(linGrowth()) 
+  {  
+    lem_bigOset_logBase(2.0, b);  
+    lem_bigO_log2BigOlin();   
+    lem_fun_Ext(log2Growth(), logGrowth(2.0)) by { reveal log2(); }
+
+    lem_bigOset_congEq(logGrowth(2.0), logGrowth(b), linGrowth());
+  }
+
   // log2(n+1) ∈ O(n) 
-  lemma lem_bigO_logBigOlinV2()
+  lemma lem_bigO_log2PlusOneBigOlin()
     ensures log2Plus1Growth() in O(linGrowth())
   {
     var c:R0, n0:nat := 2.0, 1;
@@ -702,11 +525,22 @@ module LemComplexityR0 {
     requires k >= 1.0
     ensures  log2Growth() in O(polyGrowth(k))
   { 
-    // Follows from transitivity of log2(n) ∈ O(n) and n ∈ O(n^k)  
+    // From transitivity of log2 ∈ O(n) and n ∈ O(n^k)  
     assert log2Growth() in O(linGrowth())   by { lem_bigO_log2BigOlin(); }
     assert linGrowth()  in O(polyGrowth(k)) by { lem_bigO_linBigOpoly(k); }
     lem_bigO_trans(log2Growth(), linGrowth(), polyGrowth(k));    
   }
+
+  // b > 1 ∧ k >= 1 ⟹ log_b ∈ O(n^k) 
+  lemma lem_bigO_logBigOpoly(b:R0, k:R0)
+    requires b > 1.0 && k >= 1.0
+    ensures logGrowth(b) in O(polyGrowth(k))
+  {  
+    // From transitivity of log_b ∈ O(n) and n ∈ O(n^k)  
+    assert logGrowth(b) in O(linGrowth())   by { lem_bigO_logBigOlin(b); }
+    assert linGrowth()  in O(polyGrowth(k)) by { lem_bigO_linBigOpoly(k); }
+    lem_bigO_trans(logGrowth(b), linGrowth(), polyGrowth(k));    
+  }  
 
   // k >= 1 ⟹ n ∈ O(n^k) 
   lemma lem_bigO_linBigOpoly(k:R0)
@@ -780,7 +614,7 @@ module LemComplexityR0 {
   lemma lem_bigO_linBigOexp2()
     ensures linGrowth() in O(exp2Growth()) 
   {
-    // Follows from transitivity of n ∈ O(n^2) and n^2 ∈ O(2^n)  
+    // From transitivity of n ∈ O(n^2) and n^2 ∈ O(2^n)  
     assert linGrowth()  in O(quadGrowth()) by { lem_bigO_linBigOquad(); }
     assert quadGrowth() in O(exp2Growth()) by { lem_bigO_quadBigOexp(); }
     lem_bigO_trans(linGrowth(), quadGrowth(), exp2Growth());
@@ -791,11 +625,17 @@ module LemComplexityR0 {
     requires b >= 2.0
     ensures  linGrowth() in O(expGrowth(b)) 
   { 
-    // Follows from transitivity of n ∈ O(2^n) and 2^n ∈ O(b^n)  
+    // From transitivity of n ∈ O(2^n) and 2^n ∈ O(b^n)  
     assert linGrowth()  in O(exp2Growth()) by { lem_bigO_linBigOexp2(); }
     assert exp2Growth() in O(expGrowth(b)) by { lem_bigO_exp2BigOexp(b); }
     lem_bigO_trans(linGrowth(), exp2Growth(), expGrowth(b));
   }    
+
+  // k >= 0 ⟹ n^k ∈ O(2^n)  
+  lemma lem_bigO_polyBigOexp2(k:R0)
+    requires k >= 0.0
+    ensures  polyGrowth(k) in O(exp2Growth())
+  // TODO
 
   // b >= 2 ⟹ 2^n ∈ O(b^n)  
   lemma lem_bigO_exp2BigOexp(b:R0)
@@ -818,5 +658,93 @@ module LemComplexityR0 {
     }
     assert bigOfrom(c, n0, exp2Growth(), expGrowth(b));    
   }
+
+  // k >= 0 ∧ b >= 2 ⟹ n^k ∈ O(b^n)  
+  lemma lem_bigO_polyBigOexp(k:R0, b:R0)
+    requires k >= 0.0 && b >= 2.0
+    ensures  polyGrowth(k) in O(expGrowth(b))
+  {
+    // From transitivity of n^k ∈ O(2^n) and 2^n ∈ O(b^n)  
+    assert polyGrowth(k) in O(exp2Growth()) by { lem_bigO_polyBigOexp2(k); }
+    assert exp2Growth()  in O(expGrowth(b)) by { lem_bigO_exp2BigOexp(b); }
+    lem_bigO_trans(polyGrowth(k), exp2Growth(), expGrowth(b));
+  }
+
+  /******************************************************************************
+    Inclusion hierarchy: bigger growth functions contain smaller-growth functions.
+
+      O(0) ⊆ O(1) ⊆ O(log_b)
+                  ⊆ O(n^2) ⊆ O(n^3) ⊆ ... ⊆ O(n^k) 
+                  ⊆ O(2^n) ⊆ O(3^n) ⊆ ... ⊆ O(b^n) 
+
+    Proving O(f) ⊆ O(g) amounts to proving f ∈ O(g) and using transitivity.               
+  ******************************************************************************/
+
+  // O(0) ⊆ O(1) 
+  lemma lem_bigOset_zeroLEQconst(f:nat->R0)
+    ensures O(zeroGrowth()) <= O(constGrowth()) 
+  {
+    forall h:nat->R0 | h in O(zeroGrowth()) 
+      ensures h in O(constGrowth()) 
+    {
+      calc {
+            h in O(zeroGrowth());
+        ==> { lem_bigO_zeroBigOconst(); 
+              lem_bigO_trans(h, zeroGrowth(), constGrowth()); }
+            h in O(constGrowth());
+      }
+    } 
+  }
+
+  // O(1) ⊆ O(log_b) 
+  lemma lem_bigOset_constLEQlog(b:R0)
+    requires b > 1.0
+    ensures O(constGrowth()) <= O(logGrowth(b)) 
+  {
+    forall h:nat->R0 | h in O(constGrowth()) 
+      ensures h in O(logGrowth(b)) 
+    {
+      calc {
+            h in O(constGrowth());
+        ==> { lem_bigO_constBigOlog(b); 
+              lem_bigO_trans(h, constGrowth(), logGrowth(b)); }
+            h in O(logGrowth(b));
+      }
+    } 
+  }  
+
+  // O(log_b) ⊆ O(n^k) 
+  lemma lem_bigOset_logLEQpoly(b:R0, k:R0)
+    requires b > 1.0 && k >= 1.0
+    ensures O(logGrowth(b)) <= O(polyGrowth(k)) 
+  {
+    forall h:nat->R0 | h in O(logGrowth(b)) 
+      ensures h in O(polyGrowth(k)) 
+    { 
+      calc {
+            h in O(logGrowth(b));
+        ==> { lem_bigO_logBigOpoly(b, k); 
+              lem_bigO_trans(h, logGrowth(b), polyGrowth(k)); }
+            h in O(polyGrowth(k));
+      }
+    } 
+  }  
+
+  // O(n^k) ⊆ O(b^n) 
+  lemma lem_bigOset_polyLEQexp(k:R0, b:R0)
+    requires k >= 0.0 && b >= 2.0
+    ensures O(polyGrowth(k)) <= O(expGrowth(b)) 
+  {
+    forall h:nat->R0 | h in O(polyGrowth(k)) 
+      ensures h in O(expGrowth(b)) 
+    { 
+      calc { 
+            h in O(polyGrowth(k));
+        ==> { lem_bigO_polyBigOexp(k, b); 
+              lem_bigO_trans(h, polyGrowth(k), expGrowth(b)); }
+            h in O(expGrowth(b));
+      }
+    } 
+  }  
 
 }

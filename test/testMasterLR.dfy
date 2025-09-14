@@ -5,7 +5,7 @@ include "../theory/math/LemFunction.dfy"
 include "../theory/math/Log2Nat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
-include "../theory/ComplexityR0.dfy"
+include "../theory/Complexity.dfy"
 include "../theory/MasterLR.dfy"
 
 import Nat = ExpNat
@@ -14,7 +14,7 @@ import opened LemBoundsNat
 import opened LemFunction
 import opened Log2Nat
 import opened TypeR0
-import opened ComplexityR0
+import opened Complexity
 import opened MasterLR
 
 // Recurrence 1:

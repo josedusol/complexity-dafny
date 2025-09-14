@@ -1,12 +1,12 @@
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
 
 import opened LemFunction
 import opened SumInt
 import opened TypeR0
-import opened ComplexityR0
+import opened Complexity
 
 type Input {
   function size() : nat
@@ -37,11 +37,11 @@ method quad(x:Input) returns (ghost t:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sum_dropLastAll(1, j); 
+      lem_sum_DropLastAuto(1, j); 
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sum_dropLastAll(1, i);
+    lem_sum_DropLastAuto(1, i);
     i := i+1 ;
     t := t+t' ;
   }
@@ -66,10 +66,10 @@ method quadFor(x:Input) returns (ghost t:nat)
       invariant t' == sum(1, j, k' => 1)
     {
       // Op. interesante
-      lem_sum_dropLastAll(1, j); 
+      lem_sum_DropLastAuto(1, j); 
       t' := t'+1;
     }
-    lem_sum_dropLastAll(1, i);
+    lem_sum_DropLastAuto(1, i);
     t := t+t';
   }
   

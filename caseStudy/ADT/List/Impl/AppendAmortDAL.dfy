@@ -29,16 +29,18 @@ module AppendAmortDAL {
 
   // Cost over a sequence of n appends
   method costSequence<T(0)>(al:DynaArrayList<T>, n:nat) returns (t:R0)
-    modifies al.Repr()
+    modifies al, al.Repr()
     requires al.Valid()
     requires n > 0
-    ensures al.Valid() && fresh(al.Repr() - old(al.Repr())) 
+    ensures al.Valid() 
+    ensures fresh(al.Repr() - old(al.Repr())) 
   {
     t := 0.0; 
 
     for i := 1 to n+1
-      modifies al.Repr()
-      invariant al.Valid() && fresh(al.Repr() - old(al.Repr())) 
+      modifies al, al.Repr()
+      invariant al.Valid()
+      invariant fresh(al.Repr() - old(al.Repr())) 
     {
       var N, m, C := al.Size(), al.m, al.Capacity();
     label before:

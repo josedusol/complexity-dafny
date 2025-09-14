@@ -5,8 +5,9 @@ include "../theory/math/LogReal.dfy"
 include "../theory/math/MaxMin.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
-include "../theory/ComplexityR0.dfy"
-include "../theory/LemComplexityR0.dfy"
+include "../theory/Complexity.dfy"
+include "../theory/LemComplexityBigOh.dfy"
+include "../theory/LemComplexityBigTh.dfy"
 
 import opened ExpReal
 import opened LemBoundsNat
@@ -15,8 +16,9 @@ import opened LogReal
 import opened MaxMin
 import opened SumInt
 import opened TypeR0
-import opened ComplexityR0
-import opened LemComplexityR0
+import opened Complexity
+import opened LemComplexityBigOh
+import opened LemComplexityBigTh
 
 lemma test_sumBigOmax(T:nat->R0, f:nat->R0, b:nat, c:R0, k:R0)
   requires forall n:nat :: T(n) == if n <= b then c else c + f(n)

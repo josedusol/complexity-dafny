@@ -5,8 +5,8 @@ include "../theory/math/LemFunction.dfy"
 include "../theory/math/Log2Nat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
-include "../theory/ComplexityR0.dfy"
-include "../theory/LemComplexityR0.dfy"
+include "../theory/Complexity.dfy"
+include "../theory/LemComplexityBigOh.dfy"
 
 import EN = ExpNat
 import opened ExpReal
@@ -15,8 +15,8 @@ import opened LemFunction
 import opened Log2Nat
 import opened SumInt
 import opened TypeR0
-import opened ComplexityR0
-import opened LemComplexityR0
+import opened Complexity
+import opened LemComplexityBigOh
 
 lemma test_bigOprod()
   requires liftToR0(n => 2*n) in O(linGrowth())

@@ -1,15 +1,18 @@
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
-include "../../../theory/LemComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
+include "../../../theory/LemComplexityBigOh.dfy"
+include "../../../theory/LemComplexityBigOm.dfy"
+include "../../../theory/LemComplexityBigTh.dfy"
 include "./linearSearch.dfy"
 
 import opened LemFunction
 import opened SumReal
 import opened TypeR0
-import opened ComplexityR0
-import opened LemComplexityR0
+import opened Complexity
+import opened LemComplexityBigOh
+import opened LemComplexityBigTh
 
 ghost function f1(N:nat) : nat
 {

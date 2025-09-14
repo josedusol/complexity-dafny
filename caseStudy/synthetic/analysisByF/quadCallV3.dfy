@@ -1,12 +1,12 @@
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
-include "../../../theory/LemComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
+include "../../../theory/LemComplexityBigOh.dfy"
 
 import opened LemFunction
 import opened TypeR0
-import opened ComplexityR0
-import opened LemComplexityR0
+import opened Complexity
+import opened LemComplexityBigOh
 
 type Input {
   function size() : nat

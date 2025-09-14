@@ -1,13 +1,13 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/ComplexityR0.dfy"
+include "../../../theory/Complexity.dfy"
 include "../../../theory/MasterLR.dfy"
 
 import opened ExpReal
 import opened SumReal
 import opened TypeR0
-import opened ComplexityR0
+import opened Complexity
 import opened MasterLR
 
 ghost function fib(n:nat): nat
@@ -103,9 +103,7 @@ lemma lem_fBigOlin() returns (c:R0, n0:nat)
     calc {
          f(n);
       == n as R0;
-      == { lem_exp_One(n as R0); }
-         exp(n as R0, 1.0);
-      <= c*exp(n as R0, 1.0); 
+      <= c * n as R0; 
       == c*linGrowth()(n);  
     }
   }

@@ -8,10 +8,10 @@ include "./math/RootReal.dfy"
 include "./math/TypeR0.dfy"
 
 /******************************************************************************
-  Complexity definitions lifted for non-negative real codomain
+  Complexity definitions
 ******************************************************************************/
 
-module ComplexityR0 { 
+module Complexity { 
 
   import opened ExpReal
   import opened Factorial  
@@ -135,7 +135,7 @@ module ComplexityR0 {
     requires b > 1.0
   {   
     lem_log_NonNegativeAuto();
-    n => if n>0 then log(b, n as R0) else 0.0
+    n => if n > 0 then log(b, n as R0) else 0.0
   }
 
   ghost function logPlus1Growth(b:R0) : nat->R0
@@ -147,7 +147,7 @@ module ComplexityR0 {
 
   ghost function log2Growth() : nat->R0
   {   
-    n => if n>0 then log2(n as R0) else 0.0
+    n => if n > 0 then log2(n as R0) else 0.0
   }
 
   ghost function log2Plus1Growth() : nat->R0 
