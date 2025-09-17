@@ -1,10 +1,12 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -17,11 +19,12 @@ ghost function f(n:nat) : nat
 
 method quadCall(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
-  var i;
-  i, t := 0, 0;
+  t := 0;
+  
+  var i := 0;
   while i != N
     invariant 0 <= i <= N
     invariant t == T1(N,0) - T1(N,i)  // = T1(N, N-i)
@@ -32,6 +35,7 @@ method quadCall(x:Input) returns (ghost t:nat)
     i := i+1;
     t := t + t'; 
   }
+
   assert t == T1(N, 0); 
   assert t == f(N) by { lem_T1closed(N, 0); }
   assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
@@ -44,7 +48,7 @@ ghost function f'(n:nat) : nat
 
 method quadCallSub(x:Input) returns (ghost t:nat)
   ensures t == f'(x.size())
-  ensures tIsBigO(x.size(), t as R0, linGrowth())
+  ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   var i;
@@ -103,7 +107,7 @@ lemma lem_T1closed(n:nat, i:nat)
 }
 
 lemma lem_subBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f'), linGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f'), linGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
@@ -119,7 +123,7 @@ lemma lem_subBigOlin() returns (c:R0, n0:nat)
 }
 
 lemma lem_fBigOquad() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), quadGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n

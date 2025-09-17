@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
 include "./Cost.dfy"
@@ -14,7 +14,7 @@ module CostList {
 
   import opened TypeR0
   import opened ExpReal
-  import opened Complexity
+  import opened Asymptotics
   import opened Container
   import opened Cost
 
@@ -78,7 +78,7 @@ module CostList {
       requires Valid()
       // Post:
       ensures  Valid()     
-      ensures  tIsBigO(c.Size(), c.Count() as R0, linGrowth())     
+      ensures  tIsBigOh(c.Size(), c.Count() as R0, linGrowth())     
   }  
 
 }

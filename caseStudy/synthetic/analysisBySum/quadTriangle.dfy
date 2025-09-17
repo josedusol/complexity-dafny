@@ -1,12 +1,14 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened SumInt
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -19,7 +21,7 @@ ghost function f(n:nat) : nat
 
 method quadTriangle(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0; reveal sum();
@@ -37,11 +39,11 @@ method quadTriangle(x:Input) returns (ghost t:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sum_DropLastAuto(i+1,j);
+      lem_DropLastAuto(i+1,j);
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sum_DropLastAuto(1,i);
+    lem_DropLastAuto(1,i);
     i := i+1 ;
     t := t+t' ;
   }
@@ -53,7 +55,7 @@ method quadTriangle(x:Input) returns (ghost t:nat)
 
 method quadTriangleFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0; reveal sum();
@@ -66,10 +68,10 @@ method quadTriangleFor(x:Input) returns (ghost t:nat)
       invariant t' == sum(i+1, j, k' => 1)
     {
       // Op. interesante
-      lem_sum_DropLastAuto(i+1,j);
+      lem_DropLastAuto(i+1,j);
       t' := t'+1;
     }
-    lem_sum_DropLastAuto(1,i);
+    lem_DropLastAuto(1,i);
     t := t+t';
   }
   
@@ -79,7 +81,7 @@ method quadTriangleFor(x:Input) returns (ghost t:nat)
 }
 
 lemma lem_fBigOquad() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), quadGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n
@@ -104,12 +106,12 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
        sum(1, N, k => sum(k, N, k' => 1));
     == { lem_solveInnerSum(1, N, 1); }
        sum(1, N, k => 1*(N-k+1));
-    == { lem_sum_Leibniz(1, N, k => 1*(N-k+1),
+    == { lem_Leibniz(1, N, k => 1*(N-k+1),
                               k => N-k+1); }
        sum(1, N, k => (N-k+1));
-    == { lem_sum_RevIndex(1, N); }
+    == { lem_RevIndex(1, N); }
        sum(1, N, k => k); 
-    == { lem_sum_Triangle(N); }  
+    == { lem_Triangle(N); }  
        (N*(N+1))/2; 
   }
 } 
@@ -139,7 +141,7 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
          sum(i, N, k => c) + sum(i+1, N, k => sum(k, N, k' => c));
       == { lem_solveInnerSum(i+1, N, c); }  // by IH
          sum(i, N, k => c) + sum(i+1, N, k => c*(N-k+1));
-      == { lem_sum_constAll(i, N); } 
+      == { lem_ConstAuto(i, N); } 
          c*(N-i+1) + sum(i+1, N, k => c*(N-k+1));      
       == { reveal sum(); }      
          sum(i, N, k => c*(N-k+1));           

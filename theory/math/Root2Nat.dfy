@@ -5,7 +5,7 @@
 
 module Root2Nat {
   
-  // sqrt(n)
+  // √n
   opaque ghost function sqrt(n:nat) : nat
     decreases n
   {

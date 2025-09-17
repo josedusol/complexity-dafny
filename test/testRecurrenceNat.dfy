@@ -48,5 +48,5 @@ lemma lem_test()
       lem_f2def(n, i);
   }
 
-  lem_rec_dwEQup(1.0, g, f1', f2'); 
+  lem_DwEQup(1.0, g, f1', f2'); 
 }

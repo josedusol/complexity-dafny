@@ -6,7 +6,7 @@ include "./ExpNat.dfy"
 
 module Log2Nat {
 
-  import opened ExpNat
+  import Exp = ExpNat
 
   // log2(n) 
   opaque ghost function log2(n:nat) : nat
@@ -16,7 +16,7 @@ module Log2Nat {
     if n == 1 then 0 else 1 + log2(n/2)
   }
 
-  lemma lem_log2_FirstValues()
+  lemma lem_FirstValues()
     ensures log2(1) == 0
     ensures log2(2) == 1
     ensures log2(3) == 1
@@ -27,7 +27,7 @@ module Log2Nat {
   }
 
   // n >= 2 ⟹ log2(n) >= 1
-  lemma lem_log2_GEQone(n:nat)
+  lemma lem_GEQone(n:nat)
     requires n >= 2
     ensures  log2(n) >= 1
   {
@@ -35,14 +35,14 @@ module Log2Nat {
   }
 
   // n,m > 0 ∧ n <= m ⟹ log2(n) <= log2(m)
-  lemma lem_log2_MonoIncr(n:nat, m:nat)
+  lemma lem_MonoIncr(n:nat, m:nat)
     requires n > 0 && m > 0
     ensures  n <= m ==> log2(n) <= log2(m)
     decreases n, m
   {
     reveal log2();
     if n != 1 && m != 1 { 
-      lem_log2_MonoIncr(n-1, m-1); 
+      lem_MonoIncr(n-1, m-1); 
     }
   }
 
@@ -58,17 +58,17 @@ module Log2Nat {
   **************************************************************************/
 
   // log2(2^n) = n 
-  lemma lem_log2Exp2_Inverse(n:nat)
-    requires exp(2,n) > 0
-    ensures  log2(exp(2,n)) == n 
+  lemma lem_Log2Exp2Inverse(n:nat)
+    requires Exp.exp(2,n) > 0
+    ensures  log2(Exp.exp(2,n)) == n 
   {
     if n == 0 {
       // BC: n = 0
       calc {
-          log2(exp(2,0));
-        == { lem_exp2_FirstValues(); }
+          log2(Exp.exp(2,0));
+        == { Exp.lem_Exp2FirstValues(); }
           log2(1);
-        == { lem_log2_FirstValues(); }
+        == { lem_FirstValues(); }
           0;   
       }
     } else {
@@ -76,12 +76,12 @@ module Log2Nat {
       //   IH: log2(2^(n-1)) = n-1 
       //    T: log2(2^n)     = n 
       calc {
-          log2(exp(2, n));
-        == { reveal exp(); }
-          log2(2*exp(2, n-1));
+          log2(Exp.exp(2, n));
+        == { reveal Exp.exp(); }
+          log2(2*Exp.exp(2, n-1));
         == { reveal log2(); }
-          1 + log2(exp(2, n-1));
-        == { lem_log2Exp2_Inverse(n-1); } // IH
+          1 + log2(Exp.exp(2, n-1));
+        == { lem_Log2Exp2Inverse(n-1); } // IH
           1 + (n - 1);
         == n;
       }
@@ -89,9 +89,9 @@ module Log2Nat {
   }
 
   // n = 2^k ⟹ log2(2^n) = n 
-  lemma {:axiom} lem_exp2log2_Inverse(n:nat, k:nat)
-    requires exp(2, k) > 0
-    requires n == exp(2, k) 
-    ensures  exp(2, log2(n)) == n
+  lemma {:axiom} lem_Exp2log2Inverse(n:nat, k:nat)
+    requires Exp.exp(2, k) > 0
+    requires n == Exp.exp(2, k) 
+    ensures  Exp.exp(2, log2(n)) == n
 
 }

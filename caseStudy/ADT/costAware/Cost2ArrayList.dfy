@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "./Cost2List.dfy"
 
 /******************************************************************************

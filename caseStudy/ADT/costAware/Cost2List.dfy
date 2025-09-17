@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../Container.dfy"
 include "./Cost2.dfy"
@@ -14,7 +14,7 @@ module Cost2List {
 
   import opened TypeR0
   import opened ExpReal
-  import opened Complexity
+  import opened Asymptotics
   import opened Container
   import opened Cost2
 

@@ -37,169 +37,169 @@ module ExpReal {
   import opened LemReal
 
   // x^y
-  // We assert lem_exp_NonNegative as post for convenience
+  // We assert lem_NonNegative as post for convenience
   ghost function {:axiom} exp(x:real, y:real) : real
     ensures x >= 0.0 && y >= 0.0 ==> exp(x, y) >= 0.0
 
   // x,y >= 0 ⟹ x^y >= 0
-  lemma {:axiom} lem_exp_NonNegative(x:real, y:real)
+  lemma {:axiom} lem_NonNegative(x:real, y:real)
     requires x >= 0.0 && y >= 0.0
     ensures  exp(x, y) >= 0.0
 
   // x > 0 ⟹ x^y > 0
-  lemma {:axiom} lem_exp_Positive(x:real, y:real)
+  lemma {:axiom} lem_Positive(x:real, y:real)
     requires x > 0.0
     ensures  exp(x, y) > 0.0        
 
   // x > 1 ∧ y > 0 ⟹ x^y > 1
-  lemma {:axiom} lem_exp_GTone(x:real, y:real)
+  lemma {:axiom} lem_GTone(x:real, y:real)
     requires x > 1.0 && y > 0.0
     ensures  exp(x, y) > 1.0     
 
   // x^0 = 1
-  lemma {:axiom} lem_exp_Zero(x:real)
+  lemma {:axiom} lem_Zero(x:real)
     ensures exp(x, 0.0) == 1.0 
 
   // x >= 0 ⟹ x^1 = x
-  lemma {:axiom} lem_exp_One(x:real)
+  lemma {:axiom} lem_One(x:real)
     requires x >= 0.0
     ensures  exp(x, 1.0) == x    
 
   // y > 0 ⟹ 0^y = 0
-  lemma {:axiom} lem_exp_BaseZero(y:real)
+  lemma {:axiom} lem_BaseZero(y:real)
     requires y > 0.0
     ensures  exp(0.0, y) == 0.0     
 
   // 1^y = 1
-  lemma {:axiom} lem_exp_BaseOne(y:real)
+  lemma {:axiom} lem_BaseOne(y:real)
     ensures  exp(1.0, y) == 1.0     
 
   // x >= 0 ⟹ x^(y+z) = (x^y)*(x^z)
-  lemma {:axiom} lem_exp_Product(x:real, y:real, z:real)
+  lemma {:axiom} lem_Product(x:real, y:real, z:real)
     requires x >= 0.0 
     ensures  exp(x, y+z) == exp(x, y)*exp(x, z)  
 
   // x >= 0 ⟹ (x^y)^z = x^(y*z)
-  lemma {:axiom} lem_exp_Exp(x:real, y:real, z:real)
+  lemma {:axiom} lem_Exp(x:real, y:real, z:real)
     requires x >= 0.0 
     ensures  exp(exp(x, y), z) == exp(x, y*z) 
 
   // x > 0 ⟹ x^(-k) = 1/x^k
-  lemma {:axiom} lem_exp_Reciprocal(x:real, k:real) 
+  lemma {:axiom} lem_Reciprocal(x:real, k:real) 
     requires x > 0.0
     requires exp(x, k) > 0.0
     ensures  exp(x, -k) == 1.0 / exp(x, k)
 
-  // The only other axiom we take is lem_exp_BaseStrictIncr, see below in the list
+  // The only other axiom we take is lem_BaseStrictIncr, see below in the list
   // of order properties on the base
 
   /******************************************************************************
     Universal closures of the axioms
   ******************************************************************************/
 
-  lemma lem_exp_NonNegativeAuto()
+  lemma lem_NonNegativeAuto()
     ensures forall x:real, y:real ::  
       x >= 0.0 && y >= 0.0 ==> exp(x, y) >= 0.0
   {
      forall x:real, y:real | x >= 0.0 && y >= 0.0
       ensures exp(x, y) >= 0.0
     {
-      lem_exp_NonNegative(x, y);
+      lem_NonNegative(x, y);
     }
   }
 
-  lemma lem_exp_PositiveAuto()
+  lemma lem_PositiveAuto()
     ensures forall x:real, y:real ::  
             x > 0.0 && y >= 0.0 ==> exp(x, y) > 0.0
   {
      forall x:real, y:real | x > 0.0 && y >= 0.0
       ensures exp(x, y) > 0.0
     {
-      lem_exp_Positive(x, y);
+      lem_Positive(x, y);
     }
   }  
 
-  lemma lem_exp_GToneAuto()
+  lemma lem_GToneAuto()
     ensures forall x:real, y:real ::  
             x > 1.0 && y > 0.0 ==> exp(x, y) > 1.0
   {
      forall x:real, y:real | x > 1.0 && y > 0.0
       ensures exp(x, y) > 1.0
     {
-      lem_exp_GTone(x, y);
+      lem_GTone(x, y);
     }
   } 
 
-  lemma lem_exp_ZeroAuto()
+  lemma lem_ZeroAuto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 0.0) == 1.0 
   {
     forall x:real | x >= 0.0
       ensures exp(x, 0.0) == 1.0 
     {
-      lem_exp_Zero(x);
+      lem_Zero(x);
     }
   }
 
-  lemma lem_exp_OneAuto()
+  lemma lem_OneAuto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 1.0) == x 
   {
     forall x:real | x >= 0.0
       ensures exp(x, 1.0) == x 
     {
-      lem_exp_One(x);
+      lem_One(x);
     }    
   }
 
-  lemma lem_exp_BaseZeroAuto()
+  lemma lem_BaseZeroAuto()
     ensures forall y:real :: y > 0.0 ==> exp(0.0, y) == 0.0 
   {
     forall y:real | y > 0.0
       ensures exp(0.0, y) == 0.0 
     {
-      lem_exp_BaseZero(y);
+      lem_BaseZero(y);
     }
   }
 
-  lemma lem_exp_BaseOneAuto()
+  lemma lem_BaseOneAuto()
     ensures forall y:real :: exp(1.0, y) == 1.0 
   {
     forall y:real
       ensures exp(1.0, y) == 1.0 
     {
-      lem_exp_BaseOne(y);
+      lem_BaseOne(y);
     }
   }
 
-  lemma lem_exp_ProductAuto()
+  lemma lem_ProductAuto()
     ensures forall x:real, y:real, z:real :: 
             x >= 0.0 ==> exp(x, y+z) == exp(x, y)*exp(x, z)
   {
     forall x:real, y:real, z:real | x >= 0.0
       ensures exp(x, y+z) == exp(x, y)*exp(x, z)
     {
-      lem_exp_Product(x, y, z);
+      lem_Product(x, y, z);
     }   
   }
 
-  lemma lem_exp_ExpAuto()
+  lemma lem_ExpAuto()
     ensures forall x:real, y:real, z:real :: 
             x >= 0.0 ==> exp(exp(x, y), z) == exp(x, y*z) 
   {
     forall x:real, y:real, z:real | x >= 0.0
       ensures exp(exp(x, y), z) == exp(x, y*z) 
     {
-      lem_exp_Exp(x, y, z);
+      lem_Exp(x, y, z);
     }   
   }
 
-  lemma lem_exp_ReciprocalAuto()
+  lemma lem_ReciprocalAuto()
     ensures forall x:real, k:real ::  
             x > 0.0 && exp(x, k) > 0.0 ==> exp(x, -k) == 1.0 / exp(x, k)
   {
      forall x:real, k:real | x > 0.0 && exp(x, k) > 0.0
       ensures exp(x, -k) == 1.0 / exp(x, k)
     {
-      lem_exp_Reciprocal(x, k);
+      lem_Reciprocal(x, k);
     }
   } 
 
@@ -208,52 +208,52 @@ module ExpReal {
   ******************************************************************************/
 
   // x >= 1 ∧ y >= 0 ⟹ x^y >= 1
-  lemma lem_exp_GEQone(x:real, y:real)
+  lemma lem_GEQone(x:real, y:real)
     requires x >= 1.0 && y >= 0.0
     ensures  exp(x, y) >= 1.0  
   {
     if y == 0.0 {
-      lem_exp_Zero(x); 
+      lem_Zero(x); 
     } else if y > 0.0 && x == 1.0 {
-      lem_exp_BaseOne(y);
+      lem_BaseOne(y);
     } else if y > 0.0 && x > 1.0 {
-      lem_exp_GTone(x, y);
+      lem_GTone(x, y);
     }
   }
 
-  lemma lem_exp_GEQoneAuto()
+  lemma lem_GEQoneAuto()
     ensures forall x:real, y:real :: 
       x >= 1.0 && y >= 0.0 ==> exp(x, y) >= 1.0  
   {
     forall x:real, y:real | x >= 1.0 && y >= 0.0
       ensures exp(x, y) >= 1.0  
     {
-      lem_exp_GEQone(x, y);
+      lem_GEQone(x, y);
     }
   }
 
   // x >= 0 ⟹ x*(x^y) = x^(y+1)
-  lemma lem_exp_Def(x:real, y:real)
+  lemma lem_Def(x:real, y:real)
     requires x >= 0.0
     ensures  x*exp(x, y) == exp(x, y + 1.0)
   { 
     calc {
           x*exp(x, y);
-      == { lem_exp_One(x); }
+      == { lem_One(x); }
           exp(x, 1.0)*exp(x, y);
-      == { lem_exp_Product(x, 1.0, y); }
+      == { lem_Product(x, 1.0, y); }
           exp(x, y + 1.0);
     } 
   } 
 
-  lemma lem_exp_DefAuto()
+  lemma lem_DefAuto()
     ensures forall x:real, y:real :: 
       x >= 0.0 ==> x*exp(x, y) == exp(x, y + 1.0)
   {
     forall x:real, y:real | x >= 0.0
       ensures x*exp(x, y) == exp(x, y + 1.0)
     {
-      lem_exp_Def(x, y);
+      lem_Def(x, y);
     }
   }
 
@@ -262,89 +262,89 @@ module ExpReal {
   ******************************************************************************/
 
   // x >= 0 ⟹ x^0 = 1
-  lemma lem_exp_Pow0(x:real) 
+  lemma lem_Pow0(x:real) 
     requires x >= 0.0
     ensures  exp(x, 0.0) == 1.0
   { 
-    lem_exp_Zero(x);
+    lem_Zero(x);
   }
 
-  lemma lem_exp_Pow0Auto()
+  lemma lem_Pow0Auto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 0.0) == 1.0
   {
     forall x:real | x >= 0.0
       ensures exp(x, 0.0) == 1.0
     {
-      lem_exp_Pow0(x);
+      lem_Pow0(x);
     }
   }
 
   // x >= 0 ⟹ x^1 = x
-  lemma lem_exp_Pow1(x:real) 
+  lemma lem_Pow1(x:real) 
     requires x >= 0.0
     ensures  exp(x, 1.0) == x
   { 
-    lem_exp_One(x);
+    lem_One(x);
   }
 
-  lemma lem_exp_Pow1Auto()
+  lemma lem_Pow1Auto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 1.0) == x
   {
     forall x:real | x >= 0.0
       ensures exp(x, 1.0) == x
     {
-      lem_exp_Pow1(x);
+      lem_Pow1(x);
     }
   }
 
   // x >= 0 ⟹ x^2 = x*x
-  lemma lem_exp_Pow2(x:real) 
+  lemma lem_Pow2(x:real) 
     requires x >= 0.0
     ensures  exp(x, 2.0) == x*x
   {  
     calc {
          exp(x, 2.0);
-      == { lem_exp_Product(x, 1.0, 1.0); }
+      == { lem_Product(x, 1.0, 1.0); }
          exp(x, 1.0)*exp(x, 1.0);
-      == { lem_exp_One(x); }
+      == { lem_One(x); }
          x*x;
     } 
   } 
 
-  lemma lem_exp_Pow2Auto()
+  lemma lem_Pow2Auto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 2.0) == x*x
   {
     forall x:real | x >= 0.0
       ensures exp(x, 2.0) == x*x
     {
-      lem_exp_Pow2(x);
+      lem_Pow2(x);
     }
   }
 
   // x >= 0 ⟹ x^3 = x*x*x
-  lemma lem_exp_Pow3(x:real) 
+  lemma lem_Pow3(x:real) 
     requires x >= 0.0
     ensures  exp(x, 3.0) == x*x*x
   {  
     calc {
          exp(x, 3.0);
-      == { lem_exp_Product(x, 1.0, 2.0); }
+      == { lem_Product(x, 1.0, 2.0); }
          exp(x, 1.0)*exp(x, 2.0);
-      == { lem_exp_Product(x, 1.0, 1.0); }
+      == { lem_Product(x, 1.0, 1.0); }
          exp(x, 1.0)*(exp(x, 1.0)*exp(x, 1.0));
-      == { lem_exp_One(x); }
+      == { lem_One(x); }
          x*(x*x);
       == x*x*x; 
     } 
   }   
 
-  lemma lem_exp_Pow3Auto()
+  lemma lem_Pow3Auto()
     ensures forall x:real :: x >= 0.0 ==> exp(x, 3.0) == x*x*x
   {
     forall x:real | x >= 0.0
       ensures exp(x, 3.0) == x*x*x
     {
-      lem_exp_Pow3(x);
+      lem_Pow3(x);
     }
   }
 
@@ -354,113 +354,113 @@ module ExpReal {
 
   // Strictly increasing
   // b > 1 ∧ x < y ⟹ b^x < b^y
-  lemma lem_exp_StrictIncr(b:real, x:real, y:real)
+  lemma lem_StrictIncr(b:real, x:real, y:real)
     requires b > 1.0
     ensures  x < y ==> exp(b, x) < exp(b, y)
   {
     if x < y {
       var d :| d > 0.0 && y == x + d
-        by { lem_real_PosDifference(x, y); } 
-      assert A: exp(b, x) > 0.0 by { lem_exp_Positive(b, x);}
+        by { lem_PositiveDifference(x, y); } 
+      assert A: exp(b, x) > 0.0 by { lem_Positive(b, x);}
       calc {
            exp(b, y);
-        == { lem_exp_Product(b, x, d); }
+        == { lem_Product(b, x, d); }
            exp(b, x) * exp(b, d);
-        >  { assert d > 0.0; lem_exp_GTone(b, d); reveal A; }
+        >  { assert d > 0.0; lem_GTone(b, d); reveal A; }
            exp(b, x) * 1.0;
         == exp(b, x);       
       }
     }
   }
 
-  lemma lem_exp_StrictIncrAuto()
+  lemma lem_StrictIncrAuto()
     ensures forall b:real, x:real, y:real :: 
       b > 1.0 && x < y ==> exp(b, x) < exp(b, y)
   {
     forall b:real, x:real, y:real | b > 1.0
       ensures x < y ==> exp(b, x) < exp(b, y)
     {
-      lem_exp_StrictIncr(b, x, y);
+      lem_StrictIncr(b, x, y);
     }       
   }
 
   // Previous fact is reversible
   // b > 1 ∧ b^x < b^y ⟹ x < y
-  lemma lem_exp_StrictIncrRev(b:real, x:real, y:real)
+  lemma lem_StrictIncrREV(b:real, x:real, y:real)
     requires b > 1.0
     ensures  exp(b, x) < exp(b, y) ==> x < y
   { 
     var exp_b:real->real := (x => exp(b, x));
     assert forall x,y :: x < y ==> exp_b(x) < exp_b(y)
-      by { lem_exp_StrictIncrAuto(); }
-    lem_fun_StrictIncrIMPinjectiveReal(exp_b);
+      by { lem_StrictIncrAuto(); }
+    lem_StrictIncrImpInjectiveReal(exp_b);
     assert forall x,y :: exp_b(x) < exp_b(y) ==> x < y;
     assert forall x :: exp_b(x) == exp(b, x);
   }
 
-  lemma lem_exp_StrictIncrRevAuto()
+  lemma lem_StrictIncrREVAuto()
     ensures forall b:real, x:real, y:real :: 
       b > 1.0 && exp(b, x) < exp(b, y) ==> x < y
   {
     forall b:real, x:real, y:real | b > 1.0
       ensures exp(b, x) < exp(b, y) ==> x < y
     {
-      lem_exp_StrictIncrRev(b, x, y);
+      lem_StrictIncrREV(b, x, y);
     }       
   }  
 
   // Join previous facts into an equivalence
   // b > 1 ⟹ (x < y ⟺ b^x < b^y)
-  lemma lem_exp_StrictIncrIFF(b:real, x:real, y:real)
+  lemma lem_StrictIncrIFF(b:real, x:real, y:real)
     requires b > 1.0
     ensures  x < y <==> exp(b, x) < exp(b, y)
   { 
-    lem_exp_StrictIncr(b,x,y);
-    lem_exp_StrictIncrRev(b,x,y);
+    lem_StrictIncr(b,x,y);
+    lem_StrictIncrREV(b,x,y);
   }
 
-  lemma lem_exp_StrictIncrIFFAuto()
+  lemma lem_StrictIncrIFFAuto()
     ensures forall b:real, x:real, y:real :: 
       b > 1.0 ==> (x < y <==> exp(b, x) < exp(b, y))
   {
     forall b:real, x:real, y:real | b > 1.0
       ensures x < y <==> exp(b, x) < exp(b, y)
     {
-      lem_exp_StrictIncrIFF(b, x, y);
+      lem_StrictIncrIFF(b, x, y);
     }       
   }    
 
-  // Weak version of lem_exp_StrictIncrIFF
+  // Weak version of lem_StrictIncrIFF
   // b > 1 ⟹ (x <= y ⟺ b^x <= b^y)
-  lemma lem_exp_MonoIncrIFF(b:real, x:real, y:real)
+  lemma lem_MonoIncrIFF(b:real, x:real, y:real)
     requires b > 1.0
     ensures  x <= y <==> exp(b, x) <= exp(b, y)
   {
-    lem_exp_StrictIncrIFFAuto();
+    lem_StrictIncrIFFAuto();
   }
 
-  lemma lem_exp_MonoIncrIFFAuto()
+  lemma lem_MonoIncrIFFAuto()
     ensures forall b:real, x:real, y:real :: 
       b > 1.0 ==> (x <= y <==> exp(b, x) <= exp(b, y))
   {
     forall b:real, x:real, y:real | b > 1.0
       ensures x <= y <==> exp(b, x) <= exp(b, y)
     {
-      lem_exp_MonoIncrIFF(b, x, y);
+      lem_MonoIncrIFF(b, x, y);
     }       
   }  
 
-  // Weak version of lem_exp_StrictIncr, but also holds when x=1
+  // Weak version of lem_StrictIncr, but also holds when x=1
   // b >= 1 ∧ x <= y ⟹ b^x <= b^y
-  lemma lem_exp_MonoIncr(b:real, x:real, y:real)
+  lemma lem_MonoIncr(b:real, x:real, y:real)
     requires b >= 1.0
     ensures  x <= y ==> exp(b, x) <= exp(b, y)
   {
     if b == 1.0 {
-      lem_exp_BaseOne(x);
-      lem_exp_BaseOne(y);
+      lem_BaseOne(x);
+      lem_BaseOne(y);
     } else if b > 1.0 {
-      lem_exp_StrictIncr(b, x, y);
+      lem_StrictIncr(b, x, y);
     }    
   }
 
@@ -470,84 +470,84 @@ module ExpReal {
 
   // Strictly decreasing
   // 0 < b < 1 ∧ x < y ⟹ b^x > b^y   
-  lemma {:axiom} lem_exp_StrictDecr(b:real, x:real, y:real)
+  lemma {:axiom} lem_StrictDecr(b:real, x:real, y:real)
     requires 0.0 < b < 1.0
     ensures x < y ==> exp(b, x) > exp(b, y) 
 
-  lemma lem_exp_StrictDecrAuto()
+  lemma lem_StrictDecrAuto()
     ensures forall b:real, x:real, y:real :: 
       0.0 < b < 1.0 && x < y ==> exp(b, x) > exp(b, y)
   {
     forall b:real, x:real, y:real | 0.0 < b < 1.0
       ensures x < y ==> exp(b, x) > exp(b, y)
     {
-      lem_exp_StrictDecr(b, x, y);
+      lem_StrictDecr(b, x, y);
     }       
   }
 
   // Previous fact is reversible
   // 0 < b < 1 ∧ b^x > b^y ⟹ x < y
-  lemma lem_exp_StrictDecrRev(b:real, x:real, y:real)
+  lemma lem_StrictDecrREV(b:real, x:real, y:real)
     requires 0.0 < b < 1.0
     ensures exp(b, x) > exp(b, y) ==> x < y
   {
     var exp_b:real->real := (x => exp(b, x));
     assert forall x,y :: x < y ==> exp_b(x) > exp_b(y)
-      by { lem_exp_StrictDecrAuto(); }
-    lem_fun_StrictDecrIMPinjectiveReal(exp_b);
+      by { lem_StrictDecrAuto(); }
+    lem_StrictDecrImpInjectiveReal(exp_b);
     assert forall x,y :: exp_b(x) > exp_b(y) ==> x < y;
     assert forall x :: exp_b(x) == exp(b, x);       
   }   
 
-  lemma lem_exp_StrictDecrRevAuto()
+  lemma lem_StrictDecrREVAuto()
     ensures forall b:real, x:real, y:real :: 
       0.0 < b < 1.0 && exp(b, x) > exp(b, y) ==> x < y
   {
     forall b:real, x:real, y:real | 0.0 < b < 1.0
       ensures exp(b, x) > exp(b, y) ==> x < y
     {
-      lem_exp_StrictDecrRev(b, x, y);
+      lem_StrictDecrREV(b, x, y);
     }             
   }  
 
   // Join previous facts into an equivalence
   // 0 < b < 1 ⟹ (x < y ⟺ b^x > b^y)  
-  lemma lem_exp_StrictDecrIFF(b:real, x:real, y:real)
+  lemma lem_StrictDecrIFF(b:real, x:real, y:real)
     requires 0.0 < b < 1.0
     ensures x < y <==> exp(b, x) > exp(b, y)
   {
-    lem_exp_StrictDecr(b, x, y);
-    lem_exp_StrictDecrRev(b, x, y);
+    lem_StrictDecr(b, x, y);
+    lem_StrictDecrREV(b, x, y);
   }
 
-  lemma lem_exp_StrictDecrIFFAuto()
+  lemma lem_StrictDecrIFFAuto()
     ensures forall b:real, x:real, y:real :: 
       0.0 < b < 1.0 ==> (x < y <==> exp(b, x) > exp(b, y))
   {
     forall b:real, x:real, y:real | 0.0 < b < 1.0
       ensures x < y <==> exp(b, x) > exp(b, y)
     {
-      lem_exp_StrictDecrIFF(b, x, y);
+      lem_StrictDecrIFF(b, x, y);
     }             
   }  
 
-  // Weak version of lem_exp_StrictDecrIFF
+  // Weak version of lem_StrictDecrIFF
   // 0 < b < 1 ⟹ (x <= y ⟺ b^x >= b^y) 
-  lemma lem_exp_AntiMonoIncrIFF(b:real, x:real, y:real)
+  lemma lem_AntiMonoIncrIFF(b:real, x:real, y:real)
     requires 0.0 < b < 1.0
     ensures x <= y <==> exp(b, x) >= exp(b, y)
   { 
-    lem_exp_StrictDecrIFFAuto();
+    lem_StrictDecrIFFAuto();
   }
 
-  lemma lem_exp_AntiMonoIncrIFFAuto()
+  lemma lem_AntiMonoIncrIFFAuto()
     ensures forall b:real, x:real, y:real :: 
       0.0 < b < 1.0 ==> (x <= y <==> exp(b, x) >= exp(b, y))
   {
     forall b:real, x:real, y:real | 0.0 < b < 1.0
       ensures x <= y <==> exp(b, x) >= exp(b, y)
     {
-      lem_exp_AntiMonoIncrIFF(b, x, y);
+      lem_AntiMonoIncrIFF(b, x, y);
     }       
   }  
 
@@ -557,110 +557,110 @@ module ExpReal {
 
   // Strictly increasing
   // e > 0 ∧ x,y >= 0 ∧ x < y ⟹ x^e < y^e
-  lemma {:axiom} lem_exp_BaseStrictIncr(e:real, x:real, y:real)
+  lemma {:axiom} lem_BaseStrictIncr(e:real, x:real, y:real)
     requires e > 0.0 && x >= 0.0 && y >= 0.0
     ensures  x < y ==> exp(x, e) < exp(y, e)    
 
-  lemma lem_exp_BaseStrictIncrAuto()
+  lemma lem_BaseStrictIncrAuto()
     ensures forall e:real, x:real, y:real :: 
       e > 0.0 && x >= 0.0 && y >= 0.0 && x < y ==> exp(x, e) < exp(y, e)
   {
     forall e:real, x:real, y:real | e > 0.0 && x >= 0.0 && y >= 0.0
       ensures x < y ==> exp(x, e) < exp(y, e)
     {
-      lem_exp_BaseStrictIncr(e, x, y);
+      lem_BaseStrictIncr(e, x, y);
     }       
   }
 
   // Previous fact is reversible
   // e > 0 ∧ x,y >= 0 ∧ x^e < y^e ⟹ x < y
-  lemma lem_exp_BaseStrictIncrRev(e:real, x:real, y:real)
+  lemma lem_BaseStrictIncrREV(e:real, x:real, y:real)
     requires e > 0.0 && x >= 0.0 && y >= 0.0
     ensures  exp(x, e) < exp(y, e) ==> x < y
   {
     var exp_e:real->real := (x => exp(x, e));
     assert forall x,y :: x >= 0.0 && y >= 0.0 ==> (x < y ==> exp_e(x) < exp_e(y))
-      by { lem_exp_BaseStrictIncrAuto(); } 
-    lem_fun_StrictIncrIMPinjectiveRealPred(exp_e, (x => x >= 0.0));
+      by { lem_BaseStrictIncrAuto(); } 
+    lem_StrictIncrImpInjectiveRealPred(exp_e, (x => x >= 0.0));
     assert forall x,y :: x >= 0.0 && y >= 0.0 ==> (exp_e(x) < exp_e(y) ==> x < y);
     assert forall x :: exp_e(x) == exp(x, e);    
   }
 
-  lemma lem_exp_BaseStrictIncrRevAuto()
+  lemma lem_BaseStrictIncrREVAuto()
     ensures forall e:real, x:real, y:real :: 
       e > 0.0 && x >= 0.0 && y >= 0.0 && exp(x, e) < exp(y, e) ==> x < y
   {
     forall e:real, x:real, y:real | e > 0.0 && x >= 0.0 && y >= 0.0
       ensures exp(x, e) < exp(y, e) ==> x < y 
     {
-      lem_exp_BaseStrictIncrRev(e, x, y);
+      lem_BaseStrictIncrREV(e, x, y);
     }       
   }
 
   // Join previous facts into an equivalence
   // e > 0 ∧ x,y >= 0 ⟹ (x < y ⟺ x^e < y^e)
-  lemma lem_exp_BaseStrictIncrIFF(e:real, x:real, y:real) 
+  lemma lem_BaseStrictIncrIFF(e:real, x:real, y:real) 
     requires e > 0.0 && x >= 0.0 && y >= 0.0
     ensures  x < y <==> exp(x, e) < exp(y, e)
   { 
-    lem_exp_BaseStrictIncr(e,x,y);
-    lem_exp_BaseStrictIncrRev(e,x,y);
+    lem_BaseStrictIncr(e,x,y);
+    lem_BaseStrictIncrREV(e,x,y);
   }  
 
-  lemma lem_exp_BaseStrictIncrIFFAuto()
+  lemma lem_BaseStrictIncrIFFAuto()
     ensures forall e:real, x:real, y:real :: 
       e > 0.0 && x >= 0.0 && y >= 0.0 ==> (x < y <==> exp(x, e) < exp(y, e))
   {
     forall e:real, x:real, y:real | e > 0.0 && x >= 0.0 && y >= 0.0
       ensures x < y <==> exp(x, e) < exp(y, e)
     {
-      lem_exp_BaseStrictIncrIFF(e, x, y);
+      lem_BaseStrictIncrIFF(e, x, y);
     }       
   }
 
-  // Weak version of lem_exp_BaseStrictIncrIFF
+  // Weak version of lem_BaseStrictIncrIFF
   // e > 0 ∧ x,y >= 0 ⟹ (x <= y ⟺ x^e <= y^e)
-  lemma lem_exp_BaseMonoIncrIFF(e:real, x:real, y:real) 
+  lemma lem_BaseMonoIncrIFF(e:real, x:real, y:real) 
     requires e > 0.0 && x >= 0.0 && y >= 0.0
     ensures  x <= y <==> exp(x, e) <= exp(y, e)
   { 
-    lem_exp_BaseStrictIncrIFFAuto();
+    lem_BaseStrictIncrIFFAuto();
   }  
 
-  lemma lem_exp_BaseMonoIncrIFFAuto()
+  lemma lem_BaseMonoIncrIFFAuto()
     ensures forall e:real, x:real, y:real :: 
       e > 0.0 && x >= 0.0 && y >= 0.0 ==> (x <= y <==> exp(x, e) <= exp(y, e))
   {
     forall e:real, x:real, y:real | e > 0.0 && x >= 0.0 && y >= 0.0
       ensures x <= y <==> exp(x, e) <= exp(y, e)
     {
-      lem_exp_BaseMonoIncrIFF(e, x, y);
+      lem_BaseMonoIncrIFF(e, x, y);
     }       
   }
 
-  // A weak version of lem_exp_BaseStrictIncr, also holds when x=0
+  // A weak version of lem_BaseStrictIncr, also holds when x=0
   // but is restricted to x,y > 0
   // e >= 0 ∧ x,y > 0 ∧ x <= y ⟹ x^e <= y^e
-  lemma lem_exp_BaseMonoIncr(e:real, x:real, y:real)
+  lemma lem_BaseMonoIncr(e:real, x:real, y:real)
     requires e >= 0.0 && x > 0.0 && y > 0.0
     ensures  x <= y ==> exp(x, e) <= exp(y, e)
   {
     if e == 0.0 {
-      lem_exp_Zero(x);
-      lem_exp_Zero(y);
+      lem_Zero(x);
+      lem_Zero(y);
     } else if e > 0.0 {
-      lem_exp_BaseStrictIncr(e, x, y);
+      lem_BaseStrictIncr(e, x, y);
     }    
   }
 
-  lemma lem_exp_BaseMonoIncrAuto()
+  lemma lem_BaseMonoIncrAuto()
     ensures forall e:real, x:real, y:real :: 
       e >= 0.0 && x > 0.0 && y > 0.0 && x <= y ==> exp(x, e) <= exp(y, e)
   {
     forall e:real, x:real, y:real | e >= 0.0 && x > 0.0 && y > 0.0
       ensures x <= y ==> exp(x, e) <= exp(y, e)
     {
-      lem_exp_BaseMonoIncr(e, x, y);
+      lem_BaseMonoIncr(e, x, y);
     }       
   }
 
@@ -669,7 +669,7 @@ module ExpReal {
     under overlapping domains
   ******************************************************************************/
 
-  lemma lem_exp_OverNat(b:nat, e:nat)
+  lemma lem_EqExpNat(b:nat, e:nat)
     requires b > 0
     ensures  N.exp(b, e) as real == exp(b as real, e as real)
   {
@@ -679,7 +679,7 @@ module ExpReal {
            N.exp(b, 0) as real;
         == { reveal N.exp(); }
            1.0;
-        == { lem_exp_Zero(b as real); }
+        == { lem_Zero(b as real); }
            exp(b as real, 0.0);  
       }
     } else {
@@ -690,22 +690,22 @@ module ExpReal {
            N.exp(b, e) as real;
         == { reveal N.exp(); }
            b as real * N.exp(b, e-1) as real;
-        == { lem_exp_OverNat(b, e-1); }
+        == { lem_EqExpNat(b, e-1); }
            b as real * exp(b as real, (e-1) as real);  
-        == { lem_exp_Def(b as real, (e-1) as real); }    
+        == { lem_Def(b as real, (e-1) as real); }    
            exp(b as real, e as real);  
       }
     }
   }
 
-  lemma lem_exp_OverNatAuto()
+  lemma lem_EqExpNatAuto()
     ensures forall b:nat, e:nat :: 
       b > 0 ==> (N.exp(b, e) as real == exp(b as real, e as real))
   {
     forall b:nat, e:nat | b > 0
       ensures N.exp(b, e) as real == exp(b as real, e as real)
     {
-      lem_exp_OverNat(b, e);
+      lem_EqExpNat(b, e);
     }       
   }  
 
@@ -719,7 +719,7 @@ module ExpReal {
     exp(2.0, x)
   }
 
-  lemma lem_exp2_FirstValues()
+  lemma lem_Exp2FirstValues()
     ensures exp2(0.0) == exp(2.0,0.0) == 1.0
     ensures exp2(1.0) == exp(2.0,1.0) == 2.0 
     ensures exp2(2.0) == exp(2.0,2.0) == 4.0
@@ -727,12 +727,12 @@ module ExpReal {
     ensures exp2(4.0) == exp(2.0,4.0) == 16.0
   {
     reveal exp2();
-    lem_exp_OverNat(2, 0);
-    lem_exp_OverNat(2, 1);
-    lem_exp_OverNat(2, 2);
-    lem_exp_OverNat(2, 3);
-    lem_exp_OverNat(2, 4);
-    N.lem_exp2_FirstValues();
+    lem_EqExpNat(2, 0);
+    lem_EqExpNat(2, 1);
+    lem_EqExpNat(2, 2);
+    lem_EqExpNat(2, 3);
+    lem_EqExpNat(2, 4);
+    N.lem_Exp2FirstValues();
   }    
 
   // x < y ⟹ 2^x < 2^y
@@ -740,7 +740,7 @@ module ExpReal {
     ensures x < y ==> exp2(x) < exp2(y)  
   {
     reveal exp2();
-    lem_exp_StrictIncr(2.0, x, y);
+    lem_StrictIncr(2.0, x, y);
   }
 
   // 2^x < 2^y ⟹ x < y
@@ -748,7 +748,7 @@ module ExpReal {
     ensures exp2(x) < exp2(y) ==> x < y
   {
     reveal exp2();
-    lem_exp_StrictIncrRev(2.0, x, y);
+    lem_StrictIncrREV(2.0, x, y);
   }  
 
   // x < y <==> 2^x < 2^y 
@@ -756,7 +756,7 @@ module ExpReal {
     ensures x < y <==> exp2(x) < exp2(y) 
   {
     reveal exp2();
-    lem_exp_StrictIncrIFF(2.0, x, y);
+    lem_StrictIncrIFF(2.0, x, y);
   }    
 
   // x <= y ⟹ 2^x <= 2^y

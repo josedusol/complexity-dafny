@@ -1,7 +1,7 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/TypeR0.dfy"
-include "../../../../theory/Complexity.dfy"
-include "../../../../theory/LemComplexityBigOh.dfy"
+include "../../../../theory/Complexity/Asymptotics.dfy"
+include "../../../../theory/Complexity/LemBigOh.dfy"
 
 /******************************************************************************
   Auxiliary module for ArrayList verification
@@ -11,8 +11,8 @@ module LemArrayList {
 
   import opened ExpReal
   import opened TypeR0
-  import opened Complexity
-  import opened LemComplexityBigOh
+  import opened Asymptotics
+  import opened LemBigOh
 
   /******************************************************************************
     Complexity analysis for Get operation  
@@ -24,7 +24,7 @@ module LemArrayList {
   }
 
   lemma lem_Get_TgetBigOconst()
-    ensures exists c:R0, n0:nat :: c > 0.0 && bigOfrom(c, n0, Tget, constGrowth())
+    ensures exists c:R0, n0:nat :: c > 0.0 && bigOhFrom(c, n0, Tget, constGrowth())
   {
     var c, n0 := 1.0, 0;
     forall n:nat | 0 <= n0 <= n
@@ -37,7 +37,7 @@ module LemArrayList {
         == c*constGrowth()(n);   
       }
     }
-    assert bigOfrom(c, n0, Tget, constGrowth());
+    assert bigOhFrom(c, n0, Tget, constGrowth());
   }
 
   /******************************************************************************
@@ -56,7 +56,7 @@ module LemArrayList {
   }  
 
   lemma lem_Insert_Tinsert2BigOlin() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, Tinsert2, linGrowth())
+    ensures c > 0.0 && bigOhFrom(c, n0, Tinsert2, linGrowth())
   {
     c, n0 := 2.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -69,7 +69,7 @@ module LemArrayList {
         == c*linGrowth()(n);
       }
     }
-    assert bigOfrom(c, n0, Tinsert2, linGrowth());
+    assert bigOhFrom(c, n0, Tinsert2, linGrowth());
   }
 
   /******************************************************************************
@@ -82,10 +82,10 @@ module LemArrayList {
   }
 
   lemma lem_Append_TappendBigOconst() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, Tappend, constGrowth())
+    ensures c > 0.0 && bigOhFrom(c, n0, Tappend, constGrowth())
   {
-    lem_bigO_constGrowth(Tappend, 1.0);
-    var c':R0, n0':nat :| c' > 0.0 && bigOfrom(c', n0', Tappend, constGrowth());
+    lem_ConstGrowth(Tappend, 1.0);
+    var c':R0, n0':nat :| c' > 0.0 && bigOhFrom(c', n0', Tappend, constGrowth());
     c, n0 := c', n0';
   }
 
@@ -105,7 +105,7 @@ module LemArrayList {
   }
 
   lemma lem_Delete_Tdelete2BigOlin() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, Tdelete2, linGrowth())
+    ensures c > 0.0 && bigOhFrom(c, n0, Tdelete2, linGrowth())
   {
     c, n0 := 1.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -118,7 +118,7 @@ module LemArrayList {
         == c*linGrowth()(n);
       }
     }
-    assert bigOfrom(c, n0, Tdelete2, linGrowth());
+    assert bigOhFrom(c, n0, Tdelete2, linGrowth());
   }
 
 }

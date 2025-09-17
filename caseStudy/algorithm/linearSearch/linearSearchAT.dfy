@@ -1,13 +1,13 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "./linearSearch.dfy"
 
 import opened ExpReal
 import opened SumReal
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 ghost function T<A>(s:seq<A>, x:A, i:nat) : nat
   requires 0 <= i < |s|
@@ -65,7 +65,7 @@ ghost method expectationLoop<A>(N:nat) returns (tE:real)
     assert t == T(s,x,p);
     
     // Add weighted contribution to expectation
-    lem_sum_DropLastAuto(0, p-1);
+    lem_DropLastAuto(0, p-1);
     tE := tE + t as real * probability(s,x,p);
     p  := p + 1;
   }
@@ -108,17 +108,17 @@ lemma lem_solveSum(N:nat)
        sum(0, N-1, i => (i+1) as real * c);
     == { assert forall k:int :: 0<=k<=N-1 ==>   
            (i => (i+1) as real * c)(k) == (l => c*(i => (i+1) as real)(l))(k);
-         lem_sum_Leibniz(0, N-1, i => (i+1) as real * c, 
+         lem_Leibniz(0, N-1, i => (i+1) as real * c, 
                                  l => c*(i => (i+1) as real)(l)); }
        sum(0, N-1, l => c*(i => (i+1) as real)(l));
-    == { lem_sum_LinearityConst(0, N-1, c, i => (i+1) as real); }
+    == { lem_LinearityConst(0, N-1, c, i => (i+1) as real); }
        c * sum(0, N-1, i => (i+1) as real);
-    == { lem_sum_ShiftIndex(0, N-1, 1, i => (i+1) as real); }
+    == { lem_ShiftIndex(0, N-1, 1, i => (i+1) as real); }
        c * sum(1, N, i => (i => (i+1) as real)(i-1));
     == { assert forall k:int :: 1<=k<=N ==> (i => ((i-1)+1) as real)(k) == (i => i as real)(k);
-         lem_sum_Leibniz(1, N, i => (i => (i+1) as real)(i-1), i => i as real); }
+         lem_Leibniz(1, N, i => (i => (i+1) as real)(i-1), i => i as real); }
        c * sum(1, N, i => i as real);
-    == { lem_sum_Interval(1, N); }
+    == { lem_Interval(1, N); }
        c * ((N*(N+1) + 1*(1-1)) as real / 2.0);
     == c * ((N*(N+1)) as real / 2.0);  
     == (1.0 / N as real) * ((N*(N+1)) as real / 2.0); 
@@ -127,7 +127,7 @@ lemma lem_solveSum(N:nat)
 } 
 
 lemma lem_TavgBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, Tavg, linGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, Tavg, linGrowth())
 {
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n

@@ -3,19 +3,19 @@ include "../../../theory/math/LemBoundsReal.dfy"
 include "../../../theory/math/Root2Real.dfy"
 include "../../../theory/math/RootReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
-include "../../../theory/LemComplexityBigOh.dfy"
-include "../../../theory/LemComplexityBigOm.dfy"
-include "../../../theory/MasterLR.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
+include "../../../theory/Complexity/LemBigOh.dfy"
+include "../../../theory/Complexity/LemBigOm.dfy"
+include "../../../theory/Complexity/MasterLR.dfy"
 
 import opened ExpReal
 import opened LemBoundsReal
 import opened Root2Real
 import opened RootReal
 import opened TypeR0
-import opened Complexity
-import opened LemComplexityBigOh
-import opened LemComplexityBigOm
+import opened Asymptotics
+import opened LemBigOh
+import opened LemBigOm
 import opened MasterLR
 
 ghost function fib(n:nat): nat
@@ -63,7 +63,7 @@ method FibT(n:nat) returns (r:nat, ghost t:R0)
   ensures  r == fib(n) && t == T(n)
   ensures  T in O(n => exp(2.0, n as R0))
   ensures  T in Om(n => exp(2.0, (n as R0)/2.0))
-  ensures  tIsBigO(n, t, expGrowth(2.0))
+  ensures  tIsBigOh(n, t, expGrowth(2.0))
   decreases n
 {
   if n < 2 {
@@ -172,12 +172,12 @@ lemma lem_TsandwichAsymp()
   assert T in O(n => exp(2.0, n as R0)) by {
     assert forall n :: n >= 0 ==> T(n) <= Tup(n) by { lem_TsandwichAuto(); }
     assert Tup in O(n => exp(2.0, n as R0)) by { lem_TupBigOexp2(); }
-    lem_bigO_LEQdownwardClosure(T, Tup, (n => exp(2.0, n as R0)), 0);  
+    lem_LEQdownwardClosure(T, Tup, (n => exp(2.0, n as R0)), 0);  
   }
   assert T in Om(n => exp(2.0, (n as R0)/2.0)) by {
     assert forall n :: n >= 0 ==> Tlo(n) <= T(n) by { lem_TsandwichAuto(); }
     assert Tlo in Om(n => exp(2.0, (n as R0)/2.0)) by { lem_TloBigOmSqrtExp2(); }
-    lem_bigOm_LEQupwardClosure(T, Tlo, n => exp(2.0, (n as R0)/2.0), 0);  
+    lem_LEQupwardClosure(T, Tlo, n => exp(2.0, (n as R0)/2.0), 0);  
   }
 }
 
@@ -217,10 +217,10 @@ lemma lem_TupBigOexp2()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 2.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
+      assert exp(n as R0, k) == 1.0 by { lem_ZeroAuto(); }
       assert w(n) <= 2.0*polyGrowth(k)(n); 
     }
-    assert bigOfrom(2.0, 1, w, polyGrowth(k));
+    assert bigOhFrom(2.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, Tup, w, k);
   assert Tup in O(n => exp(n as R0, 0.0)*exp(2.0, n as R0 / 1.0));
@@ -254,7 +254,7 @@ lemma lem_TloClosedBound(n:nat, c:R0, n0:nat)
         <==> c*exp(2.0, 1.0) <= Tlo(2);
         <==> { reveal Tlo(); }
              c*exp(2.0, 1.0) <= 2.0;
-        <==> { lem_exp_One(2.0); } 
+        <==> { lem_One(2.0); } 
              c*2.0 <= 2.0;
         <==> 1.0 <= 2.0;    
         <==> true;       
@@ -265,14 +265,14 @@ lemma lem_TloClosedBound(n:nat, c:R0, n0:nat)
         <==> { reveal Tlo(); }
              c*exp(2.0, 1.0 + (1.0/2.0)) <= 2.0;
         <==> { assert c*exp(2.0, 1.0 + (1.0/2.0)) == c*(exp(2.0, 1.0)*exp(2.0, 1.0/2.0))
-                 by { lem_exp_Product(2.0, 1.0, 1.0/2.0); } }
+                 by { lem_Product(2.0, 1.0, 1.0/2.0); } }
              c*(exp(2.0, 1.0)*exp(2.0, 1.0/2.0)) <= 2.0;
-        <==> { lem_exp_One(2.0); }
+        <==> { lem_One(2.0); }
              c*2.0*exp(2.0, 1.0/2.0) <= 2.0;
         <==> exp(2.0, 1.0/2.0) <= 2.0;           
         <==> { reveal sqrt(), root(); }
              sqrt(2.0) <= 2.0;
-        <==> { lem_root_1LQsqrt2LQ2(); }
+        <==> { lem_1LqSqrt2Lq2(); }
              true;     
       }      
     }
@@ -288,11 +288,11 @@ lemma lem_TloClosedBound(n:nat, c:R0, n0:nat)
          2.0*(c*exp(2.0, ((n-2) as R0)/2.0)) + 2.0; 
       >= 2.0*c*exp(2.0, ((n-2) as R0)/2.0);
       == 2.0*c*exp(2.0, ((n as R0)/2.0) + -1.0);
-      == { lem_exp_Product(2.0, (n as R0)/2.0, -1.0); }
+      == { lem_Product(2.0, (n as R0)/2.0, -1.0); }
          2.0*c*exp(2.0, (n as R0)/2.0)*exp(2.0, -1.0);
-      == { lem_exp_Positive(2.0, 1.0); lem_exp_Reciprocal(2.0, 1.0); }
+      == { lem_Positive(2.0, 1.0); lem_Reciprocal(2.0, 1.0); }
          2.0*c*exp(2.0, (n as R0)/2.0)*(1.0 / exp(2.0, 1.0));
-      == { lem_exp_One(2.0); } 
+      == { lem_One(2.0); } 
          2.0*c*exp(2.0, (n as R0)/2.0)*(1.0/2.0);
       == c*exp(2.0, (n as R0)/2.0);         
     }

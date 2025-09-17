@@ -16,7 +16,7 @@ module ExpNat {
   }
 
   // b > 0 ⟹ b^e >= 1
-  lemma {:induction false} lem_exp_GEQone(b:nat, e:nat)
+  lemma {:induction false} lem_GEQone(b:nat, e:nat)
     requires b > 0
     ensures exp(b,e) >= 1
   {
@@ -36,18 +36,18 @@ module ExpNat {
            exp(b,e);
         == { reveal exp(); }
            b*exp(b, e-1);
-        >= { lem_exp_GEQone(b, e-1); }
+        >= { lem_GEQone(b, e-1); }
            1;  
       }
     }
   }
 
   // b > 0 ⟹ b^e > 0
-  lemma lem_exp_Positive(b:nat, e:nat)
+  lemma lem_Positive(b:nat, e:nat)
     requires b > 0
     ensures  exp(b,e) > 0
   {
-    lem_exp_GEQone(b, e);
+    lem_GEQone(b, e);
   }
 
   /******************************************************************************
@@ -55,60 +55,60 @@ module ExpNat {
   ******************************************************************************/
 
   // n^0 = 1
-  lemma lem_exp_Pow0(n:nat)
+  lemma lem_Pow0(n:nat)
     ensures exp(n,0) == 1
   { 
     reveal exp;
   }
 
-  lemma lem_exp_Pow0Auto()
+  lemma lem_Pow0Auto()
     ensures forall n:nat :: exp(n,0) == 1  
   { 
     forall n:nat ensures exp(n,0) == 1 {
-      lem_exp_Pow0(n);
+      lem_Pow0(n);
     }
   }
 
   // n^1 = n
-  lemma lem_exp_Pow1(n:nat)
+  lemma lem_Pow1(n:nat)
     ensures exp(n,1) == n
   { 
     reveal exp;
   }
 
-  lemma lem_exp_Pow1Auto()
+  lemma lem_Pow1Auto()
     ensures forall n:nat :: exp(n,1) == n  
   { 
     forall n:nat ensures exp(n,1) == n {
-      lem_exp_Pow1(n);
+      lem_Pow1(n);
     }
   }
 
   // n^2 = n*n
-  lemma lem_exp_Pow2(n:nat)
+  lemma lem_Pow2(n:nat)
     ensures exp(n,2) == n*n
   { 
     reveal exp; 
   }  
 
-  lemma lem_exp_Pow2Auto()
+  lemma lem_Pow2Auto()
     ensures forall n:nat :: exp(n,2) == n*n  
   {
     forall n:nat ensures exp(n,2) == n*n {
-      lem_exp_Pow2(n);
+      lem_Pow2(n);
     }
   } 
 
   // n^3 = n*n*n
-  lemma lem_exp_Pow3(n:nat)
+  lemma lem_Pow3(n:nat)
     ensures exp(n,3) == n*n*n  
   { reveal exp; }  
 
-  lemma lem_exp_Pow3Auto()
+  lemma lem_Pow3Auto()
     ensures forall n:nat :: exp(n,3) == n*n*n 
   {
     forall n:nat ensures exp(n,3) == n*n*n {
-      lem_exp_Pow3(n);
+      lem_Pow3(n);
     }
   } 
 
@@ -118,97 +118,97 @@ module ExpNat {
 
   // Strictly increasing
   // b > 1 ∧ n < m ⟹ b^n < b^m
-  lemma lem_exp_StrictIncr(b:nat, n:nat, m:nat)
+  lemma lem_StrictIncr(b:nat, n:nat, m:nat)
     requires b > 1
     ensures  n < m ==> exp(b, n) < exp(b, m)
     decreases n, m
   { 
     reveal exp();
     if n != 0 && m != 0 {  
-      lem_exp_StrictIncr(b, n-1, m-1); 
+      lem_StrictIncr(b, n-1, m-1); 
     }
   }
 
-  lemma lem_exp_StrictIncrAuto()
+  lemma lem_StrictIncrAuto()
     ensures forall b:nat, n:nat, m:nat :: 
       b > 1 && n < m ==> exp(b, n) < exp(b, m)
   {
     forall b:nat, n:nat, m:nat | b > 1
       ensures n < m ==> exp(b, n) < exp(b, m)
     {
-      lem_exp_StrictIncr(b, n, m);
+      lem_StrictIncr(b, n, m);
     }       
   }
 
   // Previous fact is reversible
   // b > 1 ∧ b^n < b^m ⟹ n < m
-  lemma lem_exp_StrictIncrRev(b:nat, n:nat, m:nat)
+  lemma lem_StrictIncrREV(b:nat, n:nat, m:nat)
     requires b > 1
     ensures  exp(b, n) < exp(b, m) ==> n < m
   { 
     var exp_b:nat->nat := x => exp(b, x);
     assert forall x,y :: x < y ==> exp_b(x) < exp_b(y)
-      by { lem_exp_StrictIncrAuto(); }
-    lem_fun_StrictIncrIMPinjectiveNat(exp_b);
+      by { lem_StrictIncrAuto(); }
+    lem_StrictIncrImpInjectiveNat(exp_b);
     assert forall x,y :: exp_b(x) < exp_b(y) ==> x < y;
     assert forall x :: exp_b(x) == exp(b, x);
   }
 
-  lemma lem_exp_StrictIncrRevAuto()
+  lemma lem_StrictIncrREVAuto()
     ensures forall b:nat, n:nat, m:nat :: 
       b > 1 && exp(b, n) < exp(b, m) ==> n < m
   {
     forall b:nat, n:nat, m:nat | b > 1
       ensures exp(b, n) < exp(b, m) ==> n < m
     {
-      lem_exp_StrictIncrRev(b, n, m);
+      lem_StrictIncrREV(b, n, m);
     }       
   }  
 
   // Join previous facts into an equivalence
   // b > 1 ⟹ (x < y ⟺ b^x < b^y)
-  lemma lem_exp_StrictIncrIFF(b:nat, n:nat, m:nat)
+  lemma lem_StrictIncrIFF(b:nat, n:nat, m:nat)
     requires b > 1
     ensures  n < m <==> exp(b, n) < exp(b, m)
   { 
-    lem_exp_StrictIncr(b,n,m);
-    lem_exp_StrictIncrRev(b,n,m);
+    lem_StrictIncr(b,n,m);
+    lem_StrictIncrREV(b,n,m);
   }
 
-  lemma lem_exp_StrictIncrIFFAuto()
+  lemma lem_StrictIncrIFFAuto()
     ensures forall b:nat, n:nat, m:nat :: 
       b > 1 ==> (n < m <==> exp(b, n) < exp(b, m))
   {
     forall b:nat, n:nat, m:nat | b > 1
       ensures n < m <==> exp(b, n) < exp(b, m)
     {
-      lem_exp_StrictIncrIFF(b, n, m);
+      lem_StrictIncrIFF(b, n, m);
     }       
   }    
 
-  // Weak version of lem_exp_StrictIncrIFF
+  // Weak version of lem_StrictIncrIFF
   // b > 1 ⟹ (x <= y ⟺ b^x <= b^y)
-  lemma lem_exp_MonoIncrIFF(b:nat, n:nat, m:nat)
+  lemma lem_MonoIncrIFF(b:nat, n:nat, m:nat)
     requires b > 1
     ensures  n <= m <==> exp(b, n) <= exp(b, m)
   {
-    lem_exp_StrictIncrIFFAuto();
+    lem_StrictIncrIFFAuto();
   }
 
-  lemma lem_exp_MonoIncrIFFAuto()
+  lemma lem_MonoIncrIFFAuto()
     ensures forall b:nat, n:nat, m:nat :: 
       b > 1 ==> (n <= m <==> exp(b, n) <= exp(b, m))
   {
     forall b:nat, n:nat, m:nat | b > 1
       ensures n <= m <==> exp(b, n) <= exp(b, m)
     {
-      lem_exp_MonoIncrIFF(b, n, m);
+      lem_MonoIncrIFF(b, n, m);
     }       
   }  
 
-  // Weak version of lem_exp_StrictIncr, but also holds when b=1
+  // Weak version of lem_StrictIncr, but also holds when b=1
   // b >= 1 ∧ n <= m ⟹ b^n <= b^m
-  lemma lem_exp_MonoIncr(b:nat, n:nat, m:nat)
+  lemma lem_MonoIncr(b:nat, n:nat, m:nat)
     requires b >= 1
     ensures  n <= m ==> exp(b, n) <= exp(b, m)
     decreases n, m
@@ -216,7 +216,7 @@ module ExpNat {
     if b == 1 {
       reveal exp();
     } else if b > 1 {
-      lem_exp_StrictIncr(b, n, m);
+      lem_StrictIncr(b, n, m);
     }    
   }
 
@@ -226,13 +226,13 @@ module ExpNat {
   
   // TODO
   // n <= m ⟹ n^e <= m^e
-  lemma lem_exp_BaseMonoIncr(e:nat, n:nat, m:nat)
+  lemma lem_BaseMonoIncr(e:nat, n:nat, m:nat)
     ensures n <= m ==> exp(n, e) <= exp(m, e)
     decreases n, m
   // {   
   //   reveal exp();
   //   if n != 0 && m != 0 {  
-  //     lem_exp_BaseMonoIncr(e, n-1, m-1); 
+  //     lem_BaseMonoIncr(e, n-1, m-1); 
   //   }
   // }  
 
@@ -241,11 +241,11 @@ module ExpNat {
   ******************************************************************************/
 
   // (n+1)^2 = n*n + 2*n + 1
-  lemma {:axiom} lem_exp_binomial(n:nat)
+  lemma {:axiom} lem_Binomial(n:nat)
     ensures exp(n+1,2) == n*n + 2*n + 1
 
   // n^2 = (n-1)*2 + 2*(n-1) + 1
-  lemma {:axiom} lem_exp_binomial2(n:nat)
+  lemma {:axiom} lem_Binomial2(n:nat)
     requires n > 0
     ensures exp(n,2) == exp(n-1,2) + 2*(n-1) + 1 
 
@@ -259,7 +259,7 @@ module ExpNat {
     exp(2, n)
   }
 
-  lemma lem_exp2_FirstValues()
+  lemma lem_Exp2FirstValues()
     ensures exp2(0) == exp(2,0) == 1
     ensures exp2(1) == exp(2,1) == 2 
     ensures exp2(2) == exp(2,2) == 4

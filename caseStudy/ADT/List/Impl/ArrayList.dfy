@@ -1,6 +1,6 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/TypeR0.dfy"
-include "../../../../theory/Complexity.dfy"
+include "../../../../theory/Complexity/Asymptotics.dfy"
 include "../List.dfy"
 include "./LemArrayList.dfy"
 
@@ -10,7 +10,7 @@ include "./LemArrayList.dfy"
 
 module ArrayList refines List {
 
-  import opened Complexity
+  import opened Asymptotics
   import opened LemArrayList
 
   class ArrayList<T(0)> extends List<T> {
@@ -69,7 +69,7 @@ module ArrayList refines List {
       requires 0 <= i < Size() 
       // Complexity:
       ensures var t := ret.1; t <= Tget(Size())
-      ensures var t := ret.1; tIsBigO(Size(), t as R0, constGrowth())      
+      ensures var t := ret.1; tIsBigOh(Size(), t as R0, constGrowth())      
     {
       lem_Get_TgetBigOconst();
       (arr[i], ghost 1.0)
@@ -113,7 +113,7 @@ module ArrayList refines List {
       ensures  Get(k).0 == x                                                     // xs[k] == x
       // Complexity:
       ensures  var N := old(Size()); && t == Tinsert(N,k)
-                                     && tIsBigO(N, t as R0, linGrowth())                             
+                                     && tIsBigOh(N, t as R0, linGrowth())                             
     {
       var N := Size();
       t := 0.0;
@@ -162,7 +162,7 @@ module ArrayList refines List {
       ensures  Get(old(Size())).0 == x  
       // Complexity:
       ensures  var N := old(Size()); && t == Tappend(N) 
-                                     && tIsBigO(N, t as R0, constGrowth())      
+                                     && tIsBigOh(N, t as R0, constGrowth())      
     {
       var N := Size();
       t := Insert(N, x);
@@ -183,7 +183,7 @@ module ArrayList refines List {
       ensures  forall j :: k <= j < Size() ==> Get(j).0 == old(Get(j+1).0)  // (k, old(Size())) is left shifted  
       // Complexity:
       ensures  var N := old(Size()); && t == Tdelete(N, k)
-                                     && tIsBigO(N, t as R0, linGrowth())       
+                                     && tIsBigOh(N, t as R0, linGrowth())       
     {
       var N := Size();
       t := 0.0;

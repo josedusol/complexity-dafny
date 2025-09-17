@@ -32,7 +32,7 @@ module AppendAmortDAL {
     modifies al, al.Repr()
     requires al.Valid()
     requires n > 0
-    ensures al.Valid() 
+    ensures al.Valid()
     ensures fresh(al.Repr() - old(al.Repr())) 
   {
     t := 0.0; 
@@ -42,7 +42,7 @@ module AppendAmortDAL {
       invariant al.Valid()
       invariant fresh(al.Repr() - old(al.Repr())) 
     {
-      var N, m, C := al.Size(), al.m, al.Capacity();
+      var N, C, m := al.Size(), al.Capacity(), al.m;
     label before:
       var x:T :| true;
       var t := al.Append(x);

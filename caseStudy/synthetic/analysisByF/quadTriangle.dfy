@@ -1,10 +1,12 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -17,7 +19,7 @@ ghost function f(n:nat) : nat
 
 method quadTriangle(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0;
@@ -50,7 +52,7 @@ method quadTriangle(x:Input) returns (ghost t:nat)
 
 method quadTriangleFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0;
@@ -104,7 +106,7 @@ lemma lem_T2closed(N:nat, j:int)
 lemma {:axiom} lem_T2reverseIndex(N:nat, i:int)
   requires 0 <= i < N
   ensures T2(N, i) == T2(N, N-(i+1))
-// Esto es esencialmente lem_sum_revIndex
+// Esto es esencialmente lem_RevIndex
 // pero en forma de recurrencia
 
 lemma lem_T1closed(N:nat, i:nat)
@@ -119,7 +121,7 @@ lemma lem_T1closed(N:nat, i:nat)
 } 
 
 lemma lem_fBigOquad() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), quadGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n

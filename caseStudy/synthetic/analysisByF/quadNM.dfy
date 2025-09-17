@@ -1,10 +1,12 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -17,7 +19,7 @@ ghost function f(n:nat, m:nat) : nat
 
 method quadNM(x:Input, y:Input) returns (ghost t:nat)
   ensures t == f(x.size(), y.size())
-  ensures x.size() == y.size() ==> tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures x.size() == y.size() ==> tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N, M := x.size(), y.size();
   t := 0;
@@ -89,7 +91,7 @@ lemma lem_T1closed(N:nat, M:nat, i:nat)
 }
 
 lemma lem_fBigOquad() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(n => f(n,n)), quadGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(n => f(n,n)), quadGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n

@@ -1,14 +1,16 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/Log2Nat.dfy"
 include "../../../theory/math/Log2Real.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import Nat = Log2Nat
 import opened Log2Real
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -21,11 +23,12 @@ ghost function f(n:nat) : nat
 
 method log(x:Input) returns (ghost t:nat)
   ensures t <= f(x.size())
-  ensures tIsBigO(x.size(), t as R0, log2Growth())
+  ensures tIsBigOh(x.size(), t as R0, log2Growth())
 {
   var N := x.size();
-  var i;
-  i, t := N, 0;
+  t := 0;
+
+  var i := N;
   while i > 1
     invariant 0 <= i <= N
     invariant t == T(N) - T(i)
@@ -63,7 +66,7 @@ lemma lem_TclosedBound(n:nat)
 }
 
 lemma lem_fBigOlog2() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), log2Growth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), log2Growth())
 {
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n
@@ -73,7 +76,7 @@ lemma lem_fBigOlog2() returns (c:R0, n0:nat)
          f(n) as R0;
       == (if n>0 then Nat.log2(n) else 0) as R0;
       == Nat.log2(n) as R0;
-      <= { lem_log2_NatLowBound(n);  }
+      <= { lem_NatLowBound(n);  }
          log2(n as R0);  
       == c*log2Growth()(n); 
     }

@@ -1,65 +1,65 @@
-include "./math/ExpReal.dfy"
-include "./math/Factorial.dfy"
-include "./math/FloorCeil.dfy"
-include "./math/Log2Real.dfy"
-include "./math/LogReal.dfy"
-include "./math/Root2Real.dfy"
-include "./math/RootReal.dfy"
-include "./math/TypeR0.dfy"
+include "../math/ExpReal.dfy"
+include "../math/Factorial.dfy"
+include "../math/FloorCeil.dfy"
+include "../math/Log2Real.dfy"
+include "../math/LogReal.dfy"
+include "../math/Root2Real.dfy"
+include "../math/RootReal.dfy"
+include "../math/TypeR0.dfy"
 
 /******************************************************************************
-  Complexity definitions
+  Asymptotics definitions
 ******************************************************************************/
 
-module Complexity { 
+module Asymptotics { 
 
-  import opened ExpReal
+  import Exp = ExpReal
   import opened Factorial  
   import opened FloorCeil   
-  import opened Log2Real
-  import opened LogReal
-  import opened Root2Real
-  import opened RootReal
+  import Log2  = Log2Real
+  import Log   = LogReal
+  import Root2 = Root2Real
+  import Root  = RootReal
   import opened TypeR0 
 
   /******************************************************************************
     Big Oh Notation - O
   ******************************************************************************/
 
-  // Def. of O relation 
-  ghost predicate bigO(f:nat->R0, g:nat->R0)
+  // Def. of O as a relation 
+  ghost predicate bigOh(f:nat->R0, g:nat->R0)
   { 
-    exists c:R0, n0:nat :: c > 0.0 && bigOfrom(c, n0, f, g) 
+    exists c:R0, n0:nat :: c > 0.0 && bigOhFrom(c, n0, f, g) 
   }
 
-  ghost predicate bigOfrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)
+  ghost predicate bigOhFrom(c:R0, n0:nat, f:nat->R0, g:nat->R0)
   {
     forall n:nat :: 0 <= n0 <= n ==> f(n) <= c*g(n)
   }
 
-  // Def. of O class
-  // bigO(f,g) <=> f ∈ O(g) 
+  // Def. of O as a class
+  // f ∈ O(g) ⟺ bigOh(f,g)
   ghost function O(g:nat->R0): iset<nat->R0>
   {
-    iset f:nat->R0 | bigO(f, g)
+    iset f:nat->R0 | bigOh(f, g)
   }
 
   // A program counter t is O(g) for input size n
-  ghost predicate tIsBigO(n:nat, t:R0, g:nat->R0)
+  ghost predicate tIsBigOh(n:nat, t:R0, g:nat->R0)
   { 
     exists f:nat->R0 :: t <= f(n) && f in O(g)
   }
 
-  ghost predicate isBigOPoly(f:nat->R0)
+  ghost predicate isBigOhPoly(f:nat->R0)
   { 
-    exists k:R0 :: bigO(f, n => exp(n as R0, k))
+    exists k:R0 :: f in O(n => Exp.exp(n as R0, k))
   }
 
   /******************************************************************************
     Big Omega Notation - Ω
   ******************************************************************************/
 
-  // Def. of Ω relation 
+  // Def. of Ω as a relation 
   ghost predicate bigOm(f:nat->R0, g:nat->R0)
   { 
     exists c:R0, n0:nat :: c > 0.0 && bigOmFrom(c, n0, f, g)
@@ -70,8 +70,8 @@ module Complexity {
     forall n:nat :: 0 <= n0 <= n ==> c*g(n) <= f(n)
   }
 
-  // Def. of Ω class
-  // bigOm(f,g) <=> f ∈ Ω(g) 
+  // Def. of Ω as a class
+  // f ∈ Ω(g) ⟺ bigOm(f,g)
   ghost function Om(g:nat->R0): iset<nat->R0>
   {
     iset f:nat->R0 | bigOm(f, g)
@@ -87,7 +87,7 @@ module Complexity {
     Big Theta notation - Θ
   ******************************************************************************/
 
-  // 1st def. of Θ relation
+  // 1st def. of Θ as relation
   ghost predicate bigTh(f:nat->R0, g:nat->R0)
   { 
     exists c1:R0, c2:R0, n0:nat :: c1 > 0.0 && c2 > 0.0 && bigThFrom(c1, c2, n0, f, g) 
@@ -98,8 +98,8 @@ module Complexity {
     forall n:nat :: 0 <= n0 <= n ==> c1*g(n) <= f(n) <= c2*g(n)  
   }
 
-  // Def. of Θ class
-  // bigTh(f,g) <=> f ∈ Θ(g) 
+  // Def. of Θ as a class
+  // f ∈ Θ(g) ⟺ bigTh(f,g) 
   ghost function Th(g:nat->R0): iset<nat->R0>
   {
     iset f:nat->R0 | bigTh(f, g)
@@ -114,90 +114,113 @@ module Complexity {
   // A program counter t is Θ(g) for input size n
   ghost predicate tIsBigTh(n:nat, t:R0, g:nat->R0)
   { 
-    tIsBigOm(n, t, g) && tIsBigO(n, t, g)
+    tIsBigOm(n, t, g) && tIsBigOh(n, t, g)
   }    
 
   /******************************************************************************
     Common growth rates
   ******************************************************************************/
 
+  // 0
   ghost function zeroGrowth() : nat->R0
   {   
     n => 0.0
   }
 
+  // 1
   ghost function constGrowth() : nat->R0
   {   
     n => 1.0
   }
 
+  // lob_b(n)
   ghost function logGrowth(b:R0) : nat->R0
     requires b > 1.0
   {   
-    lem_log_NonNegativeAuto();
-    n => if n > 0 then log(b, n as R0) else 0.0
+    Log.lem_NonNegativeAuto();
+    n => if n > 0 then Log.log(b, n as R0) else 0.0
   }
 
+  // log_b(n+1)
   ghost function logPlus1Growth(b:R0) : nat->R0
     requires b > 1.0
   {   
-    lem_log_NonNegativeAuto();
-    n => log(b, (n+1) as R0)
+    Log.lem_NonNegativeAuto();
+    n => Log.log(b, (n+1) as R0)
   }
 
+  // log_2(n)
   ghost function log2Growth() : nat->R0
   {   
-    n => if n > 0 then log2(n as R0) else 0.0
+    n => if n > 0 then Log2.log2(n as R0) else 0.0
   }
 
+  // log_2(n+1)
   ghost function log2Plus1Growth() : nat->R0 
   {   
-    n => log2((n+1) as R0) 
+    n => Log2.log2((n+1) as R0) 
+  }
+ 
+  // ᵏ√n
+  ghost function rootGrowth(k:R0) : nat->R0
+    requires k > 0.0
+  {   
+    Root.lem_root_NonNegativeAuto();
+    n => Root.root(n as R0, k)
   }
 
+  // √n
   ghost function sqrtGrowth() : nat->R0
   {   
-    n => sqrt(n as R0)
+    n => Root2.sqrt(n as R0)
   }
 
+  // n
   ghost function linGrowth() : nat->R0
   {   
     n => n as R0
   }
 
+  // n^2
   ghost function quadGrowth() : nat->R0
   {   
     n => (n*n) as R0
   }
 
+  // n^3
   ghost function cubicGrowth() : nat->R0
   {   
     n => (n*n*n) as R0
   }
 
+  // n^k
   ghost function polyGrowth(k:R0) : nat->R0
   {   
-    n => exp(n as R0, k)
+    n => Exp.exp(n as R0, k)
   }
 
+  // b^n
   ghost function expGrowth(b:R0) : nat->R0
   {   
-    n => exp(b, n as R0)
+    n => Exp.exp(b, n as R0)
   }
 
+  // 2^n
   ghost function exp2Growth() : nat->R0
   {   
-    n => exp2(n as R0) 
+    n => Exp.exp2(n as R0) 
   }
 
+  // n!
   ghost function facGrowth() : nat->R0
   {   
     n => fac(n) as R0
   }
 
+  // 2^(2^n)
   ghost function dexp2Growth() : nat->R0
   {   
-    n => exp2(exp2(n as R0))
+    n => Exp.exp2(Exp.exp2(n as R0))
   }
 
 }

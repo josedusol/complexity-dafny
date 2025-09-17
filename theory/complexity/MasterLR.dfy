@@ -1,13 +1,14 @@
-include "./math/ExpReal.dfy"
-include "./math/FloorCeil.dfy"
-include "./math/LemBoundsNat.dfy"
-include "./math/LemFunction.dfy"
-include "./math/LogReal.dfy"
-include "./math/MaxMin.dfy"
-include "./math/SumReal.dfy"
-include "./math/TypeR0.dfy"
-include "./Complexity.dfy"
-include "./LemComplexityBigOh.dfy"
+include "../math/ExpReal.dfy"
+include "../math/FloorCeil.dfy"
+include "../math/Function.dfy"
+include "../math/LemBoundsNat.dfy"
+include "../math/LemFunction.dfy"
+include "../math/LogReal.dfy"
+include "../math/MaxMin.dfy"
+include "../math/SumReal.dfy"
+include "../math/TypeR0.dfy"
+include "./Asymptotics.dfy"
+include "./LemBigOh.dfy"
 
 /******************************************************************************
   Master Theorem for linear recurrences
@@ -17,14 +18,15 @@ module MasterLR {
 
   import opened ExpReal 
   import opened FloorCeil
+  import opened Function
   import opened LemBoundsNat
   import opened LemFunction
-  import opened LogReal
+  import Log = LogReal
   import opened MaxMin
   import opened SumReal
   import opened TypeR0
-  import opened Complexity
-  import opened LemComplexityBigOh
+  import opened Asymptotics
+  import LemOh = LemBigOh
 
   opaque ghost function TbodyLR(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, n:nat) : R0
     requires b >= s-1
@@ -71,7 +73,7 @@ module MasterLR {
     assert forall n:nat :: T(n) == TsumForm(a, b, c, s, w, n)
       by { lem_mmLR_sumForm(a, b, c, s, T, w); }
 
-    var d:R0, n0:nat :| bigOfrom(d, n0, w, n => exp(n as R0, k));
+    var d:R0, n0:nat :| bigOhFrom(d, n0, w, n => exp(n as R0, k));
     if n0 <= b+s {
 
     } else {
@@ -105,14 +107,14 @@ module MasterLR {
     //   assert T(n) == c by { reveal TbodyLR; }
 
     //   if a == 1 {
-    //     assert bigO(T, n => exp(n as R0, k + 1.0)) 
-    //       by { lem_bigO_constGrowth(T, c); } 
+    //     assert bigOh(T, n => exp(n as R0, k + 1.0)) 
+    //       by { lem_ConstGrowth(T, c); } 
     //   } else {
 
     //   }
     // } else {
     //   // 2. Prove: ∀ n >= n0 : S(n) = S1(n) + S1(n) 
-    //   var d:R0, n0:nat :| bigOfrom(d, n0, w, n => exp(n as R0, k));
+    //   var d:R0, n0:nat :| bigOhFrom(d, n0, w, n => exp(n as R0, k));
     //   assert n >= n0 ==> S(a, b, s, w, n) == S1(a, b, s, w, n0, n) + S2(a, b, s, w, n0, n)
     //     by { lem_mmLR_splitS(a, b, s, w, n0, n); }
 
@@ -125,12 +127,12 @@ module MasterLR {
     //   //     assert sumr(0, m-1, i => powr(a as R0, i as real)) == m;
     //   //     assert bigOR0(n => m, n => powr(n as R0, 1.0));
     //   //
-    //     assert bigO(T, (n:nat) => exp(n as R0, k + 1.0));
+    //     assert bigOh(T, (n:nat) => exp(n as R0, k + 1.0));
     //   } else {
     //   //     assert sumr(0, m-1, i => powr(a as R0, i as real)) == ...;
     //   //     assert bigOR0(n => ..., n => powr(a as R0, (n/s) as R0));
     //   //      
-    //     assert bigO(T, (n:nat) => exp(n as R0, k)*exp(a as R0, (n/s) as R0));
+    //     assert bigOh(T, (n:nat) => exp(n as R0, k)*exp(a as R0, (n/s) as R0));
     //   }
     // }
   }
@@ -306,7 +308,7 @@ module MasterLR {
            c;
         == { lem_mmLR_mValue(b, s, n); reveal S, sum();  }
            c + S(a, b, s, w, n);
-        == { lem_mmLR_mValue(b, s, n); lem_exp_Zero(aR); }
+        == { lem_mmLR_mValue(b, s, n); lem_Zero(aR); }
            exp(aR, mv as real)*c + S(a, b, s, w, n);
         == { reveal TsumForm(); } 
            TsumForm(a, b, c, s, w, n);  
@@ -338,9 +340,9 @@ module MasterLR {
                Sa(a,0)*liftD(w,0.0)(n-0*s);
             == { reveal Sa(); } 
                exp(a as R0, 0 as real)*liftD(w,0.0)(n-0*s); 
-            == { lem_exp_Zero(a as R0); }    
+            == { lem_Zero(a as R0); }    
                1.0*liftD(w,0.0)(n-0*s); 
-            == { lem_exp_Zero(a as R0); }    
+            == { lem_Zero(a as R0); }    
                liftD(w,0.0)(n);             
           }      
         }  
@@ -357,7 +359,7 @@ module MasterLR {
         == { reveal mRewr; }
            aR*(exp(aR, (mv-1) as real)*c + S(a, b, s, w, n-s)) + w(n); 
         == aR*exp(aR, (mv-1) as real)*c + aR*S(a, b, s, w, n-s) + w(n); 
-        == { lem_exp_Def(aR, (mv-1) as real); }
+        == { lem_Def(aR, (mv-1) as real); }
            exp(aR, mv as real)*c + aR*S(a, b, s, w, n-s) + w(n);     
         == { reveal sumRewr; }
            exp(aR, mv as real)*c + aR*sum(0, mv-2, i => Sa(a,i)*Sw(s,w,n,i+1)) + w(n);
@@ -385,12 +387,12 @@ module MasterLR {
     var mv := m(b,s,n); assert mv >= 1;
     calc {
          sum(0, mv-2, i => Sa(a,i+1)*Sw(s,w,n,i+1));
-      == { lem_sum_ShiftIndex(0, mv-2, 1, i => Sa(a,i+1)*Sw(s,w,n,i+1)); } 
+      == { lem_ShiftIndex(0, mv-2, 1, i => Sa(a,i+1)*Sw(s,w,n,i+1)); } 
          sum(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1)); 
       == { reveal Sw();
            assert forall l :: 1 <= l <= mv-1 ==> 
              (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1) == Sa(a,l)*Sw(s,w,n,l);
-           lem_sum_Leibniz(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1), 
+           lem_Leibniz(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1), 
                                     l => Sa(a,l)*Sw(s,w,n,l)); } 
          sum(1, mv-1, i => Sa(a,i)*Sw(s,w,n,i));            
     }      
@@ -407,18 +409,18 @@ module MasterLR {
     var aR := a as R0;
       calc {
            aR*sum(0, mv-2, i => Sa(a,i)*Sw(s,w,n,i+1));
-        == { lem_sum_LinearityConst(0, mv-2, aR, i => Sa(a,i)*Sw(s,w,n,i+1)); }
+        == { lem_LinearityConst(0, mv-2, aR, i => Sa(a,i)*Sw(s,w,n,i+1)); }
            sum(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l)); 
         == { reveal Sa(); assert aR == a as real;
              assert forall l :: 0 <= l <= mv-2 ==> 
                aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l) == aR*exp(a as real,l as real)*Sw(s,w,n,l+1);
-             lem_sum_Leibniz(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l), 
+             lem_Leibniz(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l), 
                                       l => aR*exp(a as real,l as real)*Sw(s,w,n,l+1)); } 
            sum(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1));  
-        == { reveal Sa(); lem_exp_DefAuto();
+        == { reveal Sa(); lem_DefAuto();
              assert forall l :: 0 <= l <= mv-2 ==> 
                aR*exp(aR,l as real)*Sw(s,w,n,l+1) == Sa(a,l+1)*Sw(s,w,n,l+1);
-             lem_sum_Leibniz(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1), 
+             lem_Leibniz(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1), 
                                       i => Sa(a,i+1)*Sw(s,w,n,i+1)); }       
            sum(0, mv-2, i => Sa(a,i+1)*Sw(s,w,n,i+1));       
       }         
@@ -438,19 +440,19 @@ module MasterLR {
       == { reveal Sw();
            assert forall i :: 0 <= i <= mv-2 ==> 
              Sa(a,i)*Sw(s,w,n-s,i) == Sa(a,i)*liftD(w,0.0)((n-s)-i*s);
-           lem_sum_Leibniz(0, mv-2, i => Sa(a,i)*Sw(s,w,n-s,i), 
+           lem_Leibniz(0, mv-2, i => Sa(a,i)*Sw(s,w,n-s,i), 
                                     i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s));  }
          sum(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s)); 
       == { assert forall i {:trigger Sa(a,i), liftD(w,0.0)((n-s)-i*s)} :: 
              0 <= i <= mv-2 ==>     Sa(a,i)*liftD(w,0.0)((n-s)-i*s) 
                                  == Sa(a,i)*liftD(w,0.0)(n-(i+1)*s);
-           lem_sum_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s), 
+           lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s), 
                                     i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s));  }
          sum(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-(i+1)*s)));  
       == { reveal Sw();
            assert forall i :: 0 <= i <= mv-2 ==> 
              Sa(a,i)*liftD(w,0.0)(n-(i+1)*s) == Sa(a,i)*Sw(s,w,n,i+1);
-           lem_sum_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s), 
+           lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s), 
                                     i => Sa(a,i)*Sw(s,w,n,i+1));  }
          sum(0, mv-2, i => Sa(a,i)*Sw(s,w,n,i+1));      
     }  
@@ -534,7 +536,7 @@ module MasterLR {
       // // }
 
       assert 0 <= jv <= mv-1 by { reveal m, j, i0; }
-      lem_sum_Split2(0, mv-1, jv, i => Sa(a,i)*Sw(s,w,n,i));
+      lem_Split2(0, mv-1, jv, i => Sa(a,i)*Sw(s,w,n,i));
     }
   }
 
@@ -543,7 +545,7 @@ module MasterLR {
   //                   = d*n^k*Σ_{i=0}^{i0-1}a^i + wMax*Σ_{i=i0}^{m-1}a^i
   lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, d:R0, n0:nat)  
     requires a > 0 && s > 0 && b >= s-1 && n0 > b
-    requires bigOfrom(d, n0, w, n => exp(n as R0, k))
+    requires bigOhFrom(d, n0, w, n => exp(n as R0, k))
     ensures  forall n :: n >= n0 ==> SupBoundPred(a, b, s, w, k, d, n0, n)
   //{}
 
@@ -551,8 +553,8 @@ module MasterLR {
   //                   = d*n^k*Σ_{i=0}^{m-1}a^i
   // lemma {:axiom} lem_mmLR_SupBound(a:nat, b:nat, c:R0, s:nat, T:nat->R0, w:nat->R0, k:R0, d:R0, n0:nat)  
   //   requires a > 0 && s > 0 && b >= s-1
-  //   //requires bigO(w, n => pow(n as R0, k))
-  //   requires bigOfrom(d, n0, w, n => exp(n as R0, k))
+  //   //requires bigOh(w, n => pow(n as R0, k))
+  //   requires bigOhFrom(d, n0, w, n => exp(n as R0, k))
   //   ensures  forall n:nat :: n >= n1(b,s,n0) ==> SupBoundPred(a, b, s, w, k, d, n)
   // {
   //   assert AA: forall n:nat :: 0 <= n0 <= n ==> w(n) <= d*exp(n as R0, k);
@@ -605,10 +607,10 @@ module MasterLR {
   //          sum(0, mv-1, i => Sa(a,i)*(d*exp(n as R0, k)));  
   //       == { assert forall l :: 0 <= l <= mv-1 ==> 
   //              Sa(a,l)*(d*exp(n as R0, k)) == (d*exp(n as R0, k))*(i => Sa(a,i))(l);
-  //            lem_sum_leibniz(0, mv-1, l => Sa(a,l)*(d*exp(n as R0, k)), 
+  //            lem_Leibniz(0, mv-1, l => Sa(a,l)*(d*exp(n as R0, k)), 
   //                                     l => (d*exp(n as R0, k))*(i => Sa(a,i))(l)); }
   //          sum(0, mv-1, l => (d*exp(n as R0, k))*(i => Sa(a,i))(l)); 
-  //       == { lem_sum_linearityConst(0, mv-1, d*exp(n as R0, k), i => Sa(a,i)); }
+  //       == { lem_LinearityConst(0, mv-1, d*exp(n as R0, k), i => Sa(a,i)); }
   //          d*exp(n as R0, k)*sum(0, mv-1, i => Sa(a,i));  
   //       == { reveal SupBound(); }
   //          SupBound(a, b, s, w, k, n, d);     

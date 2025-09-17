@@ -1,13 +1,13 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
-include "../../../theory/MasterLR.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
+include "../../../theory/Complexity/MasterLR.dfy"
 
 import opened ExpReal
 import opened SumReal
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 import opened MasterLR
 
 ghost function fib(n:nat): nat
@@ -57,7 +57,7 @@ method FibT(n:nat) returns (r:nat, ghost t:R0)
   requires n >= 0
   ensures  r == fib(n)
   ensures  t == f(n)
-  ensures  tIsBigO(n, t, linGrowth())
+  ensures  tIsBigOh(n, t, linGrowth())
 {
   t := 0.0; reveal T();
   var f1, f2 := 0, 1;
@@ -94,7 +94,7 @@ ghost function T2(N:nat, i:nat): R0
 }
 
 lemma lem_fBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, f, linGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, f, linGrowth())
 {
   c, n0 := 1.0, 1;
   forall n:nat | 0 <= n0 <= n

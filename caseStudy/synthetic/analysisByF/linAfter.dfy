@@ -1,10 +1,12 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -17,7 +19,7 @@ ghost function f(N:nat) : nat
 
 method linAfter(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, linGrowth())
+  ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   if N < 10 {
@@ -58,7 +60,7 @@ lemma lem_Tclosed(N:nat, i:nat)
 }
 
 lemma lem_fBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), linGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), linGrowth())
 {
   c, n0 := 1.0, 10;
   forall n:nat | 0 <= n0 <= n

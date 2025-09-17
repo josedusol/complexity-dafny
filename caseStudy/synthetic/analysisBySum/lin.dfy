@@ -1,12 +1,14 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened SumInt
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -19,7 +21,7 @@ ghost function f(n:nat) : nat
 
 method lin(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, linGrowth())
+  ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   t := 0; reveal sum(); 
@@ -32,19 +34,19 @@ method lin(x:Input) returns (ghost t:nat)
     decreases N - i
   {
     // Op. interesante
-    lem_sum_DropLastAuto(1, i);
+    lem_DropLastAuto(1, i);
     i := i+1 ;
     t := t+1 ;
   }
 
   assert t == sum(1, N, k => 1); 
-  assert t == f(N) by { lem_sum_constAll(1, N); }
+  assert t == f(N) by { lem_ConstAuto(1, N); }
   assert liftToR0(f) in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 } 
 
 method linFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, linGrowth())
+  ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
   t := 0; reveal sum(); 
@@ -53,18 +55,18 @@ method linFor(x:Input) returns (ghost t:nat)
     invariant t == sum(1, i, k => 1)
   {
     // Op. interesante
-    lem_sum_DropLastAuto(1, i);
+    lem_DropLastAuto(1, i);
     t := t+1 ;
   }
 
   assert t == sum(1, N, k => 1); 
-  assert t == f(N) by { lem_sum_constAll(1, N); }
+  assert t == f(N) by { lem_ConstAuto(1, N); }
   assert t <= f(N);
   assert liftToR0(f) in O(linGrowth()) by { var c, n0 := lem_fBigOlin(); }
 }
 
 lemma lem_fBigOlin() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), linGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), linGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n

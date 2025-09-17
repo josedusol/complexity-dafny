@@ -1,18 +1,20 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
-include "../../../theory/LemComplexityBigOh.dfy"
-include "../../../theory/LemComplexityBigOm.dfy"
-include "../../../theory/LemComplexityBigTh.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
+include "../../../theory/Complexity/LemBigOh.dfy"
+include "../../../theory/Complexity/LemBigOm.dfy"
+include "../../../theory/Complexity/LemBigTh.dfy"
 include "./linearSearch.dfy"
 
+import opened Function
 import opened LemFunction
 import opened SumReal
 import opened TypeR0
-import opened Complexity
-import opened LemComplexityBigOh
-import opened LemComplexityBigTh
+import opened Asymptotics
+import opened LOh = LemBigOh
+import opened LTh = LemBigTh
 
 ghost function f1(N:nat) : nat
 {
@@ -41,10 +43,10 @@ ghost method linearSearchBT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   }
   assert t == f1(|s|);
   assert liftToR0(f1) in Th(zeroGrowth()) by {
-      lem_bigTh_zeroGrowth(liftToR0(f1)) 
+      LTh.lem_ZeroGrowth(liftToR0(f1)) 
         by { assert 0 as R0 == 0.0; }
     }
-  lem_bigTh_tIsBigTh2(|s|, t as R0, zeroGrowth());
+  LTh.lem_tIsBigTh2(|s|, t as R0, zeroGrowth());
 } 
 
 //**************************************************************************//
@@ -77,8 +79,8 @@ ghost method linearSearchBT2<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
   }
   assert t == f2(|s|);
   assert liftToR0(f2) in Th(constGrowth()) by { 
-      lem_bigTh_constGrowth(liftToR0(f2), 1.0)
+      LTh.lem_ConstGrowth(liftToR0(f2), 1.0)
         by { assert 1 as R0 == 1.0; }  
     }
-  lem_bigTh_tIsBigTh2(|s|, t as R0, constGrowth());
+  LTh.lem_tIsBigTh2(|s|, t as R0, constGrowth());
 }

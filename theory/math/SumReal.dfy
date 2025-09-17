@@ -14,7 +14,7 @@ module SumReal {
   }
 
   // a <= b+1 ⟹ Σ_{k=a}^{b+1}f(k) = Σ_{k=a}^{b}f(k) + f(b+1)
-  lemma {:induction false} lem_sum_DropLast(a:int, b:int, f:int->real)
+  lemma {:induction false} lem_DropLast(a:int, b:int, f:int->real)
     requires a <= b+1
     ensures  sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
     decreases b - a
@@ -37,7 +37,7 @@ module SumReal {
            sum(a, b+1, f);
         == { reveal sum(); } 
            f(a) + sum(a+1, b+1, f);
-        == { lem_sum_DropLast(a+1, b, f); }  // by IH
+        == { lem_DropLast(a+1, b, f); }  // by IH
            f(a) + (sum(a+1, b, f) + f(b+1));
         == (f(a) + sum(a+1, b, f)) + f(b+1);
         == { reveal sum(); }
@@ -46,19 +46,19 @@ module SumReal {
     }
   } 
 
-  lemma lem_sum_DropLastAuto(a:int, b:int)
+  lemma lem_DropLastAuto(a:int, b:int)
     requires a <= b+1
     ensures  forall f:int->real :: sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
   { 
     forall f:int->real
       ensures sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
     {
-      lem_sum_DropLast(a, b, f);
+      lem_DropLast(a, b, f);
     }
   }
 
   // i <= j+1 ⟹ c*Σ_{k=i}^{j}f(k) = Σ_{k=i}^{j}c*f(k)
-  lemma {:induction false} lem_sum_LinearityConst(a:int, b:int, c:real, f:int->real)
+  lemma {:induction false} lem_LinearityConst(a:int, b:int, c:real, f:int->real)
     requires a <= b+1
     ensures  c*sum(a, b, f) == sum(a, b, k => c*f(k))
     decreases b - a
@@ -81,7 +81,7 @@ module SumReal {
         == { reveal sum(); } 
            c*(f(a) + sum(a+1, b, f));
         == c*f(a) + c*sum(a+1, b, f);         
-        == { lem_sum_LinearityConst(a+1, b, c, f); }  // by IH
+        == { lem_LinearityConst(a+1, b, c, f); }  // by IH
            c*f(a) + sum(a+1, b, k => c*f(k)); 
         == (k => c*f(k))(a) + sum(a+1, b, k => c*f(k));
         == { reveal sum(); } 
@@ -91,7 +91,7 @@ module SumReal {
   }
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}c = c*(b - a + 1)
-  lemma {:induction false} lem_sum_Const(a:int, b:int, c:real)
+  lemma {:induction false} lem_Const(a:int, b:int, c:real)
     requires a <= b+1
     ensures  sum(a, b, k => c) == c * (b - a + 1) as real
     decreases b - a
@@ -112,7 +112,7 @@ module SumReal {
            sum(a, b, k => c);
         == { reveal sum(); }
            c + sum(a+1, b, x => c);
-        == { lem_sum_Const(a+1, b, c); }  // by IH
+        == { lem_Const(a+1, b, c); }  // by IH
            (c + c* (b - (a+1) + 1) as real);
         == c + c*((b - a) as real);      
         == c* (b - a + 1) as real;             
@@ -120,19 +120,19 @@ module SumReal {
     }
   }
 
-  lemma lem_sum_ConstAuto(a:int, b:int)
+  lemma lem_ConstAuto(a:int, b:int)
     requires a <= b+1
     ensures  forall c:real :: sum(a, b, k => c) == c * (b - a + 1) as real
   { 
     forall c:real
       ensures sum(a, b, k => c) == c * (b - a + 1) as real
     {
-      lem_sum_Const(a, b, c);
+      lem_Const(a, b, c);
     }
   } 
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}f(k) = Σ_{k=a+d}^{b+d}f(k-d)
-  lemma {:induction false} lem_sum_ShiftIndex(a:int, b:int, d:int, f:int->real)
+  lemma {:induction false} lem_ShiftIndex(a:int, b:int, d:int, f:int->real)
     requires a <= b+1
     ensures  sum(a, b, f) == sum(a+d, b+d, k => f(k-d))
     decreases b - a
@@ -154,7 +154,7 @@ module SumReal {
            sum(a, b, f);
         == { reveal sum(); } 
            f(a) + sum(a+1, b, f);
-        == { lem_sum_ShiftIndex(a+1, b, d, f); }  // by IH
+        == { lem_ShiftIndex(a+1, b, d, f); }  // by IH
            f(a) + sum(a+1+d, b+d, k => f(k-d));
         == (k => f(k-d))(a+d) + sum((a+d)+1, b+d, k => f(k-d));
         == { reveal sum(); }
@@ -164,7 +164,7 @@ module SumReal {
   } 
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
-  lemma {:induction false} lem_sum_Interval(a:int, b:int)
+  lemma {:induction false} lem_Interval(a:int, b:int)
     requires a <= b+1 
     decreases b - a
     ensures sum(a, b, k => k as real) == (b*(b+1) + a*(1-a)) as real / 2.0
@@ -185,7 +185,7 @@ module SumReal {
            sum(a, b, k => k as real);
         == { reveal sum(); }
            a as real + sum(a+1, b, k => k as real);
-        == { lem_sum_Interval(a+1, b); }  // by IH
+        == { lem_Interval(a+1, b); }  // by IH
            a as real + (b*(b+1) + (a+1)*(1-(a+1))) as real / 2.0;
         == (b*(b+1) + a*(1-a)) as real / 2.0;            
       }
@@ -194,7 +194,7 @@ module SumReal {
 
   // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) == g(k)) 
   //          ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{b}g
-  lemma {:induction false} lem_sum_Leibniz(a:int, b:int, f:int->real, g:int->real)
+  lemma {:induction false} lem_Leibniz(a:int, b:int, f:int->real, g:int->real)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) == g(k)
     ensures sum(a, b, f) == sum(a, b, g)
@@ -218,7 +218,7 @@ module SumReal {
         == { reveal sum(); } 
            f(a) + sum(a+1, b, f);
         == g(a) + sum(a+1, b, f);
-        == { lem_sum_Leibniz(a+1, b, f, g); }  // by IH
+        == { lem_Leibniz(a+1, b, f, g); }  // by IH
            g(a) + sum(a+1, b, g);
         == { reveal sum(); }
            sum(a, b, g);           
@@ -228,7 +228,7 @@ module SumReal {
 
   // a <= b ∧  (∀ k : a<=k<=b : f(k) < g(k)) 
   //        ⟹ Σ_{k=a}^{b}f < Σ_{k=a}^{b}g
-  lemma {:induction false} lem_sum_StrictIncr(a:int, b:int, f:int->real, g:int->real)
+  lemma {:induction false} lem_StrictIncr(a:int, b:int, f:int->real, g:int->real)
     requires a <= b
     requires forall k:int :: a<=k<=b ==> f(k) < g(k)
     ensures sum(a, b, f) < sum(a, b, g)
@@ -255,7 +255,7 @@ module SumReal {
            f(a) + sum(a+1, b, f);
         < { assert f(a) < g(a); }
            g(a) + sum(a+1, b, f);
-        < { lem_sum_StrictIncr(a+1, b, f, g); }  // by IH
+        < { lem_StrictIncr(a+1, b, f, g); }  // by IH
            g(a) + sum(a+1, b, g);
         == { reveal sum(); }
            sum(a, b, g);           
@@ -265,7 +265,7 @@ module SumReal {
 
   // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) <= g(k)) 
   //          ⟹ Σ_{k=a}^{b}f <= Σ_{k=a}^{b}g
-  lemma {:induction false} lem_sum_MonoIncr(a:int, b:int, f:int->real, g:int->real)
+  lemma {:induction false} lem_MonoIncr(a:int, b:int, f:int->real, g:int->real)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
     ensures sum(a, b, f) <= sum(a, b, g)
@@ -290,7 +290,7 @@ module SumReal {
            f(a) + sum(a+1, b, f);
         <= { assert f(a) <= g(a);  }
            g(a) + sum(a+1, b, f);
-        <= { lem_sum_MonoIncr(a+1, b, f, g); }  // by IH
+        <= { lem_MonoIncr(a+1, b, f, g); }  // by IH
            g(a) + sum(a+1, b, g);
         == { reveal sum(); }
            sum(a, b, g);           
@@ -299,7 +299,7 @@ module SumReal {
   } 
 
   // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j}f + Σ_{k=j+1}^{b}f
-  lemma {:induction false} lem_sum_Split(a:int, b:int, j:int, f:int->real)
+  lemma {:induction false} lem_Split(a:int, b:int, j:int, f:int->real)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
     decreases b - a
@@ -324,7 +324,7 @@ module SumReal {
              sum(a, b, f);
           == { reveal sum(); } 
              f(a) + sum(a+1, b, f);
-          == { lem_sum_Split(a+1, b, j, f); }  // by IH
+          == { lem_Split(a+1, b, j, f); }  // by IH
              f(a) + (sum(a+1, j, f) + sum(j+1, b, f));
           == (f(a) + sum(a+1, j, f)) + sum(j+1, b, f);
           == { reveal sum(); } 
@@ -335,16 +335,16 @@ module SumReal {
   } 
 
   // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j-1}f + Σ_{k=j}^{b}f
-  lemma lem_sum_Split2(a:int, b:int, j:int, f:int->real)
+  lemma lem_Split2(a:int, b:int, j:int, f:int->real)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)
     decreases b - a
   {
     calc {
          sum(a, b, f);
-      == { lem_sum_Split(a, b, j, f); } 
+      == { lem_Split(a, b, j, f); } 
          sum(a, j, f) + sum(j+1, b, f);
-      == { lem_sum_DropLast(a, j-1, f); }
+      == { lem_DropLast(a, j-1, f); }
          (sum(a, j-1, f) + f(j)) + sum(j+1, b, f); 
       == sum(a, j-1, f) + (f(j) + sum(j+1, b, f));      
       == { reveal sum; }

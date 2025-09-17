@@ -2,93 +2,97 @@ include "./ExpReal.dfy"
 include "./Root2Nat.dfy"
 
 /******************************************************************************
-  Roots over over non-negative reals
+  Roots over non-negative reals
 ******************************************************************************/
 
 module RootReal {
 
-  import opened ExpReal
-  import N = Root2Nat
+  import Exp = ExpReal
+  //import N = Root2Nat
 
-  // root(x,q) = x^(1/q)
-  opaque ghost function root(x:real, q:real) : real
-    requires x >= 0.0 && q > 0.0
+  // ᵏ√x = x^(1/k)
+  opaque ghost function root(x:real, k:real) : real
+    requires x >= 0.0 && k > 0.0
   {
-    exp(x, 1.0 / q)
+    Exp.exp(x, 1.0 / k)
   }
 
   // Non-negativity
-  // x >= 0 ∧ q > 0 ⟹ root(x,q) >= 0
-  lemma lem_root_NonNegative(x:real, q:real)
-    requires x >= 0.0 && q > 0.0 
-    ensures root(x, q) >= 0.0
+  // x >= 0 ∧ k > 0 ⟹ ᵏ√x >= 0
+  lemma lem_root_NonNegative(x:real, k:real)
+    requires x >= 0.0 && k > 0.0 
+    ensures root(x, k) >= 0.0
   { 
     reveal root();  
   }
 
-  // q > 0 ⟹ root(0,q) = 0
-  lemma lem_root_Zero(q:real)
-    requires q > 0.0
-    ensures  root(0.0, q) == 0.0 
+  lemma lem_root_NonNegativeAuto()
+    ensures forall x, k :: x >= 0.0 && k > 0.0 ==> root(x, k) >= 0.0
+  { 
+     forall x:real, k:real | x >= 0.0 && k > 0.0
+      ensures root(x, k) >= 0.0
+    {
+      lem_root_NonNegative(x, k);
+    }
+  }
+
+  // k > 0 ⟹  ᵏ√0 = 0
+  lemma lem_root_Zero(k:real)
+    requires k > 0.0
+    ensures  root(0.0, k) == 0.0 
   {
     reveal root();
-    lem_exp_BaseZero(1.0/q);
+    Exp.lem_BaseZero(1.0/k);
   } 
 
   // Identity for 1st root
-  // root(x,1) = x
+  // ¹√x = x
   lemma lem_root_Identity(x:real)
     requires x >= 0.0
     ensures root(x, 1.0) == x
   {
     reveal root();
-    lem_exp_One(x);
+    Exp.lem_One(x);
   }
 
   /******************************************************************************
-    root(x,q) and power x^q are inverses of each other for x ∈ (0,∞)
+    ᵏ√x and power x^k are inverses of each other for x ∈ (0,∞)
   ******************************************************************************/
 
-  opaque ghost function nam(q:real):real
-    requires q > 0.0
+  // ᵏ√(x^k) = x 
+  lemma lem_rootPow_Inverse(x:real, k:real)
+    requires x > 0.0 && k > 0.0
+    ensures  root(Exp.exp(x, k), k) == x 
   {
-    1.0/q
-  }
-
-  // root(x^q,q) = x 
-  lemma lem_rootPow_Inverse(x:real, q:real)
-    requires x > 0.0 && q > 0.0
-    ensures  root(exp(x, q), q) == x 
-  {
-    ghost var r := 1.0/q;
+    ghost var r := 1.0/k;
     calc {
-         root(exp(x, q), q);
+         root(Exp.exp(x, k), k);
       == { reveal root(); }
-         exp(exp(x, q), r);
-      == { lem_exp_Exp(x, q, r); }    
-         exp(x, q*r); 
-      == { assert q*r == q*(1.0/q) == 1.0; }
-         exp(x, 1.0); 
-      == { lem_exp_One(x); }
+         Exp.exp(Exp.exp(x, k), r);
+      == { Exp.lem_Exp(x, k, r); }    
+         Exp.exp(x, k*r); 
+      == { assert k*r == k*(1.0/k) == 1.0; }
+         Exp.exp(x, 1.0); 
+      == { Exp.lem_One(x); }
          x;    
     }
   }
 
-  // root(x,q)^q = x 
-  lemma lem_PowRoot_Inverse(x:real, q:real)
-    requires x > 0.0 && q > 0.0
-    ensures  exp(root(x, q), q) == x
+  // (ᵏ√x)^k = x 
+  lemma lem_PowRoot_Inverse(x:real, k:real)
+    requires x > 0.0 && k > 0.0
+    ensures  Exp.exp(root(x, k), k) == x
   {
-    ghost var r := 1.0/q;
+    ghost var r := 1.0/k;
     calc { 
-         exp(root(x, q), q);
+         Exp.exp(root(x, k), k);
       == { reveal root(); }
-         exp(exp(x, r), q);
-      == { lem_exp_Exp(x, r, q); }
-         exp(x, r*q);
-      == { assert q*r == q*(1.0/q) == 1.0; }
-         exp(x, 1.0); 
-      == { lem_exp_One(x); }
+         Exp.exp(Exp.exp(x, r), k);
+      == { Exp.lem_Exp(x, r, k); }
+         Exp.exp(x, r*k);
+      == { assert k*r == k*(1.0/k) == 1.0; }
+         Exp.exp(x, 1.0);
+      == { Exp.lem_One(x); }
          x;   
     }
   }  
@@ -97,14 +101,14 @@ module RootReal {
     Order properties on the radicand
   ******************************************************************************/
 
-  // root(x,q) is strictly increasing in the radicand x ∈ [0,∞)
-  // x,y >= 0 ∧ x < y ⟹ root(x,q) < root(y,q)
-  lemma lem_root_RadStrictIncr(x:real, y:real, q:real)
-    requires x >= 0.0 && y >= 0.0 && q > 0.0
-    ensures x < y ==> root(x, q) < root(y, q)
+  // ᵏ√x is strictly increasing in the radicand x ∈ [0,∞)
+  // k > 0 ∧ x,y >= 0 ∧ x < y ⟹ ᵏ√x < ᵏ√y
+  lemma lem_root_RadStrictIncr(x:real, y:real, k:real)
+    requires k > 0.0 && x >= 0.0 && y >= 0.0
+    ensures x < y ==> root(x, k) < root(y, k)
   {
     reveal root();
-    lem_exp_BaseStrictIncr(1.0 / q, x, y);
+    Exp.lem_BaseStrictIncr(1.0 / k, x, y);
   }
 
   // TODO: derive related properties
@@ -113,15 +117,15 @@ module RootReal {
     Order properties on the index when the radicand x ∈ (0,1)
   ******************************************************************************/  
 
-  // root(x,q) is strictly increasing in the index
-  // 0 < x < 1 ∧ p,q > 0 ∧ p < q ⟹ root(x,p) < root(x,q)
-  lemma lem_root_IndexStrictIncr(x:real, p:real, q:real)
-    requires 0.0 < x < 1.0 && p > 0.0 && q > 0.0
-    ensures p < q ==> root(x, p) < root(x, q)
+  // ᵏ√x is strictly increasing in the index
+  // 0 < x < 1 ∧ k,h > 0 ∧ k < h ⟹ ᵏ√x < ʰ√x
+  lemma lem_root_IndexStrictIncr(x:real, k:real, h:real)
+    requires 0.0 < x < 1.0 && k > 0.0 && h > 0.0
+    ensures k < h ==> root(x, k) < root(x, h)
   {
     reveal root();
-    lem_exp_StrictDecr(x, 1.0 / q, 1.0 / p);
-    assert 1.0/q < 1.0/p ==> exp(x,1.0/q) > exp(x,1.0/p);
+    Exp.lem_StrictDecr(x, 1.0 / h, 1.0 / k);
+    assert 1.0/h < 1.0/k ==> Exp.exp(x,1.0/h) > Exp.exp(x,1.0/k);
   }
 
   // TODO: derive related properties
@@ -130,34 +134,34 @@ module RootReal {
     Order properties on the index when the radicand x=0 or x>=1 
   ******************************************************************************/    
 
-  // root(x,q) is strictly decreasing in the index when x > 1 
-  // x > 1 ∧ p,q > 0 ∧ p < q ⟹ root(x,p) > root(x,q)
-  lemma lem_root_IndexStrictDecr(x:real, p:real, q:real)
-    requires x > 1.0 && p > 0.0 && q > 0.0 
-    ensures p < q ==> root(x, p) > root(x, q)
+  // ᵏ√x is strictly decreasing in the index when x > 1 
+  // x > 1 ∧ k,h > 0 ∧ k < h ⟹ ᵏ√x > ʰ√x
+  lemma lem_root_IndexStrictDecr(x:real, k:real, h:real)
+    requires x > 1.0 && k > 0.0 && h > 0.0 
+    ensures k < h ==> root(x, k) > root(x, h)
   {
     reveal root();
-    lem_exp_StrictIncr(x, 1.0 / q, 1.0 / p);
-    assert 1.0/q < 1.0/p ==> exp(x,1.0/q) < exp(x,1.0/p);
+    Exp.lem_StrictIncr(x, 1.0 / h, 1.0 / k);
+    assert 1.0/h < 1.0/k ==> Exp.exp(x,1.0/h) < Exp.exp(x,1.0/k);
   }
 
   // A weak version of lem_root_IndexStrictDecr but holds for x=0 and x=1
-  // (x = 0 ∨ x >= 1) ∧ p,q > 0 ∧ p <= q ⟹ root(x,p) >= root(x,q)
-  lemma lem_root_IndexMonoDecr(x:real, p:real, q:real)
+  // (x = 0 ∨ x >= 1) ∧ k,h > 0 ∧ k <= h ⟹ ᵏ√x >= ʰ√x
+  lemma lem_root_IndexMonoDecr(x:real, k:real, h:real)
     requires x == 0.0 || x >= 1.0 
-    requires p > 0.0 && q > 0.0
-    ensures p <= q ==> root(x, p) >= root(x, q)
+    requires k > 0.0 && h > 0.0
+    ensures  k <= h ==> root(x, k) >= root(x, h)
   {
     if x == 0.0 {
-      lem_root_Zero(p);
-      lem_root_Zero(q);
+      lem_root_Zero(k);
+      lem_root_Zero(h);
     } else if x >= 1.0 {
       reveal root();
-      lem_exp_MonoIncr(x, 1.0 / q, 1.0 / p);
-      assert 1.0/q <= 1.0/p ==> exp(x,1.0/q) <= exp(x,1.0/p);
+      Exp.lem_MonoIncr(x, 1.0 / h, 1.0 / k);
+      assert 1.0/h <= 1.0/k ==> Exp.exp(x,1.0/h) <= Exp.exp(x,1.0/h);
     }
   }
 
-  // Bound the real-valued sqrt function with the natural-number version N.sqrt
+  // Bound the real-valued √ function with the natural-number version N.√
 
 }

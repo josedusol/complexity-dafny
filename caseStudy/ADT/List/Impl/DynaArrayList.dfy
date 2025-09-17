@@ -1,7 +1,7 @@
 include "../../../../theory/math/ExpReal.dfy"
 include "../../../../theory/math/LemFunction.dfy"
 include "../../../../theory/math/TypeR0.dfy"
-include "../../../../theory/Complexity.dfy"
+include "../../../../theory/Complexity/Asymptotics.dfy"
 include "../DynaList.dfy"
 include "./LemDynaArrayList.dfy"
 
@@ -13,7 +13,7 @@ module DynaArrayList refines DynaList {
 
   import opened ExpReal
   import opened LemFunction
-  import opened Complexity
+  import opened Asymptotics
   import opened LemDynaArrayList
 
   class DynaArrayList<T(0)> extends DynaList<T> {
@@ -76,7 +76,7 @@ module DynaArrayList refines DynaList {
       requires 0 <= i < Size() 
       // Complexity:
       ensures var t := ret.1; t <= Tget(Size())
-      ensures var t := ret.1; tIsBigO(Size(), t as R0, constGrowth())      
+      ensures var t := ret.1; tIsBigOh(Size(), t as R0, constGrowth())      
     {
       lem_Get_TgetBigOconst();
       (arr[i], ghost 1.0)
@@ -134,7 +134,7 @@ module DynaArrayList refines DynaList {
       ensures var C, N := old(Capacity()), old(Size()); 
         && t == Tgrow(m,C,Size())
         && t <= Tgrow(m,C,C)
-      ensures var C := old(Capacity()); tIsBigO(C, t as R0, linGrowth())      
+      ensures var C := old(Capacity()); tIsBigOh(C, t as R0, linGrowth())      
     {   
       var C, N, m := Capacity(), Size(), m;
 
@@ -172,7 +172,7 @@ module DynaArrayList refines DynaList {
       // Complexity:
       ensures var N := old(Size()); 
         && (if old(IsFull()) then t == Tinsert(m,N,k) else t == Tinsert2(N,k))
-        && tIsBigO(N, t as R0, linGrowth())                                                                          
+        && tIsBigOh(N, t as R0, linGrowth())                                                                          
     {
       var N, m := Size(), m;
       t := 0.0;
@@ -215,7 +215,7 @@ module DynaArrayList refines DynaList {
       assert forall j :: 0 <= j < nElems ==> arr[j] == elems[j];
 
       assert && (if old(IsFull()) then t == Tinsert(m,N,k) else t == Tinsert2(N,k))
-             && tIsBigO(N, t as R0, linGrowth()) by {
+             && tIsBigOh(N, t as R0, linGrowth()) by {
         if old(IsFull()) {
           calc {
               t; 
@@ -250,8 +250,8 @@ module DynaArrayList refines DynaList {
       ensures m == old(m)
       // Complexity:
       ensures var N := old(Size()); 
-        if old(IsFull()) then t == Tappend(m,N) && tIsBigO(N, t as R0, linGrowth())
-                         else t == Tappend2(N)  && tIsBigO(N, t as R0, constGrowth())
+        if old(IsFull()) then t == Tappend(m,N) && tIsBigOh(N, t as R0, linGrowth())
+                         else t == Tappend2(N)  && tIsBigOh(N, t as R0, constGrowth())
     {
       var N, m := Size(), m;
       t := Insert(N, x);
@@ -279,7 +279,7 @@ module DynaArrayList refines DynaList {
       ensures m == old(m)
       // Complexity:
       ensures  var N := old(Size()); && t == Tdelete(N, k)
-                                     && tIsBigO(N, t as R0, linGrowth())       
+                                     && tIsBigOh(N, t as R0, linGrowth())       
     {
       var N := Size();
       t := 0.0;

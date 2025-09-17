@@ -13,15 +13,15 @@ module LemBoundsReal {
   import opened RootReal
 
   // 1 < sqrt(2) < 2
-  lemma lem_root_1LQsqrt2LQ2()
+  lemma lem_1LqSqrt2Lq2()
     ensures 1.0 < sqrt(2.0) < 2.0
   { 
     assert sqrt(2.0) < 2.0 by {
       calc { 
              sqrt(2.0) < 2.0;
-        <==> { lem_exp_BaseStrictIncrIFF(2.0, sqrt(2.0), 2.0); } 
+        <==> { lem_BaseStrictIncrIFF(2.0, sqrt(2.0), 2.0); } 
              exp(sqrt(2.0), 2.0) < exp(2.0, 2.0);
-        <==> { reveal exp2(); lem_exp2_FirstValues(); }
+        <==> { reveal exp2(); lem_Exp2FirstValues(); }
              exp(sqrt(2.0), 2.0) < 4.0;
         <==> { reveal sqrt(); lem_PowRoot_Inverse(2.0, 2.0); }
              2.0 < 4.0;
@@ -30,9 +30,9 @@ module LemBoundsReal {
     assert 1.0 < sqrt(2.0) by {
       calc { 
              1.0 < sqrt(2.0);
-        <==> { lem_exp_BaseStrictIncrIFF(2.0, 1.0, sqrt(2.0)); } 
+        <==> { lem_BaseStrictIncrIFF(2.0, 1.0, sqrt(2.0)); } 
              exp(1.0, 2.0) < exp(sqrt(2.0), 2.0); 
-        <==> { lem_exp_BaseOne(2.0); }
+        <==> { lem_BaseOne(2.0); }
              1.0 < exp(sqrt(2.0), 2.0);
         <==> { reveal sqrt(); lem_PowRoot_Inverse(2.0, 2.0); }
              1.0 < 2.0;

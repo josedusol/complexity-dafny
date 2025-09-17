@@ -1,16 +1,18 @@
 include "../../../theory/math/ExpReal.dfy"
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
-include "../../../theory/MasterLR.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
+include "../../../theory/Complexity/MasterLR.dfy"
 include "./linearSearch.dfy"
 
 import opened ExpReal
+import opened Function
 import opened LemFunction
 import opened SumReal
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 import opened MasterLR
 
 ghost method linearSearchWT1<A>(s:seq<A>, x:A) returns (i:nat, t:nat)
@@ -102,10 +104,10 @@ lemma lem_TbigOlin()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
+      assert exp(n as R0, k) == 1.0 by { lem_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOfrom(1.0, 1, w, polyGrowth(k));
+    assert bigOhFrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T', w, k);
 }

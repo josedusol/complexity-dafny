@@ -1,12 +1,14 @@
+include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
 include "../../../theory/math/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 
+import opened Function
 import opened LemFunction
 import opened SumInt
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 
 type Input {
   function size() : nat
@@ -19,7 +21,7 @@ ghost function f(n:nat) : nat
 
 method quad(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0; reveal sum();
@@ -37,23 +39,23 @@ method quad(x:Input) returns (ghost t:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_sum_DropLastAuto(1, j); 
+      lem_DropLastAuto(1, j); 
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_sum_DropLastAuto(1, i);
+    lem_DropLastAuto(1, i);
     i := i+1 ;
     t := t+t' ;
   }
 
   assert t == sum(1, N, k => sum(1, N, k' => 1)); 
-  assert t == f(N) by { lem_sum_constAll(1, N); }
+  assert t == f(N) by { lem_ConstAuto(1, N); }
   assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 } 
 
 method quadFor(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
-  ensures tIsBigO(x.size(), t as R0, quadGrowth())
+  ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
   t := 0; reveal sum();
@@ -66,20 +68,20 @@ method quadFor(x:Input) returns (ghost t:nat)
       invariant t' == sum(1, j, k' => 1)
     {
       // Op. interesante
-      lem_sum_DropLastAuto(1, j); 
+      lem_DropLastAuto(1, j); 
       t' := t'+1;
     }
-    lem_sum_DropLastAuto(1, i);
+    lem_DropLastAuto(1, i);
     t := t+t';
   }
   
   assert t == sum(1, N, k => sum(1, N, k' => 1)); 
-  assert t == f(N) by { lem_sum_constAll(1, N); }
+  assert t == f(N) by { lem_ConstAuto(1, N); }
   assert liftToR0(f) in O(quadGrowth()) by { var c, n0 := lem_fBigOquad(); }
 }
 
 lemma lem_fBigOquad() returns (c:R0, n0:nat)
-  ensures c > 0.0 && bigOfrom(c, n0, liftToR0(f), quadGrowth())
+  ensures c > 0.0 && bigOhFrom(c, n0, liftToR0(f), quadGrowth())
 {
   c, n0 := 1.0, 0;
   forall n:nat | 0 <= n0 <= n

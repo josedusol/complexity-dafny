@@ -1,3 +1,4 @@
+include "./Function.dfy"
 include "./LemFunction.dfy"
 include "./SumReal.dfy"
 
@@ -6,7 +7,8 @@ include "./SumReal.dfy"
 ******************************************************************************/
 
 module SumInt {
-
+ 
+  import opened Function  
   import opened LemFunction  
   import R = SumReal
 
@@ -19,7 +21,7 @@ module SumInt {
     else f(a) + sum(a+1, b, f)
   }
 
-  lemma lem_sum_LiftEq(a:int, b:int, f:int->int)
+  lemma lem_LiftEq(a:int, b:int, f:int->int)
     requires a <= b+1
     ensures  R.sum(a, b, liftCi2r(f)) == sum(a, b, f) as real
     decreases b - a
@@ -28,58 +30,58 @@ module SumInt {
   }  
 
   // a <= b+1 ⟹ Σ_{k=a}^{b+1}f(k) = Σ_{k=a}^{b}f(k) + f(b+1)
-  lemma lem_sum_DropLast(a:int, b:int, f:int->int)
+  lemma lem_DropLast(a:int, b:int, f:int->int)
     requires a <= b+1
     ensures  sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
   { 
     var fr := liftCi2r(f);
-    R.lem_sum_DropLast(a, b, fr);
+    R.lem_DropLast(a, b, fr);
     assert R.sum(a, b+1, fr) == R.sum(a, b, fr) + fr(b+1);
-    lem_sum_LiftEq(a, b+1, f);
-    lem_sum_LiftEq(a, b, f);
+    lem_LiftEq(a, b+1, f);
+    lem_LiftEq(a, b, f);
   }
 
-  lemma lem_sum_DropLastAuto(a:int, b:int)
+  lemma lem_DropLastAuto(a:int, b:int)
     requires a <= b+1
     ensures  forall f:int->int :: sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
   { 
     forall f:int->int
       ensures sum(a, b+1, f) == sum(a, b, f) + f(b+1) 
     {
-      lem_sum_DropLast(a, b, f);
+      lem_DropLast(a, b, f);
     }
   }
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}c = c*(b - a + 1)
-  lemma lem_sum_Const(a:int, b:int, c:int)
+  lemma lem_Const(a:int, b:int, c:int)
     requires a <= b+1
     ensures  sum(a, b, k => c) == c*(b - a + 1)
   { 
     var fr := liftCi2r(k => c);
     var c' := c as real;
     assert c' == c as real;
-    R.lem_sum_Const(a, b, c');
+    R.lem_Const(a, b, c');
     assert R.sum(a, b, k => c') == (c*(b - a + 1)) as real;
-    lem_sum_LiftEq(a, b, k => c);
+    lem_LiftEq(a, b, k => c);
     assert R.sum(a, b, fr) == sum(a, b, k => c) as real;
     assert R.sum(a, b, fr) == R.sum(a, b, k => c')
     by { assert forall k:int :: a<=k<=b ==> c as real == c';
-         R.lem_sum_Leibniz(a, b, fr, k => c'); } 
+         R.lem_Leibniz(a, b, fr, k => c'); } 
   } 
 
-  lemma lem_sum_constAll(a:int, b:int)
+  lemma lem_ConstAuto(a:int, b:int)
     requires a <= b+1
     ensures forall c:int :: sum(a, b, k => c) == (c*(b - a + 1))
   { 
     forall c:int
       ensures sum(a, b, k => c) == (c*(b - a + 1))
     {
-      lem_sum_Const(a, b, c);
+      lem_Const(a, b, c);
     }
   } 
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}k = (b*(b+1) + a*(1-a))/2 
-  lemma lem_sum_Interval(a:int, b:int)
+  lemma lem_Interval(a:int, b:int)
     requires a <= b+1 
     decreases b - a
     ensures sum(a, b, k => k) == (b*(b+1) + a*(1-a))/2
@@ -100,7 +102,7 @@ module SumInt {
           sum(a, b, k => k);
         == { reveal sum(); }
           a + sum(a+1, b, k => k);
-        == { lem_sum_Interval(a+1, b); }  // by IH
+        == { lem_Interval(a+1, b); }  // by IH
           a + (b*(b+1) + (a+1)*(1-(a+1)))/2;
         == (b*(b+1) + a*(1-a))/2;            
       }
@@ -109,71 +111,71 @@ module SumInt {
 
   // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) == g(k)) 
   //          ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{b}g
-  lemma lem_sum_Leibniz(a:int, b:int, f:int->int, g:int->int)
+  lemma lem_Leibniz(a:int, b:int, f:int->int, g:int->int)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) == g(k)
     ensures  sum(a, b, f) == sum(a, b, g)
   {
     var fr := liftCi2r(f);
     var gr := liftCi2r(g);
-    R.lem_sum_Leibniz(a, b, fr, gr);
+    R.lem_Leibniz(a, b, fr, gr);
     assert R.sum(a, b, fr) == R.sum(a, b, gr);
-    lem_sum_LiftEq(a, b, f);
-    lem_sum_LiftEq(a, b, g);
+    lem_LiftEq(a, b, f);
+    lem_LiftEq(a, b, g);
   }
 
   // a <= b+1 ∧  (∀ k : a<=k<=b : f(k) <= g(k)) 
   //          ⟹ Σ_{k=a}^{b}f <= Σ_{k=a}^{b}g
-  lemma lem_sum_MonoIncr(a:int, b:int, f:int->int, g:int->int)
+  lemma lem_MonoIncr(a:int, b:int, f:int->int, g:int->int)
     requires a <= b+1
     requires forall k:int :: a<=k<=b ==> f(k) <= g(k)
     ensures  sum(a, b, f) <= sum(a, b, g)
   {
     var fr := liftCi2r(f);
     var gr := liftCi2r(g);
-    R.lem_sum_MonoIncr(a, b, fr, gr);
+    R.lem_MonoIncr(a, b, fr, gr);
     assert R.sum(a, b, fr) <= R.sum(a, b, gr);
-    lem_sum_LiftEq(a, b, f);
-    lem_sum_LiftEq(a, b, g);
+    lem_LiftEq(a, b, f);
+    lem_LiftEq(a, b, g);
   }
 
   // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j}f + Σ_{k=j+1}^{b}f
-  lemma lem_sum_Split(a:int, b:int, j:int, f:int->int)
+  lemma lem_Split(a:int, b:int, j:int, f:int->int)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j, f) + sum(j+1, b, f)
   {
     var fr := liftCi2r(f);
-    R.lem_sum_Split(a, b, j, fr);
+    R.lem_Split(a, b, j, fr);
     assert R.sum(a, b, fr) == R.sum(a, j, fr) + R.sum(j+1, b, fr);
-    lem_sum_LiftEq(a, b, f);  
-    lem_sum_LiftEq(a, j, f);   
-    lem_sum_LiftEq(j+1, b, f);   
+    lem_LiftEq(a, b, f);  
+    lem_LiftEq(a, j, f);   
+    lem_LiftEq(j+1, b, f);   
   }
 
   // a <= j <= b ⟹ Σ_{k=a}^{b}f = Σ_{k=a}^{j-1}f + Σ_{k=j}^{b}f
-  lemma lem_sum_split2(a:int, b:int, j:int, f:int->int)
+  lemma lem_Split2(a:int, b:int, j:int, f:int->int)
     requires a <= j <= b
     ensures sum(a, b, f) == sum(a, j-1, f) + sum(j, b, f)
   {
     var fr := liftCi2r(f);
-    R.lem_sum_Split2(a, b, j, fr);
+    R.lem_Split2(a, b, j, fr);
     assert R.sum(a, b, fr) == R.sum(a, j-1, fr) + R.sum(j, b, fr);
-    lem_sum_LiftEq(a, b, f);  
-    lem_sum_LiftEq(a, j-1, f);   
-    lem_sum_LiftEq(j, b, f);     
+    lem_LiftEq(a, b, f);  
+    lem_LiftEq(a, j-1, f);   
+    lem_LiftEq(j, b, f);     
   }
 
   // Following sum lemmas are only stated for integer sum
 
   // Σ_{k=1}^{n}k = (n*(n+1))/2 
-  lemma lem_sum_Triangle(n:nat)
+  lemma lem_Triangle(n:nat)
     ensures sum(1, n, k => k) == (n*(n+1))/2
   {
-    lem_sum_Interval(1, n);
+    lem_Interval(1, n);
   }
 
   // a <= b+1 ⟹ Σ_{k=a}^{b}(b-k+a) = Σ_{k=a}^{b}k
-  lemma {:axiom} lem_sum_RevIndex(a:int, b:int)
+  lemma {:axiom} lem_RevIndex(a:int, b:int)
     requires a <= b+1
     ensures  sum(a, b, k => b-k+a) == sum(a, b, k => k)
   

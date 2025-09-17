@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "./CostList.dfy"
 //include "./LemArrayList.dfy"
 //include "./CostArrayList.dfy"
@@ -74,7 +74,7 @@ module CostArrayList refines CostList {
       requires 0 <= i < Size() 
       // Complexity:
       //ensures var t := ret.1; t <= Tget(Size())
-      //ensures var t := ret.1; tIsBigO(Size(), t as R0, constGrowth())      
+      //ensures var t := ret.1; tIsBigOh(Size(), t as R0, constGrowth())      
     {
       //lem_Get_TgetBigOconst();
       (arr[i], ghost 1.0)
@@ -181,7 +181,7 @@ module CostArrayList refines CostList {
       requires Valid()
       // Post:
       ensures  Valid()     
-      ensures  tIsBigO(c.Size(), c.Count() as R0, linGrowth())   
+      ensures  tIsBigOh(c.Size(), c.Count() as R0, linGrowth())   
     {
       var N := Size(); 
       c := new OkCost(arr, N); 
@@ -261,7 +261,7 @@ module CostArrayList refines CostList {
   }
 
   lemma lem_OK_BigOlin<T>() returns (c:R0, n0:nat) 
-    ensures c > 0.0 && bigOfrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth())
+    ensures c > 0.0 && bigOhFrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth())
   {
     c, n0 := 2.0, 1;
     forall n:nat | 0 <= n0 <= n
@@ -274,7 +274,7 @@ module CostArrayList refines CostList {
         == c*linGrowth()(n);   
       }
     }
-    assert bigOfrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth());
+    assert bigOhFrom(c, n0, (n => OkCost<T>.Cost(n) as R0), linGrowth());
   }    
 
 }

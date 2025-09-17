@@ -21,7 +21,7 @@ module Recurrence {
   }            
     
   // Downward and Upward recurrences are identical for any i <= n
-  lemma lem_rec_dwEQupAti(c:real, g:real->real, Fdw:nat->real, Fup:(nat,nat)->real, n:nat, i:nat)
+  lemma lem_DwEQupAti(c:real, g:real->real, Fdw:nat->real, Fup:(nat,nat)->real, n:nat, i:nat)
     requires i <= n
     requires forall n :: Fdw(n) == recDwBody(c, Fdw, g, n) 
     requires forall n:nat, i:nat :: Fup(n,i) == recUpBody(c, Fup, g, n, i) 
@@ -36,7 +36,7 @@ module Recurrence {
         == { reveal recDwBody; }
            g(Fdw((n - i) - 1)); 
         == g(Fdw(n - (i + 1))); 
-        == { lem_rec_dwEQupAti(c, g, Fdw, Fup, n, i+1); }
+        == { lem_DwEQupAti(c, g, Fdw, Fup, n, i+1); }
            g(Fup(n, i + 1)); 
         == { reveal recUpBody; } 
            Fup(n, i);   
@@ -45,7 +45,7 @@ module Recurrence {
   }
 
   // Downward and Upward recurrences are identical
-  lemma lem_rec_dwEQup(c:real, g:real->real, Fdw:nat->real, Fup:(nat,nat)->real)
+  lemma lem_DwEQup(c:real, g:real->real, Fdw:nat->real, Fup:(nat,nat)->real)
     requires forall n:nat :: Fdw(n) == recDwBody(c, Fdw, g, n) 
     requires forall n:nat, i:nat :: Fup(n,i) == recUpBody(c, Fup, g, n, i) 
     ensures  forall n:nat :: Fdw(n) == Fup(n, 0)
@@ -53,7 +53,7 @@ module Recurrence {
     forall n:nat
       ensures Fdw(n) == Fup(n, 0)
     {
-      lem_rec_dwEQupAti(c, g, Fdw, Fup, n, 0);
+      lem_DwEQupAti(c, g, Fdw, Fup, n, 0);
     }
   }
 

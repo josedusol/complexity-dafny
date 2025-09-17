@@ -1,20 +1,22 @@
 include "../theory/math/ExpNat.dfy"
 include "../theory/math/ExpReal.dfy"
+include "../theory/math/Function.dfy"
 include "../theory/math/LemBoundsNat.dfy"
 include "../theory/math/LemFunction.dfy"
 include "../theory/math/Log2Nat.dfy"
 include "../theory/math/SumInt.dfy"
 include "../theory/math/TypeR0.dfy"
-include "../theory/Complexity.dfy"
-include "../theory/MasterLR.dfy"
+include "../theory/Complexity/Asymptotics.dfy"
+include "../theory/Complexity/MasterLR.dfy"
 
 import Nat = ExpNat
 import opened ExpReal
+import opened Function
 import opened LemBoundsNat
 import opened LemFunction
 import opened Log2Nat
 import opened TypeR0
-import opened Complexity
+import opened Asymptotics
 import opened MasterLR
 
 // Recurrence 1:
@@ -62,10 +64,10 @@ lemma test_masterMethodForT1lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert exp(n as R0, k) == 1.0 by { lem_exp_ZeroAuto(); }
+      assert exp(n as R0, k) == 1.0 by { lem_ZeroAuto(); }
       assert w(n) <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOfrom(1.0, 1, w, polyGrowth(k));
+    assert bigOhFrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T1', w, k);
 }   
@@ -117,10 +119,10 @@ lemma test_masterMethodForT2lifted()
     forall n:nat | 0 <= 1 <= n
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert polyGrowth(k)(n) == 1.0 by { lem_exp_ZeroAuto(); }
+      assert polyGrowth(k)(n) == 1.0 by { lem_ZeroAuto(); }
       assert 1.0 <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOfrom(1.0, 1, w, polyGrowth(k));
+    assert bigOhFrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T2', w, k); 
 } 
@@ -172,10 +174,10 @@ lemma test_masterMethodForT3lifted()
     forall n:nat | 0 <= 1 <= n 
       ensures w(n) <= 1.0*polyGrowth(k)(n)
     {
-      assert polyGrowth(k)(n) == 1.0 by { lem_exp_ZeroAuto(); }
+      assert polyGrowth(k)(n) == 1.0 by { lem_ZeroAuto(); }
       assert 1.0 <= 1.0*polyGrowth(k)(n); 
     }
-    assert bigOfrom(1.0, 1, w, polyGrowth(k));
+    assert bigOhFrom(1.0, 1, w, polyGrowth(k));
   } 
   thm_masterMethodLR(a, b, c, s, T3', w, k); 
 } 
@@ -229,10 +231,10 @@ lemma test_masterMethodForT6()
       ensures w(n) <= 3.0*exp(n as R0, k)
     {
       reveal Nat.exp();
-      assert exp(n as R0, 2.0) == (n*n) as R0 by { lem_exp_Pow2(n as R0); } 
+      assert exp(n as R0, 2.0) == (n*n) as R0 by { lem_Pow2(n as R0); } 
       assert w(n) <= 3.0*exp(n as R0, k);  
     }
-    assert bigOfrom(3.0, 1, w, n => exp(n as R0, k));
+    assert bigOhFrom(3.0, 1, w, n => exp(n as R0, k));
   } 
   thm_masterMethodLR(a, b, c, s, T4', w, k);
   lem_simplifyPowrTwo();
@@ -243,8 +245,8 @@ lemma lem_simplifyPowrTwo()
   ensures  liftToR0(T4) in O(n => ((n*n) as R0)*exp(2.0, n as R0 / 2.0))
 {  
   assert forall n:nat :: exp(n as R0, 2.0) == (n*n) as R0 
-    by { lem_exp_Pow2Auto(); }
-  lem_fun_Ext((n:nat) => exp(n as R0, 2.0)*exp(2.0, n as R0 / 2.0), 
+    by { lem_Pow2Auto(); }
+  lem_Exten((n:nat) => exp(n as R0, 2.0)*exp(2.0, n as R0 / 2.0), 
               (n:nat) => ((n*n) as R0)*exp(2.0, n as R0 / 2.0)) by {
     assert forall n:nat :: ((n:nat) => exp(n as R0, 2.0)*exp(2.0, n as R0 / 2.0))(n)
                         == ((n:nat) => ((n*n) as R0)*exp(2.0, n as R0 / 2.0))(n);

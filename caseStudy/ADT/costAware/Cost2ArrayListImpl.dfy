@@ -1,6 +1,6 @@
 include "../../../theory/math/ExpReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
-include "../../../theory/Complexity.dfy"
+include "../../../theory/Complexity/Asymptotics.dfy"
 include "./Cost2ArrayList.dfy"
 //include "./LemArrayList.dfy"
 //include "./CostArrayList.dfy"
@@ -59,7 +59,7 @@ module Cost2ArrayListImpl refines Cost2ArrayList {
       requires 0 <= i < Size() 
       // Complexity:
       //ensures var t := ret.1; t <= Tget(Size())
-      //ensures var t := ret.1; tIsBigO(Size(), t as R0, constGrowth())      
+      //ensures var t := ret.1; tIsBigOh(Size(), t as R0, constGrowth())      
     {
       //lem_Get_TgetBigOconst();
       (arr[i], ghost 1.0)
