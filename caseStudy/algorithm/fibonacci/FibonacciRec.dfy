@@ -10,12 +10,12 @@ include "../../../theory/Complexity/MasterLR.dfy"
 
 import opened ExpReal
 import opened LemBoundsReal
-import opened Root2Real
-import opened RootReal
+import R2R = Root2Real
+import RR  = RootReal
 import opened TypeR0
 import opened Asymptotics
-import opened LemBigOh
-import opened LemBigOm
+import LOh = LemBigOh
+import LOm = LemBigOm
 import opened MasterLR
 
 ghost function fib(n:nat): nat
@@ -172,12 +172,12 @@ lemma lem_TsandwichAsymp()
   assert T in O(n => exp(2.0, n as R0)) by {
     assert forall n :: n >= 0 ==> T(n) <= Tup(n) by { lem_TsandwichAuto(); }
     assert Tup in O(n => exp(2.0, n as R0)) by { lem_TupBigOexp2(); }
-    lem_LEQdownwardClosure(T, Tup, (n => exp(2.0, n as R0)), 0);  
+    LOh.lem_LEQdownwardClosure(T, Tup, (n => exp(2.0, n as R0)), 0);  
   }
   assert T in Om(n => exp(2.0, (n as R0)/2.0)) by {
     assert forall n :: n >= 0 ==> Tlo(n) <= T(n) by { lem_TsandwichAuto(); }
     assert Tlo in Om(n => exp(2.0, (n as R0)/2.0)) by { lem_TloBigOmSqrtExp2(); }
-    lem_LEQupwardClosure(T, Tlo, n => exp(2.0, (n as R0)/2.0), 0);  
+    LOm.lem_LEQupwardClosure(T, Tlo, n => exp(2.0, (n as R0)/2.0), 0);  
   }
 }
 
@@ -270,8 +270,8 @@ lemma lem_TloClosedBound(n:nat, c:R0, n0:nat)
         <==> { lem_One(2.0); }
              c*2.0*exp(2.0, 1.0/2.0) <= 2.0;
         <==> exp(2.0, 1.0/2.0) <= 2.0;           
-        <==> { reveal sqrt(), root(); }
-             sqrt(2.0) <= 2.0;
+        <==> { reveal R2R.sqrt(), RR.root(); }
+             R2R.sqrt(2.0) <= 2.0;
         <==> { lem_1LqSqrt2Lq2(); }
              true;     
       }      

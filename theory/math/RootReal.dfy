@@ -19,25 +19,25 @@ module RootReal {
 
   // Non-negativity
   // x >= 0 ∧ k > 0 ⟹ ᵏ√x >= 0
-  lemma lem_root_NonNegative(x:real, k:real)
+  lemma lem_NonNegative(x:real, k:real)
     requires x >= 0.0 && k > 0.0 
     ensures root(x, k) >= 0.0
   { 
     reveal root();  
   }
 
-  lemma lem_root_NonNegativeAuto()
+  lemma lem_NonNegativeAuto()
     ensures forall x, k :: x >= 0.0 && k > 0.0 ==> root(x, k) >= 0.0
   { 
      forall x:real, k:real | x >= 0.0 && k > 0.0
       ensures root(x, k) >= 0.0
     {
-      lem_root_NonNegative(x, k);
+      lem_NonNegative(x, k);
     }
   }
 
   // k > 0 ⟹  ᵏ√0 = 0
-  lemma lem_root_Zero(k:real)
+  lemma lem_Zero(k:real)
     requires k > 0.0
     ensures  root(0.0, k) == 0.0 
   {
@@ -47,7 +47,7 @@ module RootReal {
 
   // Identity for 1st root
   // ¹√x = x
-  lemma lem_root_Identity(x:real)
+  lemma lem_Identity(x:real)
     requires x >= 0.0
     ensures root(x, 1.0) == x
   {
@@ -60,7 +60,7 @@ module RootReal {
   ******************************************************************************/
 
   // ᵏ√(x^k) = x 
-  lemma lem_rootPow_Inverse(x:real, k:real)
+  lemma lem_RootPowInverse(x:real, k:real)
     requires x > 0.0 && k > 0.0
     ensures  root(Exp.exp(x, k), k) == x 
   {
@@ -79,7 +79,7 @@ module RootReal {
   }
 
   // (ᵏ√x)^k = x 
-  lemma lem_PowRoot_Inverse(x:real, k:real)
+  lemma lem_PowRootInverse(x:real, k:real)
     requires x > 0.0 && k > 0.0
     ensures  Exp.exp(root(x, k), k) == x
   {
@@ -103,7 +103,7 @@ module RootReal {
 
   // ᵏ√x is strictly increasing in the radicand x ∈ [0,∞)
   // k > 0 ∧ x,y >= 0 ∧ x < y ⟹ ᵏ√x < ᵏ√y
-  lemma lem_root_RadStrictIncr(x:real, y:real, k:real)
+  lemma lem_RadStrictIncr(x:real, y:real, k:real)
     requires k > 0.0 && x >= 0.0 && y >= 0.0
     ensures x < y ==> root(x, k) < root(y, k)
   {
@@ -119,7 +119,7 @@ module RootReal {
 
   // ᵏ√x is strictly increasing in the index
   // 0 < x < 1 ∧ k,h > 0 ∧ k < h ⟹ ᵏ√x < ʰ√x
-  lemma lem_root_IndexStrictIncr(x:real, k:real, h:real)
+  lemma lem_IndexStrictIncr(x:real, k:real, h:real)
     requires 0.0 < x < 1.0 && k > 0.0 && h > 0.0
     ensures k < h ==> root(x, k) < root(x, h)
   {
@@ -136,7 +136,7 @@ module RootReal {
 
   // ᵏ√x is strictly decreasing in the index when x > 1 
   // x > 1 ∧ k,h > 0 ∧ k < h ⟹ ᵏ√x > ʰ√x
-  lemma lem_root_IndexStrictDecr(x:real, k:real, h:real)
+  lemma lem_IndexStrictDecr(x:real, k:real, h:real)
     requires x > 1.0 && k > 0.0 && h > 0.0 
     ensures k < h ==> root(x, k) > root(x, h)
   {
@@ -145,16 +145,16 @@ module RootReal {
     assert 1.0/h < 1.0/k ==> Exp.exp(x,1.0/h) < Exp.exp(x,1.0/k);
   }
 
-  // A weak version of lem_root_IndexStrictDecr but holds for x=0 and x=1
+  // A weak version of lem_IndexStrictDecr but holds for x=0 and x=1
   // (x = 0 ∨ x >= 1) ∧ k,h > 0 ∧ k <= h ⟹ ᵏ√x >= ʰ√x
-  lemma lem_root_IndexMonoDecr(x:real, k:real, h:real)
+  lemma lem_IndexMonoDecr(x:real, k:real, h:real)
     requires x == 0.0 || x >= 1.0 
     requires k > 0.0 && h > 0.0
     ensures  k <= h ==> root(x, k) >= root(x, h)
   {
     if x == 0.0 {
-      lem_root_Zero(k);
-      lem_root_Zero(h);
+      lem_Zero(k);
+      lem_Zero(h);
     } else if x >= 1.0 {
       reveal root();
       Exp.lem_MonoIncr(x, 1.0 / h, 1.0 / k);

@@ -8,33 +8,33 @@ include "./Root2Real.dfy"
 
 module LemBoundsReal {
   
-  import opened ExpReal
-  import opened Root2Real
-  import opened RootReal
+  import Exp = ExpReal
+  import R2R = Root2Real
+  import RR  = RootReal
 
   // 1 < sqrt(2) < 2
   lemma lem_1LqSqrt2Lq2()
-    ensures 1.0 < sqrt(2.0) < 2.0
+    ensures 1.0 < R2R.sqrt(2.0) < 2.0
   { 
-    assert sqrt(2.0) < 2.0 by {
+    assert R2R.sqrt(2.0) < 2.0 by {
       calc { 
-             sqrt(2.0) < 2.0;
-        <==> { lem_BaseStrictIncrIFF(2.0, sqrt(2.0), 2.0); } 
-             exp(sqrt(2.0), 2.0) < exp(2.0, 2.0);
-        <==> { reveal exp2(); lem_Exp2FirstValues(); }
-             exp(sqrt(2.0), 2.0) < 4.0;
-        <==> { reveal sqrt(); lem_PowRoot_Inverse(2.0, 2.0); }
+             R2R.sqrt(2.0) < 2.0;
+        <==> { Exp.lem_BaseStrictIncrIFF(2.0, R2R.sqrt(2.0), 2.0); } 
+             Exp.exp(R2R.sqrt(2.0), 2.0) < Exp.exp(2.0, 2.0);
+        <==> { reveal Exp.exp2(); Exp.lem_Exp2FirstValues(); }
+             Exp.exp(R2R.sqrt(2.0), 2.0) < 4.0;
+        <==> { reveal R2R.sqrt(); RR.lem_PowRootInverse(2.0, 2.0); }
              2.0 < 4.0;
       }
     }
-    assert 1.0 < sqrt(2.0) by {
+    assert 1.0 < R2R.sqrt(2.0) by {
       calc { 
-             1.0 < sqrt(2.0);
-        <==> { lem_BaseStrictIncrIFF(2.0, 1.0, sqrt(2.0)); } 
-             exp(1.0, 2.0) < exp(sqrt(2.0), 2.0); 
-        <==> { lem_BaseOne(2.0); }
-             1.0 < exp(sqrt(2.0), 2.0);
-        <==> { reveal sqrt(); lem_PowRoot_Inverse(2.0, 2.0); }
+             1.0 < R2R.sqrt(2.0);
+        <==> { Exp.lem_BaseStrictIncrIFF(2.0, 1.0, R2R.sqrt(2.0)); } 
+             Exp.exp(1.0, 2.0) < Exp.exp(R2R.sqrt(2.0), 2.0); 
+        <==> { Exp.lem_BaseOne(2.0); }
+             1.0 < Exp.exp(R2R.sqrt(2.0), 2.0);
+        <==> { reveal R2R.sqrt(); RR.lem_PowRootInverse(2.0, 2.0); }
              1.0 < 2.0;
       }
     }

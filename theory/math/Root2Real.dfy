@@ -16,7 +16,7 @@ module Root2Real {
   // √x = ²√x
   opaque ghost function sqrt(x:R0) : R0
   { 
-    RR.lem_root_NonNegative(x, 2.0);
+    RR.lem_NonNegative(x, 2.0);
     RR.root(x, 2.0)
   }  
 
@@ -26,7 +26,7 @@ module Root2Real {
     ensures sqrt(x) >= 0.0
   { 
     reveal sqrt();
-    RR.lem_root_NonNegative(x, 2.0);
+    RR.lem_NonNegative(x, 2.0);
   }
 
   // Monotonicity

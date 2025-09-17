@@ -165,7 +165,7 @@ module Asymptotics {
   ghost function rootGrowth(k:R0) : nat->R0
     requires k > 0.0
   {   
-    Root.lem_root_NonNegativeAuto();
+    Root.lem_NonNegativeAuto();
     n => Root.root(n as R0, k)
   }
 
