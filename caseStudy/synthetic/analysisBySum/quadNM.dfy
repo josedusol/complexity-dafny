@@ -1,6 +1,6 @@
 include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
-include "../../../theory/math/SumInt.dfy"
+include "../../../theory/math/intervalOp/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 
@@ -24,7 +24,7 @@ method quadNM(x:Input, y:Input) returns (ghost t:nat)
   ensures x.size() == y.size() ==> tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N, M := x.size(), y.size(); 
-  t := 0; reveal sum();
+  t := 0; reveal ISN.bigOp();
 
   var i, j := 0, 0;
   while i != N
@@ -39,11 +39,11 @@ method quadNM(x:Input, y:Input) returns (ghost t:nat)
       decreases M - j
     {
       // Op. interesante
-      lem_DropLastAuto(1, j); 
+      ISN.lem_SplitLastAuto(1, j+1);
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_DropLastAuto(1, i);
+    ISN.lem_SplitLastAuto(1, i+1);
     i := i+1 ;
     t := t+t' ;
   }

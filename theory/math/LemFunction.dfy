@@ -1,6 +1,6 @@
 include "./Function.dfy"
-include "./Order.dfy"
-include "./Order2.dfy"
+include "./order/OrderTrait.dfy"
+//include "./order/Order2.dfy"
 include "./TypeR0.dfy"
 
 /******************************************************************************
@@ -10,7 +10,7 @@ include "./TypeR0.dfy"
 module LemFunction {
 
   import opened Function
-  import opened Order
+  import opened OrderTrait
   //import Order2
   import opened TypeR0
 

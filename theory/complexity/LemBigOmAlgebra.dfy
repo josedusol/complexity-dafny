@@ -12,7 +12,7 @@ module LemBigOhAlgebra {
 
   import opened Function 
   import opened LemFunction
-  import opened TypeR0 
+  import opened TypeR0
   import opened Asymptotics
   import LemOm = LemBigOm
 

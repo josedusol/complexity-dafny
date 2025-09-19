@@ -1,5 +1,5 @@
 include "../../../theory/math/ExpReal.dfy"
-include "../../../theory/math/SumReal.dfy"
+include "../../../theory/math/intervalOp/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 include "./linearSearch.dfy"
@@ -52,7 +52,7 @@ ghost method expectationLoop<A>(N:nat) returns (tE:real)
   ensures  tIsBigTh(N, tE, linGrowth())
 {
   tE := 0.0; 
-  var p := 0; reveal sum();  
+  var p := 0; reveal ISR.bigOp();  
   while p < N
     invariant 0 <= p <= N
     invariant tE == sum(0, p-1, i => (i+1) as real * (1.0 / N as real))
@@ -65,7 +65,7 @@ ghost method expectationLoop<A>(N:nat) returns (tE:real)
     assert t == T(s,x,p);
     
     // Add weighted contribution to expectation
-    lem_DropLastAuto(0, p-1);
+    ISR.lem_SplitLastAuto(0, p);
     tE := tE + t as real * probability(s,x,p);
     p  := p + 1;
   }
@@ -108,15 +108,15 @@ lemma lem_solveSum(N:nat)
        sum(0, N-1, i => (i+1) as real * c);
     == { assert forall k:int :: 0<=k<=N-1 ==>   
            (i => (i+1) as real * c)(k) == (l => c*(i => (i+1) as real)(l))(k);
-         lem_Leibniz(0, N-1, i => (i+1) as real * c, 
+         ISR.lem_Leibniz(0, N-1, i => (i+1) as real * c, 
                                  l => c*(i => (i+1) as real)(l)); }
        sum(0, N-1, l => c*(i => (i+1) as real)(l));
     == { lem_LinearityConst(0, N-1, c, i => (i+1) as real); }
        c * sum(0, N-1, i => (i+1) as real);
-    == { lem_ShiftIndex(0, N-1, 1, i => (i+1) as real); }
+    == { ISR.lem_ShiftIndex(0, N-1, 1, i => (i+1) as real); }
        c * sum(1, N, i => (i => (i+1) as real)(i-1));
     == { assert forall k:int :: 1<=k<=N ==> (i => ((i-1)+1) as real)(k) == (i => i as real)(k);
-         lem_Leibniz(1, N, i => (i => (i+1) as real)(i-1), i => i as real); }
+         ISR.lem_Leibniz(1, N, i => (i => (i+1) as real)(i-1), i => i as real); }
        c * sum(1, N, i => i as real);
     == { lem_Interval(1, N); }
        c * ((N*(N+1) + 1*(1-1)) as real / 2.0);

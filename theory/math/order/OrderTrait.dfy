@@ -2,7 +2,7 @@
   Order stuff
 ******************************************************************************/
 
-module Order {
+module OrderTrait {
 
   // Any type T implementing Ord<T> must provide a predicate Lt(_,_)
   // and prove it behaves as _<_
@@ -28,7 +28,7 @@ module Order {
       requires Lt(x, y)
       ensures  !Lt(y, x)
 
-    // Relate < to ==
+    // Relate < to =
  
     lemma {:axiom} lem_Lt_NotEq(x:T, y:T)
       requires Lt(x, y)

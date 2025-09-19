@@ -1,6 +1,6 @@
 include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
-include "../../../theory/math/SumInt.dfy"
+include "../../../theory/math/intervalOp/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 
@@ -24,7 +24,7 @@ method quadTriangle(x:Input) returns (ghost t:nat)
   ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
-  t := 0; reveal sum();
+  t := 0; reveal ISN.bigOp();
 
   var i, j := 0, 0;
   while i != N
@@ -39,11 +39,11 @@ method quadTriangle(x:Input) returns (ghost t:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_DropLastAuto(i+1,j);
+      ISN.lem_SplitLastAuto(i+1, j+1);
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_DropLastAuto(1,i);
+    ISN.lem_SplitLastAuto(1, i+1);
     i := i+1 ;
     t := t+t' ;
   }
@@ -58,7 +58,7 @@ method quadTriangleFor(x:Input) returns (ghost t:nat)
   ensures tIsBigOh(x.size(), t as R0, quadGrowth())
 {
   var N := x.size();
-  t := 0; reveal sum();
+  t := 0; reveal ISN.bigOp();
 
   for i := 0 to N
     invariant t == sum(1, i, k => sum(k, N, k' => 1))
@@ -68,10 +68,10 @@ method quadTriangleFor(x:Input) returns (ghost t:nat)
       invariant t' == sum(i+1, j, k' => 1)
     {
       // Op. interesante
-      lem_DropLastAuto(i+1,j);
+      ISN.lem_SplitLastAuto(i+1, j+1);
       t' := t'+1;
     }
-    lem_DropLastAuto(1,i);
+    ISN.lem_SplitLastAuto(1, i+1);
     t := t+t';
   }
   
@@ -106,8 +106,8 @@ lemma lem_solveSum(i:nat, N:nat, c:nat)
        sum(1, N, k => sum(k, N, k' => 1));
     == { lem_solveInnerSum(1, N, 1); }
        sum(1, N, k => 1*(N-k+1));
-    == { lem_Leibniz(1, N, k => 1*(N-k+1),
-                              k => N-k+1); }
+    == { ISN.lem_Leibniz(1, N, k => 1*(N-k+1),
+                               k => N-k+1); }
        sum(1, N, k => (N-k+1));
     == { lem_RevIndex(1, N); }
        sum(1, N, k => k); 
@@ -126,9 +126,9 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
     // BC: i > N
     calc {
         sum(N+1, N, k => sum(k, N, k' => c));
-      == { assert N+1 > N; reveal sum(); } 
+      == { assert N+1 > N; reveal ISN.bigOp(); } 
         0;
-      == { assert N+1 > N; reveal sum(); } 
+      == { assert N+1 > N; reveal ISN.bigOp(); } 
         sum(N+1, N, k => c*(N-k+1)); 
     }
   } else {  
@@ -137,13 +137,13 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
     //    T: sum(i, N, k => sum(k, N, k' => c))   = sum(i, N, k => c*(N-k+1) )
     calc {  
          sum(i, N, k => sum(k, N, k' => c));
-      == { reveal sum(); }
+      == { reveal ISN.bigOp(); }
          sum(i, N, k => c) + sum(i+1, N, k => sum(k, N, k' => c));
       == { lem_solveInnerSum(i+1, N, c); }  // by IH
          sum(i, N, k => c) + sum(i+1, N, k => c*(N-k+1));
       == { lem_ConstAuto(i, N); } 
          c*(N-i+1) + sum(i+1, N, k => c*(N-k+1));      
-      == { reveal sum(); }      
+      == { reveal ISN.bigOp(); }      
          sum(i, N, k => c*(N-k+1));           
     }  
   } 
@@ -152,7 +152,7 @@ lemma lem_solveInnerSum(i:nat, N:nat, c:nat)
 //**************************************************************************//
 
 ghost method testSum() { 
-  reveal sum();
+  reveal ISN.bigOp();
   var N:nat := 0;
   var r := sum(1, N, k => if 1<=k<=N then (N-k+1) else 0);
   assert r == 0; 

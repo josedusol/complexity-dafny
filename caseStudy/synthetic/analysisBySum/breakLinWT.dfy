@@ -1,6 +1,6 @@
 include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
-include "../../../theory/math/SumInt.dfy"
+include "../../../theory/math/intervalOp/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 
@@ -24,7 +24,7 @@ method breakLinWT(x:Input, P:nat->bool) returns (ghost t:nat)
   ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
   var N := x.size();
-  t := 0; reveal sum(); 
+  t := 0; reveal ISN.bigOp(); 
   assume {:axiom} forall i :: 0 <= i < N ==> !P(i);  // worst case
   
   var i := 0; 
@@ -34,7 +34,7 @@ method breakLinWT(x:Input, P:nat->bool) returns (ghost t:nat)
     decreases N - i
   {
     if !P(i) {  // Op. interesante
-      lem_DropLastAuto(1, i);
+      ISN.lem_SplitLastAuto(1, i+1);
       i := i+1 ; 
     } else {
       i := N;  // break;

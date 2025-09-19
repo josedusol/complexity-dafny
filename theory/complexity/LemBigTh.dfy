@@ -82,12 +82,9 @@ module LemBigTh {
   lemma lem_SumIdemp(f:nat->R0)  
     ensures (n => f(n)+f(n)) in Th(f) 
   {
-    assert f in Th(f) 
-      by { lem_Refl(f); }
-    assert (n => f(n)+f(n)) == (n => 2.0*f(n))
-      by { lem_Exten(n => f(n)+f(n), n => 2.0*f(n)); }
-    assert (n => 2.0*f(n)) in Th(f) 
-      by { lem_Scale(f, f, 2.0); }
+    LemOh.lem_SumIdemp(f); 
+    LemOm.lem_SumIdemp(f); 
+    lem_Def2ImpDef(n => f(n)+f(n), f);
   }  
 
   // Power of two
@@ -95,11 +92,9 @@ module LemBigTh {
   lemma lem_Pow2(f:nat->R0)  
     ensures (n => f(n)*f(n)) in Th(n => ExpR.exp(f(n), 2.0)) 
   {
-    assert (n => f(n)*f(n)) in Th(n => f(n)*f(n)) 
-      by { lem_Refl(n => f(n)*f(n)); }
-    assert (n => f(n)*f(n)) == (n => ExpR.exp(f(n), 2.0))
-      by { ExpR.lem_Pow2Auto();
-           lem_Exten(n => f(n)*f(n), n => ExpR.exp(f(n), 2.0)); }
+    LemOh.lem_Pow2(f); 
+    LemOm.lem_Pow2(f); 
+    lem_Def2ImpDef(n => f(n)*f(n), n => ExpR.exp(f(n), 2.0));
   } 
 
   /******************************************************************************

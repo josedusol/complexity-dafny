@@ -8,8 +8,10 @@ include "../math/Log2Nat.dfy"
 include "../math/Log2Real.dfy"
 include "../math/LogReal.dfy"
 include "../math/MaxMin.dfy"
+include "../math/intervalOp/SumReal.dfy"
 include "../math/TypeR0.dfy"
 include "./Asymptotics.dfy"
+include "./Utils.dfy"
 
 /******************************************************************************
   Lemmas of Big Oh
@@ -28,7 +30,9 @@ module LemBigOh {
   import LogR  = LogReal
   import opened MaxMin
   import opened TypeR0
+  import SumR = SumReal
   import opened Asymptotics
+  import Util = Utils
 
   /******************************************************************************
     Order properties on functions
@@ -101,6 +105,17 @@ module LemBigOh {
     assert (n => 2.0*f(n)) in O(f) 
       by { lem_Scale(f, f, 2.0); }
   }  
+
+  // f + f + ... + f ∈ O(f)
+  lemma lem_FiniteSumIdemp(f:nat->R0, m:nat) 
+    requires m > 0
+    ensures Util.replSum(m, f) in O(f) 
+  { 
+    assert Util.replSum(m, f) == (n => m as R0 * f(n))
+      by { Util.lem_ReplSumSimpl(m, f); }
+    lem_Refl(f);
+    lem_Scale(f, f, m as R0);  
+  }   
 
   // Power of two
   // f*f ∈ O(f^2)

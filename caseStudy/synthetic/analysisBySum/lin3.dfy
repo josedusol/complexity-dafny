@@ -1,6 +1,6 @@
 include "../../../theory/math/Function.dfy"
 include "../../../theory/math/LemFunction.dfy"
-include "../../../theory/math/SumInt.dfy"
+include "../../../theory/math/intervalOp/SumInt.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 
@@ -23,7 +23,7 @@ method lin(x:Input) returns (ghost t:nat)
   ensures t == f(x.size())
   ensures tIsBigOh(x.size(), t as R0, linGrowth())
 {
-  var N := x.size(); reveal sum(); 
+  var N := x.size(); reveal ISN.bigOp(); 
   t := 0;
   
   var i, j := 0, 0;
@@ -39,11 +39,11 @@ method lin(x:Input) returns (ghost t:nat)
       decreases N - j
     {
       // Op. interesante
-      lem_DropLastAuto(1, j); 
+      ISN.lem_SplitLastAuto(1, j+1); 
       j := j+1 ;
       t' := t'+1 ;
     }
-    lem_DropLastAuto(1, i);
+    ISN.lem_SplitLastAuto(1, i+1);
     i := i+1 ;
     t := t+t' ;
   }

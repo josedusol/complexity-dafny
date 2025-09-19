@@ -18,7 +18,7 @@ module LemBigOhAlgebra {
 
   // Closure under scaling
   // a*O(f) ⊆ O(f)
-  lemma lem_Scale(f:nat->R0, a:R0) 
+  lemma lem_Scale(f:nat->R0, a:R0)
     requires a > 0.0
     ensures scaleSet(a, O(f)) <= O(f) 
   { 

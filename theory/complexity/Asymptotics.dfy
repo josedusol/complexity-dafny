@@ -20,7 +20,7 @@ module Asymptotics {
   import Log   = LogReal
   import Root2 = Root2Real
   import Root  = RootReal
-  import opened TypeR0 
+  import opened TypeR0
 
   /******************************************************************************
     Big Oh Notation - O

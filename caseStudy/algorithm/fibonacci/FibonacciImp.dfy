@@ -1,11 +1,9 @@
 include "../../../theory/math/ExpReal.dfy"
-include "../../../theory/math/SumReal.dfy"
 include "../../../theory/math/TypeR0.dfy"
 include "../../../theory/Complexity/Asymptotics.dfy"
 include "../../../theory/Complexity/MasterLR.dfy"
 
 import opened ExpReal
-import opened SumReal
 import opened TypeR0
 import opened Asymptotics
 import opened MasterLR

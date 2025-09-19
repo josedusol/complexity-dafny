@@ -1,5 +1,5 @@
-include "./Order.dfy"
-include "./Order2.dfy"
+include "./order/OrderTrait.dfy"
+//include "./order/Order2.dfy"
 include "./TypeR0.dfy"
 
 /******************************************************************************

@@ -11,5 +11,13 @@ module Logic {
     && (forall y, z :: P(y) && P(z) ==> y == z)
   }
 
+  ghost predicate xor(a:bool, b:bool) {
+    (a && !b) || (!a && b)
+  }
+
+  ghost predicate xor3(a:bool, b:bool, c:bool) {
+    (a && !b && !c) || (!a && b && !c) || (!a && !b && c)
+  }  
+
 }
 

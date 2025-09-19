@@ -5,7 +5,7 @@ include "../math/LemBoundsNat.dfy"
 include "../math/LemFunction.dfy"
 include "../math/LogReal.dfy"
 include "../math/MaxMin.dfy"
-include "../math/SumReal.dfy"
+include "../math/intervalOp/SumReal.dfy"
 include "../math/TypeR0.dfy"
 include "./Asymptotics.dfy"
 include "./LemBigOh.dfy"
@@ -14,7 +14,7 @@ include "./LemBigOh.dfy"
   Master Theorem for linear recurrences
 ******************************************************************************/
 
-module MasterLR {  
+module MasterLR {
 
   import opened ExpReal 
   import opened FloorCeil
@@ -306,7 +306,7 @@ module MasterLR {
            T(n);
         == { reveal TbodyLR(); }
            c;
-        == { lem_mmLR_mValue(b, s, n); reveal S, sum();  }
+        == { lem_mmLR_mValue(b, s, n); reveal S, ISR.bigOp();  }
            c + S(a, b, s, w, n);
         == { lem_mmLR_mValue(b, s, n); lem_Zero(aR); }
            exp(aR, mv as real)*c + S(a, b, s, w, n);
@@ -369,7 +369,7 @@ module MasterLR {
            exp(aR, mv as real)*c + sum(1, mv-1, i => Sa(a,i)*Sw(s,w,n,i)) + w(n); 
         == { reveal wRewr; }
            exp(aR, mv as real)*c + sum(1, mv-1, i => Sa(a,i)*Sw(s,w,n,i)) + Sa(a,0)*Sw(s,w,n,0); 
-        == { reveal sum(); }
+        == { ISR.lem_SplitFirst(0, mv-1, i => Sa(a,i)*Sw(s,w,n,i)); }
            exp(aR, mv as real)*c + sum(0, mv-1, i => Sa(a,i)*Sw(s,w,n,i));           
         == { reveal TsumForm(), S(); }
            TsumForm(a, b, c, s, w, n);                                                                   
@@ -387,12 +387,12 @@ module MasterLR {
     var mv := m(b,s,n); assert mv >= 1;
     calc {
          sum(0, mv-2, i => Sa(a,i+1)*Sw(s,w,n,i+1));
-      == { lem_ShiftIndex(0, mv-2, 1, i => Sa(a,i+1)*Sw(s,w,n,i+1)); } 
+      == { ISR.lem_ShiftIndex(0, mv-2, 1, i => Sa(a,i+1)*Sw(s,w,n,i+1)); } 
          sum(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1)); 
       == { reveal Sw();
            assert forall l :: 1 <= l <= mv-1 ==> 
              (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1) == Sa(a,l)*Sw(s,w,n,l);
-           lem_Leibniz(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1), 
+           ISR.lem_Leibniz(1, mv-1, l => (i => Sa(a,i+1)*Sw(s,w,n,i+1))(l-1), 
                                     l => Sa(a,l)*Sw(s,w,n,l)); } 
          sum(1, mv-1, i => Sa(a,i)*Sw(s,w,n,i));            
     }      
@@ -414,13 +414,13 @@ module MasterLR {
         == { reveal Sa(); assert aR == a as real;
              assert forall l :: 0 <= l <= mv-2 ==> 
                aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l) == aR*exp(a as real,l as real)*Sw(s,w,n,l+1);
-             lem_Leibniz(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l), 
+             ISR.lem_Leibniz(0, mv-2, l => aR*(i => Sa(a,i)*Sw(s,w,n,i+1))(l), 
                                       l => aR*exp(a as real,l as real)*Sw(s,w,n,l+1)); } 
            sum(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1));  
         == { reveal Sa(); lem_DefAuto();
              assert forall l :: 0 <= l <= mv-2 ==> 
                aR*exp(aR,l as real)*Sw(s,w,n,l+1) == Sa(a,l+1)*Sw(s,w,n,l+1);
-             lem_Leibniz(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1), 
+             ISR.lem_Leibniz(0, mv-2, i => aR*exp(aR,i as real)*Sw(s,w,n,i+1), 
                                       i => Sa(a,i+1)*Sw(s,w,n,i+1)); }       
            sum(0, mv-2, i => Sa(a,i+1)*Sw(s,w,n,i+1));       
       }         
@@ -440,19 +440,19 @@ module MasterLR {
       == { reveal Sw();
            assert forall i :: 0 <= i <= mv-2 ==> 
              Sa(a,i)*Sw(s,w,n-s,i) == Sa(a,i)*liftD(w,0.0)((n-s)-i*s);
-           lem_Leibniz(0, mv-2, i => Sa(a,i)*Sw(s,w,n-s,i), 
+           ISR.lem_Leibniz(0, mv-2, i => Sa(a,i)*Sw(s,w,n-s,i), 
                                     i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s));  }
          sum(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s)); 
       == { assert forall i {:trigger Sa(a,i), liftD(w,0.0)((n-s)-i*s)} :: 
              0 <= i <= mv-2 ==>     Sa(a,i)*liftD(w,0.0)((n-s)-i*s) 
                                  == Sa(a,i)*liftD(w,0.0)(n-(i+1)*s);
-           lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s), 
+           ISR.lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-s)-i*s), 
                                     i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s));  }
          sum(0, mv-2, i => Sa(a,i)*liftD(w,0.0)((n-(i+1)*s)));  
       == { reveal Sw();
            assert forall i :: 0 <= i <= mv-2 ==> 
              Sa(a,i)*liftD(w,0.0)(n-(i+1)*s) == Sa(a,i)*Sw(s,w,n,i+1);
-           lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s), 
+           ISR.lem_Leibniz(0, mv-2, i => Sa(a,i)*liftD(w,0.0)(n-(i+1)*s), 
                                     i => Sa(a,i)*Sw(s,w,n,i+1));  }
          sum(0, mv-2, i => Sa(a,i)*Sw(s,w,n,i+1));      
     }  
@@ -536,7 +536,7 @@ module MasterLR {
       // // }
 
       assert 0 <= jv <= mv-1 by { reveal m, j, i0; }
-      lem_Split2(0, mv-1, jv, i => Sa(a,i)*Sw(s,w,n,i));
+      ISR.lem_Split2(0, mv-1, jv, i => Sa(a,i)*Sw(s,w,n,i));
     }
   }
 
