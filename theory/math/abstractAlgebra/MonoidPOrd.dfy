@@ -1,11 +1,11 @@
 include "../order/PartialOrd.dfy"
-include "./AbelianMonoid.dfy"
+include "./Monoid.dfy"
 
 /******************************************************************************
-  Abelian Monoid structure over a total ordered domain
+  Partially ordered monoid
 ******************************************************************************/
 
-abstract module AbelianMonoidPOrd refines AbelianMonoid {
+abstract module MonoidPOrd refines Monoid {
 
   import Ord : PartialOrd 
 
@@ -39,7 +39,7 @@ abstract module AbelianMonoidPOrd refines AbelianMonoid {
   ******************************************************************************/
 
   // Monoid operation is monotone on both arguments
-  // If x ≤ y then operation with the same z on both sides preserves order
+  // i.e. if x ≤ y then operation with the same z on both sides preserves order
   // x <= y ⟹ x ⊗ z <= y ⊗ z
   //         ∧ z ⊗ x <= z ⊗ y
   lemma {:axiom} lem_Leq_Mono(x:T, y:T, z:T)

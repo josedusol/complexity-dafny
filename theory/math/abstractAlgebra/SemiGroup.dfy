@@ -1,7 +1,7 @@
 include "./Magma.dfy"
 
 /******************************************************************************
-  Semi Group structure (T,⊗)
+  Semi Group structure (T,⊗) extends Magma
 ******************************************************************************/
 
 abstract module SemiGroup refines Magma {

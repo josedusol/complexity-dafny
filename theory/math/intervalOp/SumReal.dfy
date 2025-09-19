@@ -9,7 +9,7 @@ include "./IntervalSumReal.dfy"
 module SumReal {
 
   import opened Function  
-  import opened LemFunction 
+  import opened LemFunction
   import ISR = IntervalSumReal
 
   // Σ_{k=a}^{b}f(k) = ⊗_{k=a}^{b}f(k)

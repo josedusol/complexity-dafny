@@ -8,7 +8,7 @@ abstract module Magma {
   type T
 
   // Closed binary operation 
-  // ⊗ : TxT → T
+  // _⊗_ : TxT → T
   function op(x:T, y:T): T
 
 }

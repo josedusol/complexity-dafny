@@ -1,11 +1,11 @@
-include "../abstractAlgebra/AbelianMonoidPOrd.dfy"
+include "../abstractAlgebra/MonoidPOrd.dfy"
 
 /******************************************************************************
-  Abstract operation over a finite integer interval assuming codomain
-  is equipt with an abelian monoid and a partial order
+  Fold operator over a finite integer interval assuming codomain
+  is equipt with a partially ordered monoid
 ******************************************************************************/
 
-abstract module IntervalAbelMonPOrd refines AbelianMonoidPOrd {
+abstract module IntervalMonoidPOrd refines MonoidPOrd {
 
   // ⊗_{k=a}^{b}f(k)
   opaque ghost function bigOp(a:int, b:int, f:int-->T): T
@@ -68,7 +68,7 @@ abstract module IntervalAbelMonPOrd refines AbelianMonoidPOrd {
            op(f(b), bigOp(b+1, b, f));
         == { lem_bigOpDef(b+1, b, f); }
            op(f(b), id);
-        == { lem_CommutativeAuto();  }
+        == { lem_IdentityAuto();  }
            op(id, f(b)) ;
         == { lem_bigOpDef(b, b-1, f); }
            op(bigOp(b, b-1, f), f(b));       

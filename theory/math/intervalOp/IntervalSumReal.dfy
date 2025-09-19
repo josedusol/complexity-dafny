@@ -1,11 +1,11 @@
-include "./IntervalAbelMonPOrd.dfy"
+include "./IntervalMonoidPOrd.dfy"
 include "../order/OrdReal.dfy"
 
 /******************************************************************************
   Operation of (ℝ,+,0) on finite integer interval
 ******************************************************************************/
 
-module IntervalSumReal refines IntervalAbelMonPOrd {
+module IntervalSumReal refines IntervalMonoidPOrd {
 
   import Ord = OrdReal
 
@@ -17,12 +17,12 @@ module IntervalSumReal refines IntervalAbelMonPOrd {
     ensures op(x, op(y,z)) == op(op(x,y), z)
   { }
 
-  lemma lem_Identity(x:T) 
-    ensures op(x, id) == op(id, x) == x 
+  lemma lem_LeftIdentity(x:T) 
+    ensures op(id, x) == x 
   { }
- 
-  lemma lem_Commutative(x:T, y:T)
-    ensures op(x,y) == op(y,x)
-  { }
+
+  lemma lem_RightIdentity(x:T) 
+    ensures op(x, id) == x 
+  { }  
  
 }

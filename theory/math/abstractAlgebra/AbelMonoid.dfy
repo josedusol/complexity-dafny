@@ -1,10 +1,10 @@
 include "./Monoid.dfy"
 
 /******************************************************************************
-  Abelian Monoid structure (T,⊗,id)
+  Abelian Monoid structure (T,⊗,id) extends Monoid
 ******************************************************************************/
 
-abstract module AbelianMonoid refines Monoid {
+abstract module AbelMonoid refines Monoid {
 
   // x ⊗ y = y ⊗ x
   lemma {:axiom} lem_Commutative(x:T, y:T)
